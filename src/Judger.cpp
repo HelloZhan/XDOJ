@@ -29,7 +29,7 @@ bool Judger::Init(Json::Value &initjson)
     string code = initjson["code"].asString();
     m_runid = initjson["runid"].asString();
     m_problemid = initjson["problemid"].asString();
-    m_testnum = initjson["testnum"].asInt();
+    m_testnum = initjson["judgenum"].asInt();
     m_result = "pedding";
 
     // 创建中间文件夹
