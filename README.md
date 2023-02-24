@@ -5,8 +5,6 @@
 
 ## 技术选择
 
-## 环境
-
 ### C++第三方库
 1.jsoncpp
 2.cpp-httplib
