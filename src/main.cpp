@@ -11,11 +11,6 @@ using namespace std;
 ProblemSet problemset;
 Judger judger;
 
-void doGetHi(const httplib::Request &req, httplib::Response &res)
-{
-    string code = "#include <iostream>";
-    res.set_content(code, "text");
-}
 // 返回网页请求的问题描述
 void doGetProblem(const httplib::Request &req, httplib::Response &res)
 {
@@ -38,6 +33,7 @@ void doGetProblemSet(const httplib::Request &req, httplib::Response &res)
     printf("doGetProblemSet end!!!\n");
     res.set_content(resvalue.toStyledString(), "json");
 }
+// 提交代码
 void doPostCode(const httplib::Request &req, httplib::Response &res)
 {
     printf("req.body = %s\n", req.body.data());
@@ -63,9 +59,11 @@ int main()
     using namespace httplib;
     problemset.Init();
     Server server;
-    server.Get("/code", doGetHi);
+    // 获取单个题目
     server.Get("/problem", doGetProblem);
+    // 获取题库
     server.Get("/problemset", doGetProblemSet);
+    // 提交代码
     server.Post("/problecode", doPostCode);
     server.listen("0.0.0.0", 8081);
 
