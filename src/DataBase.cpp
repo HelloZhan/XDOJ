@@ -127,7 +127,7 @@ int MyDB::InsertProblem(string title, string description, int testnum)
 Json::Value MyDB::getAllProblemInfo()
 {
     printf("getAllProblemInfo!!\n");
-    string sql = "select Pid, Title,Description,TestNum,SubmitNum,AcceptNum from ProblemSet;";
+    string sql = "select Pid, Title,Description,JudgeNum,SubmitNum,AcceptNum from ProblemSet;";
 
     Json::Value resJson;
     if (mysql_query(mysql, sql.data()))
@@ -148,7 +148,7 @@ Json::Value MyDB::getAllProblemInfo()
             if (row <= 0)
                 break;
             Json::Value info;
-            info["Pid"] = row[0], info["Title"] = row[1], info["Description"] = row[2], info["TestNum"] = row[3], info["SubmitNum"] = row[4], info["AcceptNum"] = row[5];
+            info["Pid"] = row[0], info["Title"] = row[1], info["Description"] = row[2], info["JudgeNum"] = row[3], info["SubmitNum"] = row[4], info["AcceptNum"] = row[5];
             // cout << row[0] << ' ' << row[1] << ' ' << row[3] << ' ' << row[4] << ' ' << row[5] << endl;
             resJson["Array"].append(info);
         }

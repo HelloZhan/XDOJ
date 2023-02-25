@@ -2,7 +2,7 @@
 #include <iostream>
 #include <string>
 #include <fstream>
-#include "ProblemSet.hpp"
+#include "ProblemSet.h"
 #include <typeinfo>
 #include <map>
 #include "Judger.h"
@@ -25,7 +25,7 @@ void doGetProblem(const httplib::Request &req, httplib::Response &res)
     {
         id = req.get_param_value("id");
     }
-    string buf = problemset.getproblemdescription(id);
+    string buf = problemset.getProblemDescription(id);
     printf("doGetProblem end!!!\n");
     res.set_content(buf, "text");
 }
@@ -34,7 +34,7 @@ void doGetProblemSet(const httplib::Request &req, httplib::Response &res)
 {
     printf("doGetProblemSet start!!!\n");
     Json::Value resvalue;
-    resvalue = problemset.getproblemset();
+    resvalue = problemset.getProblemSet();
     printf("doGetProblemSet end!!!\n");
     res.set_content(resvalue.toStyledString(), "json");
 }
@@ -51,7 +51,7 @@ void doPostCode(const httplib::Request &req, httplib::Response &res)
     runjson["runid"] = "100";
     runjson["problemid"] = jsonvalue["id"];
     runjson["language"] = "c_cpp";
-    runjson["judgenum"] = problemset.getproblemtestnum(jsonvalue["id"].asString());
+    runjson["judgenum"] = problemset.getProblemJudgeNum(jsonvalue["id"].asString());
 
     Json::Value resjson = judger.Run(runjson);
 
@@ -61,7 +61,7 @@ void doPostCode(const httplib::Request &req, httplib::Response &res)
 int main()
 {
     using namespace httplib;
-    problemset.init();
+    problemset.Init();
     Server server;
     server.Get("/code", doGetHi);
     server.Get("/problem", doGetProblem);

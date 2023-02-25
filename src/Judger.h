@@ -7,6 +7,8 @@ class Judger
 {
 public:
     Judger();
+
+    // 接口：Json(runid,problemid,judgenum,code)
     Json::Value Run(Json::Value &runjson);
 
 private:
