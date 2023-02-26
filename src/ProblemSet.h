@@ -16,6 +16,7 @@ public:
     // 获取题库数据
     Json::Value getProblemSet();
 
+    // 获取题目的测试数量
     int getProblemJudgeNum(std::string id);
 
     ~ProblemSet();

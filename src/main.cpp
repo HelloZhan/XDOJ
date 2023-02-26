@@ -11,7 +11,7 @@ using namespace std;
 ProblemSet problemset;
 Judger judger;
 
-// 返回网页请求的问题描述
+// 返回网页请求的题目描述
 void doGetProblem(const httplib::Request &req, httplib::Response &res)
 {
     printf("doGetProblem start!!!\n");
@@ -24,6 +24,7 @@ void doGetProblem(const httplib::Request &req, httplib::Response &res)
     printf("doGetProblem end!!!\n");
     res.set_content(buf, "text");
 }
+
 // 返回题库
 void doGetProblemSet(const httplib::Request &req, httplib::Response &res)
 {
@@ -33,7 +34,7 @@ void doGetProblemSet(const httplib::Request &req, httplib::Response &res)
     printf("doGetProblemSet end!!!\n");
     res.set_content(resvalue.toStyledString(), "json");
 }
-// 提交代码
+// 前端提交代码进行判定并返回结果
 void doPostCode(const httplib::Request &req, httplib::Response &res)
 {
     printf("req.body = %s\n", req.body.data());
@@ -48,11 +49,10 @@ void doPostCode(const httplib::Request &req, httplib::Response &res)
     runjson["problemid"] = jsonvalue["id"];
     runjson["language"] = "c_cpp";
     runjson["judgenum"] = problemset.getProblemJudgeNum(jsonvalue["id"].asString());
-    runjson["timelimit"] = "2000";
-    runjson["memorylimit"] = "134217728";
+    runjson["timelimit"] = 2000;
+    runjson["memorylimit"] = 134217728;
 
     Json::Value resjson = judger.Run(runjson);
-
     res.set_content(resjson.toStyledString(), "json");
 }
 int main()
@@ -66,6 +66,7 @@ int main()
     server.Get("/problemset", doGetProblemSet);
     // 提交代码
     server.Post("/problecode", doPostCode);
+
     server.listen("0.0.0.0", 8081);
 
     return 0;

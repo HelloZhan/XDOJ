@@ -15,7 +15,7 @@ public:
     // 功能：将（题目，题目描述，测试数量）保存到数据库中
     int InsertProblem(std::string title, std::string description, int testnum);
 
-    // 功能：将所有数据拿出来
+    // 功能：取出题库数据
     Json::Value getAllProblemInfo();
 
 private:

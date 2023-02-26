@@ -9,6 +9,7 @@ extern "C"
 {
 #include "runner.h"
 }
+
 using namespace std;
 Judger::Judger()
 {
@@ -65,6 +66,7 @@ bool Judger::Init(Json::Value &initjson)
 }
 bool Judger::Compiler()
 {
+    // 进行g++编译
     m_command = "timeout 10 g++ ./" + m_runid + "/main.cpp -o ./" + m_runid + "/main.out -O2 -std=c++11 2>./" + m_runid + "/errorce.txt";
     if (system(m_command.data()) == -1)
     {
@@ -76,6 +78,7 @@ bool Judger::Compiler()
     // 编译失败
     if (access(m_command.data(), F_OK) == -1)
     {
+        // 返回编译失败原因 TODO：未返回完全所有信息
         string reason;
         ifstream infile;
         m_command = "./" + m_runid + "/errorce.txt";
@@ -109,6 +112,8 @@ bool Judger::RunProgram()
     conf.gid = 0;
     memset(conf.args, 0, sizeof(conf.args));
     memset(conf.env, 0, sizeof(conf.env));
+
+    // 根据测试数量进行判定
     for (int i = 1; i <= m_testnum; i++)
     {
         string index = to_string(i);
@@ -137,19 +142,23 @@ bool Judger::RunProgram()
             infile2.open(m_command.data());
             string calculateanswer;
             infile2 >> calculateanswer;
+
             printf("standardanswer = %s\n", standardanswer.data());
             printf("calculateanswer = %s\n", calculateanswer.data());
+
+            // 判断是否超出时间限制
             if (res.cpu_time > m_timelimit)
             {
                 m_result = TLE;
                 return false;
             }
+            // 判断是否超出空间限制
             if (res.memory > m_memorylimit)
             {
                 m_result = MLE;
                 return false;
             }
-
+            // 比较答案 TODO：简易版，后续完善
             if (strcmp(standardanswer.data(), calculateanswer.data()) != 0)
             {
                 m_result = WA;
@@ -157,7 +166,7 @@ bool Judger::RunProgram()
                 cout << "答案错误" << endl;
                 return false;
             }
-            printf("答案正确\n");
+            printf("测试%d正确\n", i);
         }
         else if (res.result == 1) // CPU_TIME_LIMIT_EXCEEDED
         {
@@ -176,6 +185,7 @@ bool Judger::RunProgram()
         }
         else if (res.result == 4)
         {
+            // 获取失败原因
             string reason;
             ifstream infile;
             m_command = "./" + m_runid + "/error.out";

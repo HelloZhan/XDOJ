@@ -17,14 +17,18 @@ class Judger
 public:
     Judger();
 
-    // 接口：Json(runid,problemid,judgenum,code,language,timelimit,memorylimit)
+    // 传入：Json(runid,problemid,judgenum,code,language,timelimit,memorylimit)
     // 返回：Json(result,reason,language)
     Json::Value Run(Json::Value &runjson);
 
 private:
+    // 数据初始化
     bool Init(Json::Value &initjson);
+    // 编译
     bool Compiler();
+    // 运行
     bool RunProgram();
+    // 返回结果
     Json::Value Done();
 
 private:
