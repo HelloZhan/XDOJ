@@ -5,6 +5,10 @@
 
 ## 技术选择
 
+## 环境
+
+Ubuntu 18.04
+
 ### C++第三方库
 1.jsoncpp
 
@@ -16,6 +20,12 @@
 
 ### 2.MongoDB
 
-https://blog.csdn.net/weixin_42039228/article/details/123657641
+版本号：4.2.24 （中文手册基于4.2）
 
-https://blog.csdn.net/xyw19991006/article/details/128838441
+wget https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-ubuntu1804-4.2.24.tgz
+
+参考链接
+
+https://docs.mongoing.com （MongoDB中文手册|官方文档中文版）
+
+https://blog.csdn.net/weixin_42039228/article/details/123657641

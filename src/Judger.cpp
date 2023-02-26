@@ -158,7 +158,7 @@ bool Judger::RunProgram()
                 m_result = MLE;
                 return false;
             }
-            // 比较答案 TODO：简易版，后续完善
+            // 比较答案 TODO：简易版，后续完善（添加去除行末空格）
             if (strcmp(standardanswer.data(), calculateanswer.data()) != 0)
             {
                 m_result = WA;
