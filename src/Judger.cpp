@@ -3,6 +3,8 @@
 #include <cstdlib>
 #include <string.h>
 #include <iostream>
+#include <unistd.h>
+
 extern "C"
 {
 #include "runner.h"
@@ -30,11 +32,20 @@ bool Judger::Init(Json::Value &initjson)
     m_runid = initjson["runid"].asString();
     m_problemid = initjson["problemid"].asString();
     m_testnum = initjson["judgenum"].asInt();
-    m_result = "pedding";
+    m_timelimit = initjson["timelimit"].asInt();
+    m_memorylimit = initjson["memorylimit"].asLargestInt();
+    m_maxtimelimit = m_timelimit * 2;
+    m_maxmemorylimie = m_memorylimit * 2;
+    m_result = "";
+    m_reason = "";
 
     // 创建中间文件夹
     m_command = "mkdir " + m_runid;
-    system(m_command.data());
+    if (system(m_command.data()) == -1)
+    {
+        m_result = SE;
+        return false;
+    }
 
     // TODO:检查代码是否有敏感词
 
@@ -42,6 +53,11 @@ bool Judger::Init(Json::Value &initjson)
     ofstream outfile;
     m_command = "./" + m_runid + "/main.cpp";
     outfile.open(m_command.data());
+    if (!outfile.is_open())
+    {
+        m_result = SE;
+        return false;
+    }
     outfile << code.data();
     outfile.close();
 
@@ -50,7 +66,25 @@ bool Judger::Init(Json::Value &initjson)
 bool Judger::Compiler()
 {
     m_command = "timeout 10 g++ ./" + m_runid + "/main.cpp -o ./" + m_runid + "/main.out -O2 -std=c++11 2>./" + m_runid + "/errorce.txt";
-    system(m_command.data());
+    if (system(m_command.data()) == -1)
+    {
+        m_result = SE;
+        return false;
+    }
+
+    m_command = "./" + m_runid + "/main.out";
+    // 编译失败
+    if (access(m_command.data(), F_OK) == -1)
+    {
+        string reason;
+        ifstream infile;
+        m_command = "./" + m_runid + "/errorce.txt";
+        infile.open(m_command.data());
+        infile >> reason;
+        m_reason = reason;
+        m_result = CE;
+        return false;
+    }
     return true;
 }
 bool Judger::RunProgram()
@@ -58,8 +92,8 @@ bool Judger::RunProgram()
     // 创建结构体
     struct config conf;
     struct result res;
-    conf.max_cpu_time = 1000;
-    conf.max_real_time = 2000;
+    conf.max_cpu_time = 2000;
+    conf.max_real_time = 4000;
     conf.max_memory = 128 * 1024 * 1024;
     conf.max_process_number = 200;
     conf.max_output_size = 10000;
@@ -105,29 +139,61 @@ bool Judger::RunProgram()
             infile2 >> calculateanswer;
             printf("standardanswer = %s\n", standardanswer.data());
             printf("calculateanswer = %s\n", calculateanswer.data());
+            if (res.cpu_time > m_timelimit)
+            {
+                m_result = TLE;
+                return false;
+            }
+            if (res.memory > m_memorylimit)
+            {
+                m_result = MLE;
+                return false;
+            }
 
             if (strcmp(standardanswer.data(), calculateanswer.data()) != 0)
             {
-                m_result = "WA";
+                m_result = WA;
+                m_reason = "standardanswer = " + standardanswer + ",calculateanswer = " + calculateanswer + ";";
                 cout << "答案错误" << endl;
                 return false;
             }
             printf("答案正确\n");
         }
-        else
+        else if (res.result == 1) // CPU_TIME_LIMIT_EXCEEDED
         {
-            m_result = "SE";
-            cout << "系统错误" << endl;
+            m_result = TLE;
+            return false;
+        }
+        else if (res.result == 2) // REAL_TIME_LIMIT_EXCEEDED
+        {
+            m_result = TLE;
+            return false;
+        }
+        else if (res.result == 3) // MEMORY_LIMIT_EXCEEDED
+        {
+            m_result = MLE;
+            return false;
+        }
+        else if (res.result == 4)
+        {
+            string reason;
+            ifstream infile;
+            m_command = "./" + m_runid + "/error.out";
+            infile.open(m_command.data());
+            infile >> reason;
+            m_reason = reason;
+            m_result = RE;
             return false;
         }
     }
-    m_result = "AC";
+    m_result = AC;
     return true;
 }
 Json::Value Judger::Done()
 {
     Json::Value resjson;
     resjson["result"] = m_result;
+    resjson["reason"] = m_reason;
 
     // 删除中间文件夹
     m_command = "rm -rf ./" + m_runid;

@@ -48,11 +48,12 @@ void doPostCode(const httplib::Request &req, httplib::Response &res)
     runjson["problemid"] = jsonvalue["id"];
     runjson["language"] = "c_cpp";
     runjson["judgenum"] = problemset.getProblemJudgeNum(jsonvalue["id"].asString());
+    runjson["timelimit"] = "2000";
+    runjson["memorylimit"] = "134217728";
 
     Json::Value resjson = judger.Run(runjson);
 
-    string result = resjson["result"].asString();
-    res.set_content(result, "text");
+    res.set_content(resjson.toStyledString(), "json");
 }
 int main()
 {
