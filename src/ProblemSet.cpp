@@ -7,9 +7,8 @@ ProblemSet::ProblemSet()
 }
 void ProblemSet::Init()
 {
-    MyDB mydb;
-    mydb.InitDB("192.168.49.130", "root", "1", "XDOJ");
-    Json::Value jsonvalue = mydb.getAllProblemInfo();
+    MyDB::GetInstance().InitDB("192.168.49.130", "root", "1", "XDOJ");
+    Json::Value jsonvalue = MyDB::GetInstance().getAllProblemInfo();
     ProblemNum = (int)jsonvalue["Array"].size();
     for (int i = 0; i < ProblemNum; i++)
     {
@@ -37,6 +36,12 @@ Json::Value ProblemSet::getProblemSet()
 int ProblemSet::getProblemJudgeNum(std::string id)
 {
     return heap[id]->getJudgeNum();
+}
+
+ProblemSet &ProblemSet::GetInstance()
+{
+    static ProblemSet problemset;
+    return problemset;
 }
 
 ProblemSet::~ProblemSet()

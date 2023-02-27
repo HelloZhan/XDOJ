@@ -2,22 +2,10 @@
 #include <string>
 using namespace std;
 
-MyDB::MyDB()
+MyDB &MyDB::GetInstance()
 {
-    mysql = mysql_init(NULL);
-    if (mysql == NULL)
-    {
-        printf("Error: %s\n", mysql_error(mysql));
-        exit(-1);
-    }
-}
-
-MyDB::~MyDB()
-{
-    if (!mysql)
-    {
-        mysql_close(mysql);
-    }
+    static MyDB mydb;
+    return mydb;
 }
 
 bool MyDB::InitDB(string host, string user, string pwd, string dbname)
@@ -156,4 +144,22 @@ Json::Value MyDB::getAllProblemInfo()
     }
     printf("getAllProblemInfo finish!!\n");
     return resJson;
+}
+
+MyDB::MyDB()
+{
+    mysql = mysql_init(NULL);
+    if (mysql == NULL)
+    {
+        printf("Error: %s\n", mysql_error(mysql));
+        exit(-1);
+    }
+}
+
+MyDB::~MyDB()
+{
+    if (!mysql)
+    {
+        mysql_close(mysql);
+    }
 }

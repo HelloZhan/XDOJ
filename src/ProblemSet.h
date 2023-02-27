@@ -9,7 +9,9 @@ class Problem;
 class ProblemSet
 {
 public:
-    ProblemSet();
+    // 局部静态特性的方式实现单实例
+    static ProblemSet &GetInstance();
+
     void Init();
     std::string getProblemDescription(std::string id);
 
@@ -19,6 +21,8 @@ public:
     // 获取题目的测试数量
     int getProblemJudgeNum(std::string id);
 
+private:
+    ProblemSet();
     ~ProblemSet();
 
 private:

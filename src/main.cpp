@@ -8,7 +8,6 @@
 #include "Judger.h"
 
 using namespace std;
-ProblemSet problemset;
 Judger judger;
 
 // 返回网页请求的题目描述
@@ -20,7 +19,7 @@ void doGetProblem(const httplib::Request &req, httplib::Response &res)
     {
         id = req.get_param_value("id");
     }
-    string buf = problemset.getProblemDescription(id);
+    string buf = ProblemSet::GetInstance().getProblemDescription(id);
     printf("doGetProblem end!!!\n");
     res.set_content(buf, "text");
 }
@@ -30,7 +29,7 @@ void doGetProblemSet(const httplib::Request &req, httplib::Response &res)
 {
     printf("doGetProblemSet start!!!\n");
     Json::Value resvalue;
-    resvalue = problemset.getProblemSet();
+    resvalue = ProblemSet::GetInstance().getProblemSet();
     printf("doGetProblemSet end!!!\n");
     res.set_content(resvalue.toStyledString(), "json");
 }
@@ -48,7 +47,7 @@ void doPostCode(const httplib::Request &req, httplib::Response &res)
     runjson["runid"] = "100";
     runjson["problemid"] = jsonvalue["id"];
     runjson["language"] = "c_cpp";
-    runjson["judgenum"] = problemset.getProblemJudgeNum(jsonvalue["id"].asString());
+    runjson["judgenum"] = ProblemSet::GetInstance().getProblemJudgeNum(jsonvalue["id"].asString());
     runjson["timelimit"] = 2000;
     runjson["memorylimit"] = 134217728;
 
@@ -58,7 +57,7 @@ void doPostCode(const httplib::Request &req, httplib::Response &res)
 int main()
 {
     using namespace httplib;
-    problemset.Init();
+    ProblemSet::GetInstance().Init();
     Server server;
     // 获取单个题目
     server.Get("/problem", doGetProblem);

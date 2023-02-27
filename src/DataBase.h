@@ -7,8 +7,9 @@
 class MyDB
 {
 public:
-    MyDB();
-    ~MyDB();
+    // 局部静态特性的方式实现单实例
+    static MyDB &GetInstance();
+
     bool InitDB(std::string host, std::string user, std::string pwd, std::string dbname);
     bool ExeSQL(std::string sql);
 
@@ -17,6 +18,10 @@ public:
 
     // 功能：取出题库数据
     Json::Value getAllProblemInfo();
+
+private:
+    MyDB();
+    ~MyDB();
 
 private:
     MYSQL *mysql;
