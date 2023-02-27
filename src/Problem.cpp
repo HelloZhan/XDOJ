@@ -1,24 +1,30 @@
 #include "Problem.h"
 
-Problem::Problem()
+Problem::Problem(Json::Value &jsonvalue)
 {
-}
-bool Problem::Init(Json::Value &jsonvalue)
-{
-    m_id = jsonvalue["Pid"].asString();
+    m_problemid = jsonvalue["ProblemId"].asString();
     m_title = jsonvalue["Title"].asString();
     m_description = jsonvalue["Description"].asString();
     m_judgenum = stoi(jsonvalue["JudgeNum"].asString());
     m_submitnum = stoi(jsonvalue["SubmitNum"].asString());
-    m_acceptnum = stoi(jsonvalue["AcceptNum"].asString());
+    m_cenum = stoi(jsonvalue["CENum"].asString());
+    m_acnum = stoi(jsonvalue["ACNum"].asString());
+    m_wanum = stoi(jsonvalue["WANum"].asString());
+    m_tlenum = stoi(jsonvalue["TLENum"].asString());
+    m_mlenum = stoi(jsonvalue["MLENum"].asString());
 }
+
 Json::Value Problem::getInfo()
 {
     Json::Value resjson;
-    resjson["id"] = m_id;
-    resjson["title"] = m_title;
-    resjson["submitnum"] = m_submitnum;
-    resjson["acceptnum"] = m_acceptnum;
+    resjson["ProblemId"] = m_problemid;
+    resjson["Title"] = m_title;
+    resjson["SubmitNum"] = m_submitnum;
+    resjson["CENum"] = m_cenum;
+    resjson["ACNum"] = m_acnum;
+    resjson["WANum"] = m_wanum;
+    resjson["TLENum"] = m_tlenum;
+    resjson["MLENum"] = m_mlenum;
     return resjson;
 }
 int Problem::getJudgeNum()
