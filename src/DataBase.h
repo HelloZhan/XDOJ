@@ -19,6 +19,8 @@ public:
     // 功能：取出题库数据
     Json::Value getAllProblemInfo();
 
+    Json::Value getAllUserInfo();
+
 private:
     MyDB();
     ~MyDB();

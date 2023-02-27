@@ -1,3 +1,4 @@
+#include "DataBase.h"
 #include "Control.h"
 #include "ProblemSet.h"
 
@@ -27,6 +28,10 @@ Json::Value Control::GetJudgeCode(Json::Value judgejson)
 }
 Control::Control()
 {
+    // 连接MySQL数据库
+    MyDB::GetInstance().InitDB("192.168.49.130", "root", "1", "XDOJ");
+
+    // 初始化题库
     ProblemSet::GetInstance().Init();
 }
 

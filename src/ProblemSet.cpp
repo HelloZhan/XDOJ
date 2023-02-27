@@ -7,7 +7,6 @@ ProblemSet::ProblemSet()
 }
 void ProblemSet::Init()
 {
-    MyDB::GetInstance().InitDB("192.168.49.130", "root", "1", "XDOJ");
     Json::Value jsonvalue = MyDB::GetInstance().getAllProblemInfo();
     ProblemNum = (int)jsonvalue["Array"].size();
     for (int i = 0; i < ProblemNum; i++)

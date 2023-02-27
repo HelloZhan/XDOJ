@@ -114,7 +114,7 @@ int MyDB::InsertProblem(string title, string description, int testnum)
 
 Json::Value MyDB::getAllProblemInfo()
 {
-    printf("getAllProblemInfo!!\n");
+    printf("MySQL getAllProblemInfo!!\n");
     string sql = "select Pid, Title,Description,JudgeNum,SubmitNum,AcceptNum from ProblemSet;";
 
     Json::Value resJson;
@@ -142,7 +142,40 @@ Json::Value MyDB::getAllProblemInfo()
         }
         mysql_free_result(result);
     }
-    printf("getAllProblemInfo finish!!\n");
+    printf("MySQL getAllProblemInfo finish!!\n");
+    return resJson;
+}
+Json::Value MyDB::getAllUserInfo()
+{
+    printf("MySQL getAllUserInfo!!\n");
+    string sql = "select UserId, Avator,NickName,Account,Password from User;";
+
+    Json::Value resJson;
+    if (mysql_query(mysql, sql.data()))
+    {
+        printf("query fail: %s\n", mysql_error(mysql));
+        exit(1);
+    }
+    else
+    {
+        /*获取结果集*/
+        result = mysql_store_result(mysql);
+
+        int rownum = mysql_num_rows(result);
+        int fieldnum = mysql_num_fields(result);
+        for (int i = 0; i < rownum; i++)
+        {
+            row = mysql_fetch_row(result);
+            if (row <= 0)
+                break;
+            Json::Value info;
+            info["UserId"] = row[0], info["Avator"] = row[1], info["NickName"] = row[2], info["Account"] = row[3], info["Password"] = row[4];
+            // cout << row[0] << ' ' << row[1] << ' ' << row[3] << ' ' << row[4] << ' ' << row[5] << endl;
+            resJson["Array"].append(info);
+        }
+        mysql_free_result(result);
+    }
+    printf("MySQL getAllUserInfo finish!!\n");
     return resJson;
 }
 
