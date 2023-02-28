@@ -13,12 +13,14 @@ Control control;
 void doGetProblem(const httplib::Request &req, httplib::Response &res)
 {
     printf("doGetProblem start!!!\n");
-    string id = "1";
-    if (req.has_param("id"))
+    // 默认为 1
+    string ProblemId = "1";
+    if (req.has_param("ProblemId"))
     {
-        id = req.get_param_value("id");
+        ProblemId = req.get_param_value("ProblemId");
     }
-    string buf = control.GetProblemDescription(id);
+    cout << "请求的ID：" << ProblemId << endl;
+    string buf = control.GetProblemDescription(ProblemId);
     printf("doGetProblem end!!!\n");
     res.set_content(buf, "text");
 }

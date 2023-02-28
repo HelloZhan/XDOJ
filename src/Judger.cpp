@@ -79,11 +79,14 @@ bool Judger::Compiler()
     if (access(m_command.data(), F_OK) == -1)
     {
         // 返回编译失败原因 TODO：未返回完全所有信息
-        string reason;
         ifstream infile;
+
         m_command = "./" + m_runid + "/errorce.txt";
         infile.open(m_command.data());
-        infile >> reason;
+        // 读取全部信息
+        string reason((istreambuf_iterator<char>(infile)),
+                      (istreambuf_iterator<char>()));
+        // infile >> reason;
         m_reason = reason;
         m_result = CE;
         return false;
@@ -186,11 +189,13 @@ bool Judger::RunProgram()
         else if (res.result == 4)
         {
             // 获取失败原因
-            string reason;
             ifstream infile;
             m_command = "./" + m_runid + "/error.out";
             infile.open(m_command.data());
-            infile >> reason;
+
+            string reason((istreambuf_iterator<char>(infile)),
+                          (istreambuf_iterator<char>()));
+            // infile >> reason;
             m_reason = reason;
             m_result = RE;
             return false;

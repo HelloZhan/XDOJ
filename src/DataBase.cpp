@@ -62,11 +62,11 @@ int stringtoint(string sn)
     }
     return res;
 }
-int MyDB::InsertProblem(string title, string description, int testnum)
+int MyDB::InsertProblem(string title, string description, int judgenum)
 {
     printf("InsertProblem function!\n");
-    string sql = "select max(Pid) from Problem;";
-    int Pid = 0;
+    string sql = "select max(ProblemId) from Problem;";
+    int ProblemId = 0;
     if (mysql_query(mysql, sql.data()))
     {
         printf("query fail: %s\n", mysql_error(mysql));
@@ -87,22 +87,22 @@ int MyDB::InsertProblem(string title, string description, int testnum)
             for (int j = 0; j < fieldnum; j++)
             {
                 if (row[j] == nullptr)
-                    Pid = 1;
+                    ProblemId = 1;
                 else
                 {
                     string k = row[j];
-                    Pid = stringtoint(k);
+                    ProblemId = stoi(k);
                 }
             }
         }
         mysql_free_result(result);
     }
-    Pid++;
-    printf("Pid = %d\n", Pid);
-    if (Pid == 0)
+    ProblemId++;
+    printf("ProblemId = %d\n", ProblemId);
+    if (ProblemId == 0)
         return 0;
 
-    sql = "insert into ProblemSet value(" + to_string(Pid) + ", \"" + title + "\",\"" + description + "\"," + to_string(testnum) + ",0,0);";
+    sql = "insert into Problem value(" + to_string(ProblemId) + ", \"" + title + "\",\"" + description + "\"," + to_string(judgenum) + ",0,0,0,0,0,0);";
     printf("%s\n", sql.data());
     if (mysql_query(mysql, sql.data()))
     {
@@ -110,7 +110,7 @@ int MyDB::InsertProblem(string title, string description, int testnum)
         exit(1);
     }
     printf("InsertProblem finish!\n");
-    return Pid;
+    return ProblemId;
 }
 
 Json::Value MyDB::getAllProblemInfo()

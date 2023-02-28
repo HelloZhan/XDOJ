@@ -13,7 +13,6 @@ void ProblemSet::Init()
     for (int i = 0; i < ProblemNum; i++)
     {
         Problem *tmp = new Problem(jsonvalue["Array"][i]);
-        cout << tmp->getInfo().toStyledString() << endl;
         heap[jsonvalue["Array"][i]["ProblemId"].asString()] = tmp;
     }
 }
