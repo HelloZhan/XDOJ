@@ -113,7 +113,6 @@ void doGetStatusRecord(const httplib::Request &req, httplib::Response &res)
     queryjson["ProblemId"] = problemid;
 
     Json::Value resvalue = control.GetStatusRecordInfo(queryjson);
-
     printf("doGetProblemSet end!!!\n");
     res.set_content(resvalue.toStyledString(), "json");
 }
