@@ -25,6 +25,9 @@ public:
     // 功能：普通分页查询题库信息
     Json::Value getAllProblemSetInfoByCommon(std::string offest, std::string limit);
 
+    // 功能：分页查询状态记录信息
+    Json::Value getStatusRecordInfo(Json::Value queryjson);
+
 private:
     MyDB();
     ~MyDB();

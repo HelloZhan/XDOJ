@@ -2,6 +2,7 @@
 #include "Control.h"
 #include "ProblemSet.h"
 #include "UserSet.h"
+#include "StatusRecord.h"
 using namespace std;
 string Control::GetProblemDescription(string problemid)
 {
@@ -36,6 +37,12 @@ Json::Value Control::GetJudgeCode(Json::Value judgejson)
 
     return judger.Run(runjson);
 }
+
+Json::Value Control::GetStatusRecordInfo(Json::Value &queryjson)
+{
+    return StatusRecord::GetInstance().getStatusRecordInfo(queryjson);
+}
+
 Control::Control()
 {
     // 连接MySQL数据库

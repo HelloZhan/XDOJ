@@ -71,6 +71,52 @@ void doPostCode(const httplib::Request &req, httplib::Response &res)
 
     res.set_content(resjson.toStyledString(), "json");
 }
+
+void doGetStatusRecord(const httplib::Request &req, httplib::Response &res)
+{
+    printf("doGetStatusRecord start!!!\n");
+    string querytype = "all";
+
+    if (req.has_param("QueryType"))
+    {
+        querytype = req.get_param_value("QueryType");
+    }
+
+    string page = "1";
+    if (req.has_param("Page"))
+    {
+        page = req.get_param_value("Page");
+    }
+
+    string pagesize = "25";
+    if (req.has_param("PageSize"))
+    {
+        pagesize = req.get_param_value("PageSize");
+    }
+
+    string userid = "0";
+    if (req.has_param("UserId"))
+    {
+        pagesize = req.get_param_value("UserId");
+    }
+
+    string problemid = "0";
+    if (req.has_param("ProblemId"))
+    {
+        pagesize = req.get_param_value("ProblemId");
+    }
+    Json::Value queryjson;
+    queryjson["QueryType"] = querytype;
+    queryjson["Page"] = page;
+    queryjson["PageSize"] = pagesize;
+    queryjson["UserId"] = userid;
+    queryjson["ProblemId"] = problemid;
+
+    Json::Value resvalue = control.GetStatusRecordInfo(queryjson);
+
+    printf("doGetProblemSet end!!!\n");
+    res.set_content(resvalue.toStyledString(), "json");
+}
 int main()
 {
     using namespace httplib;
@@ -79,6 +125,8 @@ int main()
     server.Get("/problem", doGetProblem);
     // 获取题库
     server.Get("/problemset", doGetProblemSet);
+    // 获取状态记录
+    server.Get("/statusrecord", doGetStatusRecord);
     // 提交代码
     server.Post("/problecode", doPostCode);
 

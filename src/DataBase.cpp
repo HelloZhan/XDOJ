@@ -252,6 +252,82 @@ Json::Value MyDB::getAllProblemSetInfoByCommon(string offest, string limit)
     printf("MySQL getAllProblemSetInfoByCommon finish!!\n");
     return resJson;
 }
+Json::Value MyDB::getStatusRecordInfo(Json::Value queryjson)
+{
+    printf("MySQL getStatusRecordInfo!!\n");
+    string querytype = queryjson["QueryType"].asString();
+    string limit = queryjson["PageSize"].asString();
+    string offest = to_string((stoi(queryjson["Page"].asString()) - 1) * stoi(limit));
+    string sql;
+    if (querytype == "all")
+    {
+        sql = "select SQL_CALC_FOUND_ROWS SubmitId,UserNickName,ProblemTitle,Status,RunTime,Memory,Length,Language,SubmitTime,Code from StatusRecord limit " + offest + "," + limit + ";";
+    }
+    else if (querytype == "user")
+    {
+    }
+    else if (querytype == "problem")
+    {
+    }
+    else if (querytype == "userproblem")
+    {
+    }
+
+    Json::Value resJson;
+    if (mysql_query(mysql, sql.data()))
+    {
+        printf("query fail: %s\n", mysql_error(mysql));
+        exit(1);
+    }
+    else
+    {
+        /*获取结果集*/
+        result = mysql_store_result(mysql);
+
+        int rownum = mysql_num_rows(result);
+        int fieldnum = mysql_num_fields(result);
+        for (int i = 0; i < rownum; i++)
+        {
+            row = mysql_fetch_row(result);
+            if (row <= 0)
+                break;
+            Json::Value info;
+            info["SubmitId"] = row[0];
+            info["UserNickName"] = row[1];
+            info["ProblemTitle"] = row[2];
+            info["Status"] = row[3];
+            info["RunTime"] = row[4];
+            info["Memory"] = row[5];
+            info["Length"] = row[6];
+            info["SubmitTime"] = row[7];
+            info["Code"] = row[8];
+
+            resJson["Array"].append(info);
+        }
+        mysql_free_result(result);
+    }
+    // 获取总共有多少条数
+    sql = "SELECT FOUND_ROWS()";
+    string totalsize = "0";
+    if (mysql_query(mysql, sql.data()))
+    {
+        printf("query fail: %s\n", mysql_error(mysql));
+        exit(1);
+    }
+    else
+    {
+        /*获取结果集*/
+        result = mysql_store_result(mysql);
+
+        row = mysql_fetch_row(result);
+        totalsize = row[0];
+
+        mysql_free_result(result);
+    }
+    resJson["TotalNum"] = totalsize;
+    printf("MySQL getStatusRecordInfo finish!!\n");
+    return resJson;
+}
 
 MyDB::MyDB()
 {

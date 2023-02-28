@@ -15,6 +15,8 @@ public:
     // 返回判题信息
     Json::Value GetJudgeCode(Json::Value judgejson);
 
+    // 返回状态记录的信息
+    Json::Value GetStatusRecordInfo(Json::Value &queryjson);
     Control();
 
     ~Control();
