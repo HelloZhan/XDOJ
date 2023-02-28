@@ -22,6 +22,9 @@ public:
     // 功能：取出所有用户信息
     Json::Value getAllUserInfo();
 
+    // 功能：普通分页查询题库信息
+    Json::Value getAllProblemSetInfoByCommon(std::string offest, std::string limit);
+
 private:
     MyDB();
     ~MyDB();

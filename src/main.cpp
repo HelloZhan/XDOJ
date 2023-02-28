@@ -29,8 +29,33 @@ void doGetProblem(const httplib::Request &req, httplib::Response &res)
 void doGetProblemSet(const httplib::Request &req, httplib::Response &res)
 {
     printf("doGetProblemSet start!!!\n");
+    string querytype = "common";
+
+    if (req.has_param("QueryType"))
+    {
+        querytype = req.get_param_value("QueryType");
+    }
+
+    string page = "1";
+    if (req.has_param("Page"))
+    {
+        page = req.get_param_value("Page");
+    }
+
+    string pagesize = "25";
+    if (req.has_param("PageSize"))
+    {
+        pagesize = req.get_param_value("PageSize");
+    }
+
+    string matchstring = "";
+    if (req.has_param("MatchString"))
+    {
+        pagesize = req.get_param_value("MatchString");
+    }
     Json::Value resvalue;
-    resvalue = control.GetProblemSet();
+    resvalue = control.GetProblemSet(querytype, page, pagesize, matchstring);
+
     printf("doGetProblemSet end!!!\n");
     res.set_content(resvalue.toStyledString(), "json");
 }

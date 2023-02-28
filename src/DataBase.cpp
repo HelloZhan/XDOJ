@@ -189,6 +189,67 @@ Json::Value MyDB::getAllUserInfo()
     return resJson;
 }
 
+Json::Value MyDB::getAllProblemSetInfoByCommon(string offest, string limit)
+{
+    printf("MySQL getAllProblemSetInfoByCommon!!\n");
+    string sql = "select SQL_CALC_FOUND_ROWS ProblemId,Title,JudgeNum,SubmitNum,CENum,ACNum,WANum,TLENum,MLENum from Problem order by ProblemId limit " + offest + "," + limit + ";";
+
+    Json::Value resJson;
+    if (mysql_query(mysql, sql.data()))
+    {
+        printf("query fail: %s\n", mysql_error(mysql));
+        exit(1);
+    }
+    else
+    {
+        /*获取结果集*/
+        result = mysql_store_result(mysql);
+
+        int rownum = mysql_num_rows(result);
+        int fieldnum = mysql_num_fields(result);
+        for (int i = 0; i < rownum; i++)
+        {
+            row = mysql_fetch_row(result);
+            if (row <= 0)
+                break;
+            Json::Value info;
+            info["ProblemId"] = row[0];
+            info["Title"] = row[1];
+            info["JudgeNum"] = row[2];
+            info["SubmitNum"] = row[3];
+            info["CENum"] = row[4];
+            info["ACNum"] = row[5];
+            info["WANum"] = row[6];
+            info["TLENum"] = row[7];
+            info["MLENum"] = row[8];
+
+            resJson["Array"].append(info);
+        }
+        mysql_free_result(result);
+    }
+    // 获取总共有多少条数
+    sql = "SELECT FOUND_ROWS()";
+    string totalsize = "0";
+    if (mysql_query(mysql, sql.data()))
+    {
+        printf("query fail: %s\n", mysql_error(mysql));
+        exit(1);
+    }
+    else
+    {
+        /*获取结果集*/
+        result = mysql_store_result(mysql);
+
+        row = mysql_fetch_row(result);
+        totalsize = row[0];
+
+        mysql_free_result(result);
+    }
+    resJson["TotalNum"] = totalsize;
+    printf("MySQL getAllProblemSetInfoByCommon finish!!\n");
+    return resJson;
+}
+
 MyDB::MyDB()
 {
     mysql = mysql_init(NULL);

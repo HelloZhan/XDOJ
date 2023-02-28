@@ -1,15 +1,24 @@
 #include "DataBase.h"
 #include "Control.h"
 #include "ProblemSet.h"
-
 using namespace std;
 string Control::GetProblemDescription(string problemid)
 {
     return ProblemSet::GetInstance().getProblemDescription(problemid);
 }
 
-Json::Value Control::GetProblemSet()
+Json::Value Control::GetProblemSet(string querytype, string page, string pagesize, string matchstring)
 {
+    int limit = stoi(pagesize);
+    int offest = (stoi(page) - 1) * limit;
+
+    if (querytype == "common") // 普通查询
+    {
+        return ProblemSet::GetInstance().getProblemSetInfoByCommon(to_string(offest), to_string(limit));
+    }
+    else if (querytype == "fuzzy") // 模糊查询
+    {
+    }
     return ProblemSet::GetInstance().getProblemSet();
 }
 

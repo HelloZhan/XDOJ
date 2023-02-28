@@ -32,6 +32,11 @@ Json::Value ProblemSet::getProblemSet()
     return resjson;
 }
 
+Json::Value ProblemSet::getProblemSetInfoByCommon(string offest, string limit)
+{
+    return MyDB::GetInstance().getAllProblemSetInfoByCommon(offest, limit);
+}
+
 int ProblemSet::getProblemJudgeNum(std::string id)
 {
     return heap[id]->getJudgeNum();

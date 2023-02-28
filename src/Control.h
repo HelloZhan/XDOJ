@@ -10,7 +10,7 @@ public:
     std::string GetProblemDescription(std::string problemid);
 
     // 返回题库
-    Json::Value GetProblemSet();
+    Json::Value GetProblemSet(std::string querytype, std::string page, std::string pagesize, std::string matchstring);
 
     // 返回判题信息
     Json::Value GetJudgeCode(Json::Value judgejson);
