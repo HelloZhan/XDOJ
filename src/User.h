@@ -10,6 +10,8 @@ public:
     ~User();
 
     Json::Value getUserInfo();
+    // 获取用户昵称
+    std::string getNickName();
 
 private:
     std::string m_userid;

@@ -179,8 +179,11 @@ Json::Value MyDB::getAllUserInfo()
             if (row <= 0)
                 break;
             Json::Value info;
-            info["UserId"] = row[0], info["Avator"] = row[1], info["NickName"] = row[2], info["Account"] = row[3], info["Password"] = row[4];
-            // cout << row[0] << ' ' << row[1] << ' ' << row[3] << ' ' << row[4] << ' ' << row[5] << endl;
+            info["UserId"] = row[0];
+            info["Avator"] = row[1];
+            info["NickName"] = row[2];
+            info["Account"] = row[3];
+            info["Password"] = row[4];
             resJson["Array"].append(info);
         }
         mysql_free_result(result);

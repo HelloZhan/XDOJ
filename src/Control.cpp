@@ -1,6 +1,7 @@
 #include "DataBase.h"
 #include "Control.h"
 #include "ProblemSet.h"
+#include "UserSet.h"
 using namespace std;
 string Control::GetProblemDescription(string problemid)
 {
@@ -42,6 +43,9 @@ Control::Control()
 
     // 初始化题库
     ProblemSet::GetInstance().Init();
+
+    // 初始化用户
+    UserSet::GetInstance().LoadDataBaseInfo();
 }
 
 Control::~Control()

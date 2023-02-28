@@ -22,3 +22,8 @@ Json::Value User::getUserInfo()
 
     return resjson;
 }
+
+string User::getNickName()
+{
+    return m_nickname;
+}

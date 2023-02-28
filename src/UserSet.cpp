@@ -1,6 +1,8 @@
 #include "UserSet.h"
 #include "DataBase.h"
 #include "User.h"
+#include <iostream>
+using namespace std;
 
 UserSet &UserSet::GetInstance()
 {
@@ -23,6 +25,11 @@ bool UserSet::LoadDataBaseInfo()
 Json::Value UserSet::getUserInfoById(std::string userid)
 {
     return heap[userid]->getUserInfo();
+}
+
+string UserSet::getUserNickNameById(string userid)
+{
+    return heap[userid]->getNickName();
 }
 
 UserSet::UserSet()

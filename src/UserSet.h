@@ -16,6 +16,9 @@ public:
     // 获取某用户信息
     Json::Value getUserInfoById(std::string userid);
 
+    // 获取某用户昵称
+    std::string getUserNickNameById(std::string userid);
+
 private:
     UserSet();
     ~UserSet();
