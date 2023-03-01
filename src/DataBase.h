@@ -23,10 +23,10 @@ public:
     Json::Value getAllUserInfo();
 
     // 功能：普通分页查询题库信息
-    Json::Value getAllProblemSetInfoByCommon(std::string offest, std::string limit);
+    Json::Value SelectProblemSetInfo(Json::Value &queryjson);
 
     // 功能：分页查询状态记录信息
-    Json::Value getStatusRecordInfo(Json::Value queryjson);
+    Json::Value SelectStatusRecordInfo(Json::Value &queryjson);
 
 private:
     MyDB();

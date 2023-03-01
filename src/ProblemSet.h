@@ -19,7 +19,7 @@ public:
     Json::Value getProblemSet();
 
     // 通过普通查询获取题库数据
-    Json::Value getProblemSetInfoByCommon(std::string offest, std::string limit);
+    Json::Value SelectProblemSetInfo(Json::Value &queryjson);
 
     // 获取题目的测试数量
     int getProblemJudgeNum(std::string id);

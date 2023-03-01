@@ -9,7 +9,7 @@ public:
     // 局部静态特性的方式实现单实例
     static StatusRecord &GetInstance();
 
-    Json::Value getStatusRecordInfo(Json::Value queryjson);
+    Json::Value SelectStatusRecordInfo(Json::Value &queryjson);
 
 private:
     StatusRecord();

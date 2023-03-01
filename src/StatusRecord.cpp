@@ -7,9 +7,9 @@ StatusRecord &StatusRecord::GetInstance()
     return statusrecord;
 }
 
-Json::Value StatusRecord::getStatusRecordInfo(Json::Value queryjson)
+Json::Value StatusRecord::SelectStatusRecordInfo(Json::Value &queryjson)
 {
-    return MyDB::GetInstance().getStatusRecordInfo(queryjson);
+    return MyDB::GetInstance().SelectStatusRecordInfo(queryjson);
 }
 StatusRecord::StatusRecord()
 {

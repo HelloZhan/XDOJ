@@ -10,13 +10,13 @@ public:
     std::string GetProblemDescription(std::string problemid);
 
     // 返回题库
-    Json::Value GetProblemSet(std::string querytype, std::string page, std::string pagesize, std::string matchstring);
+    Json::Value SelectProblemSetInfo(Json::Value &queryjson);
 
     // 返回判题信息
     Json::Value GetJudgeCode(Json::Value judgejson);
 
     // 返回状态记录的信息
-    Json::Value GetStatusRecordInfo(Json::Value &queryjson);
+    Json::Value SelectStatusRecordInfo(Json::Value &queryjson);
     Control();
 
     ~Control();

@@ -192,10 +192,20 @@ Json::Value MyDB::getAllUserInfo()
     return resJson;
 }
 
-Json::Value MyDB::getAllProblemSetInfoByCommon(string offest, string limit)
+Json::Value MyDB::SelectProblemSetInfo(Json::Value &queryjson)
 {
-    printf("MySQL getAllProblemSetInfoByCommon!!\n");
-    string sql = "select SQL_CALC_FOUND_ROWS ProblemId,Title,JudgeNum,SubmitNum,CENum,ACNum,WANum,TLENum,MLENum from Problem order by ProblemId limit " + offest + "," + limit + ";";
+    printf("MySQL SelectProblemSetInfo!!\n");
+    string querytype = queryjson["QueryType"].asString();
+    string limit = queryjson["PageSize"].asString();
+    string offest = to_string((stoi(queryjson["Page"].asString()) - 1) * stoi(limit));
+    string sql;
+    if (querytype == "common") // 普通分页查询
+    {
+        sql = "select SQL_CALC_FOUND_ROWS ProblemId,Title,JudgeNum,SubmitNum,CENum,ACNum,WANum,TLENum,MLENum from Problem order by ProblemId limit " + offest + "," + limit + ";";
+    }
+    else if (querytype == "fuzzy") // 模糊匹配查询
+    {
+    }
 
     Json::Value resJson;
     if (mysql_query(mysql, sql.data()))
@@ -249,10 +259,10 @@ Json::Value MyDB::getAllProblemSetInfoByCommon(string offest, string limit)
         mysql_free_result(result);
     }
     resJson["TotalNum"] = totalsize;
-    printf("MySQL getAllProblemSetInfoByCommon finish!!\n");
+    printf("MySQL SelectProblemSetInfo finish!!\n");
     return resJson;
 }
-Json::Value MyDB::getStatusRecordInfo(Json::Value queryjson)
+Json::Value MyDB::SelectStatusRecordInfo(Json::Value &queryjson)
 {
     printf("MySQL getStatusRecordInfo!!\n");
     string querytype = queryjson["QueryType"].asString();

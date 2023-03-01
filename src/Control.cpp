@@ -9,19 +9,9 @@ string Control::GetProblemDescription(string problemid)
     return ProblemSet::GetInstance().getProblemDescription(problemid);
 }
 
-Json::Value Control::GetProblemSet(string querytype, string page, string pagesize, string matchstring)
+Json::Value Control::SelectProblemSetInfo(Json::Value &queryjson)
 {
-    int limit = stoi(pagesize);
-    int offest = (stoi(page) - 1) * limit;
-
-    if (querytype == "common") // 普通查询
-    {
-        return ProblemSet::GetInstance().getProblemSetInfoByCommon(to_string(offest), to_string(limit));
-    }
-    else if (querytype == "fuzzy") // 模糊查询
-    {
-    }
-    return ProblemSet::GetInstance().getProblemSet();
+    return ProblemSet::GetInstance().SelectProblemSetInfo(queryjson);
 }
 
 Json::Value Control::GetJudgeCode(Json::Value judgejson)
@@ -38,9 +28,9 @@ Json::Value Control::GetJudgeCode(Json::Value judgejson)
     return judger.Run(runjson);
 }
 
-Json::Value Control::GetStatusRecordInfo(Json::Value &queryjson)
+Json::Value Control::SelectStatusRecordInfo(Json::Value &queryjson)
 {
-    return StatusRecord::GetInstance().getStatusRecordInfo(queryjson);
+    return StatusRecord::GetInstance().SelectStatusRecordInfo(queryjson);
 }
 
 Control::Control()

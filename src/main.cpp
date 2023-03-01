@@ -30,7 +30,6 @@ void doGetProblemSet(const httplib::Request &req, httplib::Response &res)
 {
     printf("doGetProblemSet start!!!\n");
     string querytype = "common";
-
     if (req.has_param("QueryType"))
     {
         querytype = req.get_param_value("QueryType");
@@ -53,8 +52,14 @@ void doGetProblemSet(const httplib::Request &req, httplib::Response &res)
     {
         pagesize = req.get_param_value("MatchString");
     }
-    Json::Value resvalue;
-    resvalue = control.GetProblemSet(querytype, page, pagesize, matchstring);
+
+    Json::Value queryjson;
+    queryjson["QueryType"] = querytype;
+    queryjson["Page"] = page;
+    queryjson["PageSize"] = pagesize;
+    queryjson["MatchString"] = matchstring;
+
+    Json::Value resvalue = control.SelectProblemSetInfo(queryjson);
 
     printf("doGetProblemSet end!!!\n");
     res.set_content(resvalue.toStyledString(), "json");
@@ -112,7 +117,7 @@ void doGetStatusRecord(const httplib::Request &req, httplib::Response &res)
     queryjson["UserId"] = userid;
     queryjson["ProblemId"] = problemid;
 
-    Json::Value resvalue = control.GetStatusRecordInfo(queryjson);
+    Json::Value resvalue = control.SelectStatusRecordInfo(queryjson);
     printf("doGetProblemSet end!!!\n");
     res.set_content(resvalue.toStyledString(), "json");
 }
