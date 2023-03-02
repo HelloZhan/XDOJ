@@ -17,6 +17,7 @@ Json::Value Control::SelectProblemSetInfo(Json::Value &queryjson)
 
 Json::Value Control::GetJudgeCode(Json::Value judgejson)
 {
+    // 添加状态记录
     // 传入：Json(ProblemId,UserId,UserNickName,ProblemTitle,Language,Code);
     Json::Value insertjson;
     insertjson["ProblemId"] = judgejson["ProblemId"];
@@ -29,6 +30,7 @@ Json::Value Control::GetJudgeCode(Json::Value judgejson)
     cout << judgejson.toStyledString() << endl;
     string submitid = MyDB::GetInstance().InsertStatusRecordInfo(insertjson);
 
+    // 运行代码
     Json::Value runjson;
     runjson["Code"] = judgejson["Code"];
     runjson["SubmitId"] = submitid;
@@ -39,6 +41,8 @@ Json::Value Control::GetJudgeCode(Json::Value judgejson)
     runjson["MemoryLimit"] = 134217728;
 
     Json::Value resjson = judger.Run(runjson);
+
+    // 更新状态记录
     // 传入：Json(SubmitId,Status,RunTime,RunMemory,Length)
     Json::Value updatejson;
     updatejson["SubmitId"] = submitid;
@@ -47,6 +51,11 @@ Json::Value Control::GetJudgeCode(Json::Value judgejson)
     updatejson["RunMemory"] = resjson["RunMemory"];
     updatejson["Length"] = resjson["Length"];
     MyDB::GetInstance().UpdateStatusRecordInfo(updatejson);
+
+    // 更新题目的状态
+    string problemid = judgejson["ProblemId"].asString();
+    string result = resjson["Result"].asString();
+    ProblemSet::GetInstance().UpdateProblemStatusNumById(problemid, result);
     return resjson;
 }
 

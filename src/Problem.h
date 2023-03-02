@@ -9,28 +9,23 @@ class Problem
 public:
     Problem(Json::Value &jsonvalue);
 
-    // 获取信息
-    Json::Value getInfo();
-
     // 获取该题的判题数量
     int getJudgeNum();
 
     // 获取该题的详细描述
     std::string getProblemDescription();
 
+    // 获取题目标题
     std::string getProblemTitle();
+
+    // 修改题目的信息
+    bool UpdateStatusNum(std::string &statusnum);
 
 private:
     std::string m_problemid;
     std::string m_title;
     std::string m_description;
     int m_judgenum;
-    int m_submitnum;
-    int m_cenum;
-    int m_acnum;
-    int m_wanum;
-    int m_tlenum;
-    int m_mlenum;
 };
 
 #endif

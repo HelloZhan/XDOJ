@@ -21,17 +21,6 @@ std::string ProblemSet::getProblemDescription(std::string id)
     return heap[id]->getProblemDescription();
 }
 
-// 获取题库数据
-Json::Value ProblemSet::getProblemSet()
-{
-    Json::Value resjson;
-    for (auto v : heap)
-    {
-        resjson.append(v.second->getInfo());
-    }
-    return resjson;
-}
-
 Json::Value ProblemSet::SelectProblemSetInfo(Json::Value &queryjson)
 {
     return MyDB::GetInstance().SelectProblemSetInfo(queryjson);
@@ -45,6 +34,23 @@ int ProblemSet::getProblemJudgeNum(std::string id)
 string ProblemSet::getProblemTitleById(std::string id)
 {
     return heap[id]->getProblemTitle();
+}
+
+bool ProblemSet::UpdateProblemStatusNumById(string &id, string &status)
+{
+    string statusnum;
+    if (status == CE)
+        statusnum = "CENum";
+    else if (status == AC)
+        statusnum = "ACNum";
+    else if (status == WA)
+        statusnum = "WANum";
+    else if (status == TLE)
+        statusnum = "TLENum";
+    else if (status == MLE)
+        statusnum = "MLENum";
+
+    return heap[id]->UpdateStatusNum(statusnum);
 }
 
 ProblemSet &ProblemSet::GetInstance()

@@ -34,6 +34,9 @@ public:
     // 功能：修改状态信息（根据ID）
     bool UpdateStatusRecordInfo(Json::Value &updatejson);
 
+    // 功能：修改题目的信息
+    bool UpdateProblemStatusNum(std::string &problemid, std::string &statusnum);
+
 private:
     MyDB();
     ~MyDB();

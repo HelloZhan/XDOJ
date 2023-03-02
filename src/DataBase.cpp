@@ -53,15 +53,6 @@ bool MyDB::ExeSQL(string sql)
     }
     return true;
 }
-int stringtoint(string sn)
-{
-    int res = 0;
-    for (auto k : sn)
-    {
-        res = res * 10 + k - '0';
-    }
-    return res;
-}
 int MyDB::InsertProblem(string title, string description, int judgenum)
 {
     printf("InsertProblem function!\n");
@@ -116,7 +107,7 @@ int MyDB::InsertProblem(string title, string description, int judgenum)
 Json::Value MyDB::getAllProblemInfo()
 {
     printf("MySQL getAllProblemInfo!!\n");
-    string sql = "select ProblemId, Title,Description,JudgeNum,SubmitNum,CENum,ACNum,WANum,TLENum,MLENum from Problem;";
+    string sql = "select ProblemId,Title,Description,JudgeNum from Problem;";
 
     Json::Value resJson;
     if (mysql_query(mysql, sql.data()))
@@ -141,12 +132,6 @@ Json::Value MyDB::getAllProblemInfo()
             info["Title"] = row[1];
             info["Description"] = row[2];
             info["JudgeNum"] = row[3];
-            info["SubmitNum"] = row[4];
-            info["CENum"] = row[5];
-            info["ACNum"] = row[6];
-            info["WANum"] = row[7];
-            info["TLENum"] = row[8];
-            info["MLENum"] = row[9];
 
             resJson["Array"].append(info);
         }
@@ -415,6 +400,16 @@ bool MyDB::UpdateStatusRecordInfo(Json::Value &updatejson)
     return true;
 }
 
+bool MyDB::UpdateProblemStatusNum(string &problemid, string &statusnum)
+{
+    string sql = "update Problem set SubmitNum = SubmitNum + 1 , " + statusnum + " = " + statusnum + "+ 1 where ProblemId = " + problemid + ";";
+    if (mysql_query(mysql, sql.data()))
+    {
+        printf("query fail: %s\n", mysql_error(mysql));
+        exit(1);
+    }
+    return true;
+}
 MyDB::MyDB()
 {
     mysql = mysql_init(NULL);
