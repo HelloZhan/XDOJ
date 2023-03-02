@@ -18,6 +18,8 @@ public:
     // 获取该题的详细描述
     std::string getProblemDescription();
 
+    std::string getProblemTitle();
+
 private:
     std::string m_problemid;
     std::string m_title;

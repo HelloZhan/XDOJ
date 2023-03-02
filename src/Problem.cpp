@@ -35,3 +35,8 @@ std::string Problem::getProblemDescription()
 {
     return m_description;
 }
+
+std::string Problem::getProblemTitle()
+{
+    return m_title;
+}

@@ -28,6 +28,12 @@ public:
     // 功能：分页查询状态记录信息
     Json::Value SelectStatusRecordInfo(Json::Value &queryjson);
 
+    // 功能：插入状态信息并返回ID
+    std::string InsertStatusRecordInfo(Json::Value &insertjson);
+
+    // 功能：修改状态信息（根据ID）
+    bool UpdateStatusRecordInfo(Json::Value &updatejson);
+
 private:
     MyDB();
     ~MyDB();

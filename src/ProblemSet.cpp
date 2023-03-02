@@ -42,6 +42,11 @@ int ProblemSet::getProblemJudgeNum(std::string id)
     return heap[id]->getJudgeNum();
 }
 
+string ProblemSet::getProblemTitleById(std::string id)
+{
+    return heap[id]->getProblemTitle();
+}
+
 ProblemSet &ProblemSet::GetInstance()
 {
     static ProblemSet problemset;

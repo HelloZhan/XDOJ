@@ -24,6 +24,9 @@ public:
     // 获取题目的测试数量
     int getProblemJudgeNum(std::string id);
 
+    // 获取题目标题
+    std::string getProblemTitleById(std::string id);
+
 private:
     ProblemSet();
     ~ProblemSet();

@@ -3,6 +3,7 @@
 #include "ProblemSet.h"
 #include "UserSet.h"
 #include "StatusRecord.h"
+#include <iostream>
 using namespace std;
 string Control::GetProblemDescription(string problemid)
 {
@@ -16,16 +17,37 @@ Json::Value Control::SelectProblemSetInfo(Json::Value &queryjson)
 
 Json::Value Control::GetJudgeCode(Json::Value judgejson)
 {
-    Json::Value runjson;
-    runjson["code"] = judgejson["code"];
-    runjson["runid"] = "100";
-    runjson["problemid"] = judgejson["id"];
-    runjson["language"] = "Go";
-    runjson["judgenum"] = ProblemSet::GetInstance().getProblemJudgeNum(judgejson["id"].asString());
-    runjson["timelimit"] = 2000;
-    runjson["memorylimit"] = 134217728;
+    // 传入：Json(ProblemId,UserId,UserNickName,ProblemTitle,Language,Code);
+    Json::Value insertjson;
+    insertjson["ProblemId"] = judgejson["ProblemId"];
+    insertjson["UserId"] = judgejson["UserId"];
+    insertjson["UserNickName"] = UserSet::GetInstance().getUserNickNameById(judgejson["UserId"].asString());
+    insertjson["ProblemTitle"] = ProblemSet::GetInstance().getProblemTitleById(judgejson["ProblemId"].asString());
+    insertjson["Language"] = judgejson["Language"];
+    insertjson["Code"] = judgejson["Code"];
+    cout << "judgejson" << endl;
+    cout << judgejson.toStyledString() << endl;
+    string submitid = MyDB::GetInstance().InsertStatusRecordInfo(insertjson);
 
-    return judger.Run(runjson);
+    Json::Value runjson;
+    runjson["Code"] = judgejson["Code"];
+    runjson["SubmitId"] = submitid;
+    runjson["ProblemId"] = judgejson["ProblemId"];
+    runjson["Language"] = judgejson["Language"];
+    runjson["JudgeNum"] = ProblemSet::GetInstance().getProblemJudgeNum(judgejson["ProblemId"].asString());
+    runjson["TimeLimit"] = 2000;
+    runjson["MemoryLimit"] = 134217728;
+
+    Json::Value resjson = judger.Run(runjson);
+    // 传入：Json(SubmitId,Status,RunTime,RunMemory,Length)
+    Json::Value updatejson;
+    updatejson["SubmitId"] = submitid;
+    updatejson["Status"] = resjson["Result"];
+    updatejson["RunTime"] = resjson["RunTime"];
+    updatejson["RunMemory"] = resjson["RunMemory"];
+    updatejson["Length"] = resjson["Length"];
+    MyDB::GetInstance().UpdateStatusRecordInfo(updatejson);
+    return resjson;
 }
 
 Json::Value Control::SelectStatusRecordInfo(Json::Value &queryjson)

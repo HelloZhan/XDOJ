@@ -271,7 +271,7 @@ Json::Value MyDB::SelectStatusRecordInfo(Json::Value &queryjson)
     string sql;
     if (querytype == "all")
     {
-        sql = "select SQL_CALC_FOUND_ROWS SubmitId,UserNickName,ProblemTitle,Status,RunTime,Memory,Length,Language,SubmitTime,Code from StatusRecord limit " + offest + "," + limit + ";";
+        sql = "select SQL_CALC_FOUND_ROWS SubmitId,UserNickName,ProblemTitle,Status,RunTime,RunMemory,Length,Language,SubmitTime,Code from StatusRecord order by SubmitId desc limit " + offest + "," + limit + ";";
     }
     else if (querytype == "user")
     {
@@ -307,10 +307,11 @@ Json::Value MyDB::SelectStatusRecordInfo(Json::Value &queryjson)
             info["ProblemTitle"] = row[2];
             info["Status"] = row[3];
             info["RunTime"] = row[4];
-            info["Memory"] = row[5];
+            info["RunMemory"] = row[5];
             info["Length"] = row[6];
-            info["SubmitTime"] = row[7];
-            info["Code"] = row[8];
+            info["Language"] = row[7];
+            info["SubmitTime"] = row[8];
+            info["Code"] = row[9];
 
             resJson["Array"].append(info);
         }
@@ -337,6 +338,81 @@ Json::Value MyDB::SelectStatusRecordInfo(Json::Value &queryjson)
     resJson["TotalNum"] = totalsize;
     printf("MySQL getStatusRecordInfo finish!!\n");
     return resJson;
+}
+// 功能：插入状态信息并返回ID
+std::string MyDB::InsertStatusRecordInfo(Json::Value &insertjson)
+{
+    // 传入：Json(ProblemId,UserId,UserNickName,ProblemTitle,Language,Code);
+    printf("InsertStatusRecordInfo function!\n");
+    int problemid = stoi(insertjson["ProblemId"].asString());
+    int userid = stoi(insertjson["UserId"].asString());
+    string usernickname = insertjson["UserNickName"].asString();
+    string problemtitle = insertjson["ProblemTitle"].asString();
+    string language = insertjson["Language"].asString();
+    string code = insertjson["Code"].asString();
+
+    string sql = "insert into StatusRecord value(null," + to_string(problemid) + "," + to_string(userid) + ",\" " + usernickname + " \",\" " + problemtitle + " \",\"Pending \",\"0MS\",\" 0MB \",\"0KB\",\" " + language + " \",default,\" " + code + " \");";
+
+    if (mysql_query(mysql, sql.data()))
+    {
+        printf("query fail: %s\n", mysql_error(mysql));
+        exit(1);
+    }
+    // 获取执行成功的Id
+    sql = "SELECT LAST_INSERT_ID();";
+    int submitid = 0;
+    if (mysql_query(mysql, sql.data()))
+    {
+        printf("query fail: %s\n", mysql_error(mysql));
+        exit(1);
+    }
+    else
+    {
+        /*获取结果集*/
+        result = mysql_store_result(mysql);
+
+        int rownum = mysql_num_rows(result);
+        int fieldnum = mysql_num_fields(result);
+        for (int i = 0; i < rownum; i++)
+        {
+            row = mysql_fetch_row(result);
+            if (row <= 0)
+                break;
+            for (int j = 0; j < fieldnum; j++)
+            {
+                if (row[j] == nullptr)
+                    submitid = 1;
+                else
+                {
+                    string k = row[j];
+                    submitid = stoi(k);
+                }
+            }
+        }
+        mysql_free_result(result);
+    }
+    printf("submitid = %d\n", submitid);
+    // 返回：SubmitId
+    return to_string(submitid);
+}
+
+// 功能：修改状态信息（根据ID）
+bool MyDB::UpdateStatusRecordInfo(Json::Value &updatejson)
+{
+    // 传入：Json(SubmitId,Status,RunTime,RunMemory,Length)
+    int submitid = stoi(updatejson["SubmitId"].asString());
+    string status = updatejson["Status"].asString();
+    string runtime = updatejson["RunTime"].asString();
+    string runmemory = updatejson["RunMemory"].asString();
+    string length = updatejson["Length"].asString();
+    string sql = "update StatusRecord set Status = \" " + status + " \",RunTime = \" " + runtime + " \",RunMemory =\" " + runmemory + " \",Length = \"" + length + "\" where SubmitId = " + to_string(submitid) + ";";
+
+    if (mysql_query(mysql, sql.data()))
+    {
+        printf("query fail: %s\n", mysql_error(mysql));
+        exit(1);
+    }
+    return true;
 }
 
 MyDB::MyDB()
