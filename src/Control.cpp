@@ -20,7 +20,7 @@ Json::Value Control::GetJudgeCode(Json::Value judgejson)
     runjson["code"] = judgejson["code"];
     runjson["runid"] = "100";
     runjson["problemid"] = judgejson["id"];
-    runjson["language"] = "c_cpp";
+    runjson["language"] = "Go";
     runjson["judgenum"] = ProblemSet::GetInstance().getProblemJudgeNum(judgejson["id"].asString());
     runjson["timelimit"] = 2000;
     runjson["memorylimit"] = 134217728;

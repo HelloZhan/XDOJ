@@ -24,27 +24,34 @@ public:
 private:
     // 数据初始化
     bool Init(Json::Value &initjson);
-    // 编译
-    bool Compiler();
-    // 运行
-    bool RunProgram();
+
+    // -----C-----
+    bool CompilerC(); // 编译C
+
+    bool CompilerCpp(); // 编译C++
+
+    bool CompilerGo();
+
+    bool RunProgramC_Cpp(); // 运行C或者C++
+
+    bool RunProgramGo();
     // 返回结果
     Json::Value Done();
 
 private:
-    std::string m_runid;
-    std::string m_problemid;
-    int m_testnum;
+    std::string m_runid;     // 运行ID
+    std::string m_problemid; // 题目ID
+    int m_testnum;           // 测试用例数目
 
-    std::string m_result;
-    std::string m_reason;
-    std::string m_command;
-    std::string m_language;
+    std::string m_result;   // 运行结果
+    std::string m_reason;   // 错误原因
+    std::string m_command;  // 命令（中间变量）
+    std::string m_language; // 测评语言
 
-    int m_timelimit;
-    long m_memorylimit;
-    int m_maxtimelimit;
-    int m_maxmemorylimie;
+    int m_timelimit;      // 时间限制
+    long m_memorylimit;   // 空间限制
+    int m_maxtimelimit;   // 最大时间限制
+    int m_maxmemorylimie; // 最大空间限制
 };
 
 #endif
