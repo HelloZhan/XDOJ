@@ -1,5 +1,5 @@
-#ifndef DATABASE_H
-#define DATABASE_H
+#ifndef MYSQLDATABASE_H
+#define MYSQLDATABASE_H
 #include <mysql/mysql.h>
 #include <string>
 #include <jsoncpp/json/json.h>

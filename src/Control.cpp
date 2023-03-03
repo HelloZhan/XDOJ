@@ -1,4 +1,5 @@
 #include "MySQLDataBase.h"
+#include "MongoDataBase.h"
 #include "Control.h"
 #include "ProblemSet.h"
 #include "UserSet.h"
@@ -67,6 +68,9 @@ Control::Control()
 {
     // 连接MySQL数据库
     MyDB::GetInstance().InitDB("192.168.49.130", "root", "1", "XDOJ");
+
+    // 初始化MongoDB数据库
+    MoDB::GetInstance().InitDB();
 
     // 初始化题库
     ProblemSet::GetInstance().Init();

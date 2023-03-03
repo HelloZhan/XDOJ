@@ -11,6 +11,8 @@ link_directories(${CMAKE_SOURCE_DIR}/../lib)
 
 # 查找头文件的路径
 include_directories(../include)
+include_directories(/usr/local/include/mongocxx/v_noabi /usr/local/include/libmongoc-1.0)
+include_directories(/usr/local/include/bsoncxx/v_noabi /usr/local/include/libbson-1.0)
 
 # 查找当前目录下的所有源文件
 # 并将名称保存到 DIR_SRCS 变量
@@ -20,7 +22,7 @@ aux_source_directory(. DIR_SRCS)
 add_executable(xdoj ${DIR_SRCS})
 
 # 链接库
-target_link_libraries(xdoj jsoncpp pthread mysqlclient judger)
+target_link_libraries(xdoj jsoncpp pthread mysqlclient judger mongocxx bsoncxx)
 
 # 指定编译参数
 set(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O3 -Wall")
