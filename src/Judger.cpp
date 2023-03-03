@@ -8,7 +8,7 @@
 
 extern "C"
 {
-#include "runner.h"
+#include "../include/runner.h"
 }
 
 using namespace std;

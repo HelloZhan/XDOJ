@@ -26,8 +26,7 @@ Json::Value Control::GetJudgeCode(Json::Value judgejson)
     insertjson["ProblemTitle"] = ProblemSet::GetInstance().getProblemTitleById(judgejson["ProblemId"].asString());
     insertjson["Language"] = judgejson["Language"];
     insertjson["Code"] = judgejson["Code"];
-    cout << "judgejson" << endl;
-    cout << judgejson.toStyledString() << endl;
+
     string submitid = MyDB::GetInstance().InsertStatusRecordInfo(insertjson);
 
     // 运行代码
