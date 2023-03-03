@@ -1,4 +1,4 @@
-#include "DataBase.h"
+#include "MySQLDataBase.h"
 #include <string>
 #include <iostream>
 using namespace std;

@@ -1,5 +1,5 @@
 #include "ProblemSet.h"
-#include "DataBase.h"
+#include "MySQLDataBase.h"
 #include "Problem.h"
 #include <iostream>
 using namespace std;

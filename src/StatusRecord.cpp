@@ -1,5 +1,5 @@
 #include "StatusRecord.h"
-#include "DataBase.h"
+#include "MySQLDataBase.h"
 
 StatusRecord &StatusRecord::GetInstance()
 {
