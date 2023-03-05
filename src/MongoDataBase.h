@@ -33,6 +33,10 @@ public:
     // 查询所有讨论
     Json::Value getAllDiscuss();
 
+    Json::Value getAllComment();
+
+    Json::Value getAllArticle();
+
 private:
     // 必须只能一个连接
     mongocxx::instance instance{}; // This should be done only once.

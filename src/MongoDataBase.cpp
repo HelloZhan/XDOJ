@@ -32,6 +32,34 @@ Json::Value MoDB::getAllDiscuss()
     return resjson;
 }
 
+Json::Value MoDB::getAllComment()
+{
+    Json::Reader reader;
+    Json::Value resjson;
+    mongocxx::cursor cursor = commentcoll.find({});
+    for (auto doc : cursor)
+    {
+        Json::Value jsonvalue;
+        reader.parse(bsoncxx::to_json(doc), jsonvalue);
+        resjson.append(jsonvalue);
+    }
+    return resjson;
+}
+
+Json::Value MoDB::getAllArticle()
+{
+    Json::Reader reader;
+    Json::Value resjson;
+    mongocxx::cursor cursor = articlecoll.find({});
+    for (auto doc : cursor)
+    {
+        Json::Value jsonvalue;
+        reader.parse(bsoncxx::to_json(doc), jsonvalue);
+        resjson.append(jsonvalue);
+    }
+    return resjson;
+}
+
 MoDB::MoDB()
 {
 }
