@@ -17,6 +17,12 @@ public:
 
     // 返回状态记录的信息
     Json::Value SelectStatusRecordInfo(Json::Value &queryjson);
+
+    // 讨论
+
+    // 获取所有讨论
+    Json::Value GetAllDiscuss();
+
     Control();
 
     ~Control();

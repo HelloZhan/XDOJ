@@ -121,6 +121,15 @@ void doGetStatusRecord(const httplib::Request &req, httplib::Response &res)
     printf("doGetProblemSet end!!!\n");
     res.set_content(resvalue.toStyledString(), "json");
 }
+
+void doGetDiscuss(const httplib::Request &req, httplib::Response &res)
+{
+    printf("doGetDiscuss start!!!\n");
+    Json::Value resjson = control.GetAllDiscuss();
+    printf("doGetDiscuss end!!!\n");
+    res.set_content(resjson.toStyledString(), "json");
+}
+
 int main()
 {
     using namespace httplib;
@@ -133,6 +142,8 @@ int main()
     server.Get("/statusrecord", doGetStatusRecord);
     // 提交代码
     server.Post("/problecode", doPostCode);
+    // 获取讨论
+    server.Get("/discuss", doGetDiscuss);
 
     server.listen("0.0.0.0", 8081);
 

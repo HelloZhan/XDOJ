@@ -8,6 +8,7 @@
 #include <bsoncxx/builder/stream/helpers.hpp>
 #include <bsoncxx/builder/stream/document.hpp>
 #include <bsoncxx/builder/stream/array.hpp>
+#include <jsoncpp/json/json.h>
 
 using bsoncxx::builder::stream::close_array;
 using bsoncxx::builder::stream::close_document;
@@ -24,12 +25,24 @@ public:
     // 局部静态特性的方式实现单实例
     static MoDB &GetInstance();
 
+    // 初始化
     bool InitDB();
 
-private:
-    mongocxx::database db;
+    // Disscuss 讨论
 
+    // 查询所有讨论
+    Json::Value getAllDiscuss();
+
+private:
+    // 必须只能一个连接
+    mongocxx::instance instance{}; // This should be done only once.
+    mongocxx::client client{mongocxx::uri{}};
+    mongocxx::database db;
     mongocxx::collection articlecoll;
+
+    mongocxx::collection discusscoll;
+
+    mongocxx::collection commentcoll;
 
     MoDB();
     ~MoDB();

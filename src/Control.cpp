@@ -4,6 +4,7 @@
 #include "ProblemSet.h"
 #include "UserSet.h"
 #include "StatusRecord.h"
+#include "Discuss.h"
 #include <iostream>
 using namespace std;
 string Control::GetProblemDescription(string problemid)
@@ -62,6 +63,11 @@ Json::Value Control::GetJudgeCode(Json::Value judgejson)
 Json::Value Control::SelectStatusRecordInfo(Json::Value &queryjson)
 {
     return StatusRecord::GetInstance().SelectStatusRecordInfo(queryjson);
+}
+
+Json::Value Control::GetAllDiscuss()
+{
+    return Disscuss::GetInstance().getAllDiscuss();
 }
 
 Control::Control()
