@@ -1,45 +1,62 @@
 ﻿{
-    "Article":[
+    "Article": [
         {
-            "_id":"String",
-            "Title":"String",
-            "Content":"String",
-            "Author":{
-                "AuthorId":"String",
-                "AuthorName":"String"
+            "_id": "int64_t",
+            "ProblemId": "int64_t",
+            "Title": "String",
+            "Content": "String",
+            "Author": {
+                "AuthorId": "int64_t",
+                "AuthorName": "String"
             },
-            "Views":"int",
-            "Likes":"int",
-            "Comments":"int",
-            "CreatTime":"time",
-            "UpdateTime":"time"
+            "Views": "int",
+            "Likes": "int",
+            "Comments": "int",
+            "CreatTime": "time",
+            "UpdateTime": "time"
         }
     ],
-    "Comment":[
+    "Discuss": [
         {
-            "_id":"String",
-            "ArticleId":"String",
-            "Content":"String",
-            "Author":{
-                "AuthorId":"String",
-                "AuthorName":"String"
+            "_id": "int64_t",
+            "Title": "String",
+            "Content": "String",
+            "Author": {
+                "AuthorId": "int64_t",
+                "AuthorName": "String"
             },
-            "Likes":"int",
-            "CreateTime":"time",
-            "Child_Comments":[
+            "Views": "int",
+            "Likes": "int",
+            "Comments": "int",
+            "CreatTime": "time",
+            "UpdateTime": "time"
+        }
+    ],
+    "Comment": [
+        {
+            "_id": "int64_t",
+            "ParentId": "int64_t",
+            "Content": "String",
+            "Author": {
+                "AuthorId": "int64_t",
+                "AuthorName": "String"
+            },
+            "Likes": "int",
+            "CreateTime": "time",
+            "Child_Comments": [
                 {
-                    "Content":"String",
-                    "Author":{
-                        "AuthorId":"String",
-                        "AuthorName":"String"
+                    "Content": "String",
+                    "Author": {
+                        "AuthorId": "int64_t",
+                        "AuthorName": "String"
                     },
-                    "ReplayAuthor":{
-                        "AuthorId":"String",
-                        "AuthorName":"String"
+                    "ReplayAuthor": {
+                        "AuthorId": "int64_t",
+                        "AuthorName": "String"
                     },
-                    "Likes":"int",
-                    "CreateTime":"time"
-                }    
+                    "Likes": "int",
+                    "CreateTime": "time"
+                }
             ]
         }
     ]
