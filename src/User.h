@@ -15,7 +15,7 @@ public:
 
 private:
     std::string m_userid;
-    std::string m_avator;
+    std::string m_avatar;
     std::string m_nickname;
     std::string m_account;
     std::string m_password;

@@ -143,7 +143,7 @@ Json::Value MyDB::getAllProblemInfo()
 Json::Value MyDB::getAllUserInfo()
 {
     printf("MySQL getAllUserInfo!!\n");
-    string sql = "select UserId, Avator,NickName,Account,Password from User;";
+    string sql = "select UserId, Avatar,NickName,Account,Password from User;";
 
     Json::Value resJson;
     if (mysql_query(mysql, sql.data()))
@@ -165,7 +165,7 @@ Json::Value MyDB::getAllUserInfo()
                 break;
             Json::Value info;
             info["UserId"] = row[0];
-            info["Avator"] = row[1];
+            info["Avatar"] = row[1];
             info["NickName"] = row[2];
             info["Account"] = row[3];
             info["Password"] = row[4];

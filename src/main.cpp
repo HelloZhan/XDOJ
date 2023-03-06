@@ -5,6 +5,8 @@
 #include <typeinfo>
 #include <map>
 #include "Control.h"
+#include "./utils/fileutils.h"
+#include <vector>
 
 using namespace std;
 Control control;
@@ -130,6 +132,23 @@ void doGetDiscuss(const httplib::Request &req, httplib::Response &res)
     res.set_content(resjson.toStyledString(), "json");
 }
 
+void doGetImage(const httplib::Request &req, httplib::Response &res)
+{
+    printf("doTest start!!!\n");
+    int index = stoi(req.matches[1]);
+    string path = "../../WWW/image/avatar_" + to_string(index) + ".webp";
+    ifstream infile;
+    infile.open(path.data());
+    if (!infile.is_open())
+    {
+        string str = "图片获取失败";
+        res.set_content(str, "text");
+    }
+    string image((istreambuf_iterator<char>(infile)),
+                 (istreambuf_iterator<char>()));
+    printf("doTest end!!!\n");
+    res.set_content(image, "webp");
+}
 int main()
 {
     using namespace httplib;
@@ -145,7 +164,10 @@ int main()
     // 获取讨论
     server.Get("/discuss", doGetDiscuss);
 
-    server.listen("0.0.0.0", 8081);
+    server.Get(R"(/image/(\d+))", doGetImage);
+    // 设置静态资源
+    server.set_base_dir("../WWW");
 
+    server.listen("0.0.0.0", 8081);
     return 0;
 }
