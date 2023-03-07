@@ -23,6 +23,9 @@ public:
     // 获取所有讨论
     Json::Value GetAllDiscuss();
 
+    // 获取评论 根据Id
+    Json::Value GetAllCommentById(std::string &id);
+
     Control();
 
     ~Control();

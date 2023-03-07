@@ -32,11 +32,13 @@ Json::Value MoDB::getAllDiscuss()
     return resjson;
 }
 
-Json::Value MoDB::getAllComment()
+Json::Value MoDB::getAllCommentById(std::string &id)
 {
     Json::Reader reader;
     Json::Value resjson;
-    mongocxx::cursor cursor = commentcoll.find({});
+    int64_t parentid = stoll(id);
+    cout << "id=" << parentid << endl;
+    mongocxx::cursor cursor = commentcoll.find({make_document(kvp("ParentId", parentid))});
     for (auto doc : cursor)
     {
         Json::Value jsonvalue;

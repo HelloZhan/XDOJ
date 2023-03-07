@@ -5,6 +5,7 @@
 #include "UserSet.h"
 #include "StatusRecord.h"
 #include "Discuss.h"
+#include "Comment.h"
 #include <iostream>
 using namespace std;
 string Control::GetProblemDescription(string problemid)
@@ -70,10 +71,15 @@ Json::Value Control::GetAllDiscuss()
     return Disscuss::GetInstance().getAllDiscuss();
 }
 
+Json::Value Control::GetAllCommentById(std::string &id)
+{
+    return Comment::GetInstance().getAllCommentById(id);
+}
+
 Control::Control()
 {
     // 连接MySQL数据库
-    MyDB::GetInstance().InitDB("192.168.49.130", "root", "1", "XDOJ");
+    MyDB::GetInstance().InitDB("192.168.49.131", "root", "1", "XDOJ");
 
     // 初始化MongoDB数据库
     MoDB::GetInstance().InitDB();

@@ -33,7 +33,7 @@ public:
     // 查询所有讨论
     Json::Value getAllDiscuss();
 
-    Json::Value getAllComment();
+    Json::Value getAllCommentById(std::string &id);
 
     Json::Value getAllArticle();
 

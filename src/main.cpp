@@ -5,7 +5,6 @@
 #include <typeinfo>
 #include <map>
 #include "Control.h"
-#include "./utils/fileutils.h"
 #include <vector>
 
 using namespace std;
@@ -131,7 +130,18 @@ void doGetDiscuss(const httplib::Request &req, httplib::Response &res)
     printf("doGetDiscuss end!!!\n");
     res.set_content(resjson.toStyledString(), "json");
 }
-
+void doGetComment(const httplib::Request &req, httplib::Response &res)
+{
+    printf("doGetComment start!!!\n");
+    string parentid = "0";
+    if (req.has_param("ParentId"))
+    {
+        parentid = req.get_param_value("ParentId");
+    }
+    Json::Value resjson = control.GetAllCommentById(parentid);
+    printf("doGetComment end!!!\n");
+    res.set_content(resjson.toStyledString(), "json");
+}
 void doGetImage(const httplib::Request &req, httplib::Response &res)
 {
     printf("doTest start!!!\n");
@@ -163,6 +173,8 @@ int main()
     server.Post("/problecode", doPostCode);
     // 获取讨论
     server.Get("/discuss", doGetDiscuss);
+    // 获取评论
+    server.Get("/comment", doGetComment);
 
     server.Get(R"(/image/(\d+))", doGetImage);
     // 设置静态资源
