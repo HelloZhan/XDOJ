@@ -55,5 +55,6 @@
         "ratio": "cpp",
         "thread": "cpp"
     },
-    "C_Cpp.errorSquiggles": "disabled"
+    "C_Cpp.errorSquiggles": "disabled",
+    "cmake.sourceDirectory": "${workspaceFolder}/src"
 }
