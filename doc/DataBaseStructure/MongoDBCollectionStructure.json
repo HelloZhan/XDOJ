@@ -54,26 +54,28 @@
             "_id": "int64_t",
             "ParentId": "int64_t",
             "Content": "String",
-            "Author": {
-                "AuthorId": "int64_t",
-                "AuthorName": "String",
-                "AuthorAvatar": "String"
-            },
+            "AuthorId": "int64_t",
             "Likes": "int",
             "CreateTime": "time",
             "Child_Comments": [
                 {
                     "_id": "int64_t",
                     "Content": "String",
-                    "Author": {
-                        "AuthorId": "int64_t",
-                        "AuthorName": "String",
-                        "AuthorAvatar": "String"
-                    },
+                    "AuthorId": "int64_t",
                     "Likes": "int",
                     "CreateTime": "time"
                 }
             ]
+        }
+    ],
+    "User": [
+        {
+            "_id": "int64_t",
+            "Avatar": "String",
+            "NickName": "String",
+            "Account": "String",
+            "PassWord": "String",
+            "Likes": "[int]"
         }
     ]
 }

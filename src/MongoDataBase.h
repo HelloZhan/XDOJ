@@ -5,6 +5,7 @@
 #include <mongocxx/stdx.hpp>
 #include <mongocxx/uri.hpp>
 #include <mongocxx/instance.hpp>
+#include <mongocxx/pipeline.hpp>
 #include <bsoncxx/builder/stream/helpers.hpp>
 #include <bsoncxx/builder/stream/document.hpp>
 #include <bsoncxx/builder/stream/array.hpp>
@@ -33,9 +34,16 @@ public:
     // 查询所有讨论
     Json::Value getAllDiscuss();
 
-    Json::Value getAllCommentById(std::string &id);
+    Json::Value getFatherComment(Json::Value &queryjson);
+
+    Json::Value getSonComment(Json::Value &queryjson);
 
     Json::Value getAllArticle();
+
+    // 评论
+    Json::Value InsertFatherComment(Json::Value &insertjson);
+
+    Json::Value InsertSonComment(Json::Value &insertjson);
 
 private:
     // 必须只能一个连接

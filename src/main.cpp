@@ -133,12 +133,19 @@ void doGetDiscuss(const httplib::Request &req, httplib::Response &res)
 void doGetComment(const httplib::Request &req, httplib::Response &res)
 {
     printf("doGetComment start!!!\n");
-    string parentid = "0";
-    if (req.has_param("ParentId"))
-    {
-        parentid = req.get_param_value("ParentId");
-    }
-    Json::Value resjson = control.GetAllCommentById(parentid);
+    Json::Value queryjson;
+    string type = req.get_param_value("Type");
+    string parentid = req.get_param_value("ParentId");
+    string skip = req.get_param_value("Skip");
+    string limit = req.get_param_value("Limit");
+    string sonsnum = req.get_param_value("SonNum");
+    queryjson["Type"] = type;
+    queryjson["ParentId"] = parentid;
+    queryjson["Skip"] = skip;
+    queryjson["Limit"] = limit;
+    queryjson["SonNum"] = sonsnum;
+
+    Json::Value resjson = control.GetComment(queryjson);
     printf("doGetComment end!!!\n");
     res.set_content(resjson.toStyledString(), "json");
 }
@@ -159,6 +166,18 @@ void doGetImage(const httplib::Request &req, httplib::Response &res)
     printf("doTest end!!!\n");
     res.set_content(image, "webp");
 }
+
+void doInsertComment(const httplib::Request &req, httplib::Response &res)
+{
+    printf("doInsertComment start!!!\n");
+    Json::Value jsonvalue;
+    Json::Reader reader;
+    // 解析传入的json
+    reader.parse(req.body, jsonvalue);
+    Json::Value resjson = control.InsertComment(jsonvalue["Info"]);
+    printf("doInsertComment end!!!\n");
+    res.set_content(resjson.toStyledString(), "json");
+}
 int main()
 {
     using namespace httplib;
@@ -175,8 +194,10 @@ int main()
     server.Get("/discuss", doGetDiscuss);
     // 获取评论
     server.Get("/comment", doGetComment);
-
+    // 获取图片资源
     server.Get(R"(/image/(\d+))", doGetImage);
+
+    server.Post("/comment/insert", doInsertComment);
     // 设置静态资源
     server.set_base_dir("../WWW");
 

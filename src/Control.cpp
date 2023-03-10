@@ -71,9 +71,29 @@ Json::Value Control::GetAllDiscuss()
     return Disscuss::GetInstance().getAllDiscuss();
 }
 
-Json::Value Control::GetAllCommentById(std::string &id)
+Json::Value Control::GetComment(Json::Value &queryjson)
 {
-    return Comment::GetInstance().getAllCommentById(id);
+    if (queryjson["Type"].asString() == "Father")
+    {
+        return Comment::GetInstance().getFatherComment(queryjson);
+    }
+    else
+    {
+        return Comment::GetInstance().getSonComment(queryjson);
+    }
+}
+
+Json::Value Control::InsertComment(Json::Value &insertjson)
+{
+    string type = insertjson["Type"].asString();
+    if (type == "Father")
+    {
+        return Comment::GetInstance().InsertFatherComment(insertjson);
+    }
+    else
+    {
+        return Comment::GetInstance().InsertSonComment(insertjson);
+    }
 }
 
 Control::Control()

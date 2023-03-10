@@ -24,7 +24,10 @@ public:
     Json::Value GetAllDiscuss();
 
     // 获取评论 根据Id
-    Json::Value GetAllCommentById(std::string &id);
+    Json::Value GetComment(Json::Value &queryjson);
+
+    // 插入评论
+    Json::Value InsertComment(Json::Value &insertjson);
 
     Control();
 
