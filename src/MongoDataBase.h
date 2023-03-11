@@ -29,6 +29,23 @@ public:
     // 初始化
     bool InitDB();
 
+    /*
+        功能：注册用户
+        前端传入
+        Json(NickName,Account,PassWord,PersonalProfile,School,Major)
+        后端传出
+        Json(Result,Reason)
+    */
+    Json::Value RegisterUser(Json::Value &registerjson);
+
+    /*
+        功能：登录用户
+        前端传入
+        Json(Account,PassWord)
+        后端传出
+        Json(Result,Reason,_id,NickName,Avatar)
+    */
+    Json::Value LoginUser(Json::Value &loginjson);
     // Disscuss 讨论
 
     // 查询所有讨论
@@ -50,6 +67,8 @@ private:
     mongocxx::instance instance{}; // This should be done only once.
     mongocxx::client client{mongocxx::uri{}};
     mongocxx::database db;
+
+    mongocxx::collection usercoll;
     mongocxx::collection articlecoll;
 
     mongocxx::collection discusscoll;

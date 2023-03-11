@@ -10,6 +10,32 @@
 using namespace std;
 Control control;
 
+// 请求注册用户
+void doRegisterUser(const httplib::Request &req, httplib::Response &res)
+{
+    printf("doRegister start!!!\n");
+    Json::Value jsonvalue;
+    Json::Reader reader;
+    // 解析传入的json
+    reader.parse(req.body, jsonvalue);
+    Json::Value resjson = control.RegisterUser(jsonvalue);
+
+    printf("doGetProblem end!!!\n");
+    res.set_content(resjson.toStyledString(), "json");
+}
+// 请求登录用户
+void doLoginUser(const httplib::Request &req, httplib::Response &res)
+{
+    printf("doLoginUser start!!!\n");
+    Json::Value jsonvalue;
+    Json::Reader reader;
+    // 解析传入的json
+    reader.parse(req.body, jsonvalue);
+    Json::Value resjson = control.LoginUser(jsonvalue);
+
+    printf("doLoginUser end!!!\n");
+    res.set_content(resjson.toStyledString(), "json");
+}
 // 返回网页请求的题目描述
 void doGetProblem(const httplib::Request &req, httplib::Response &res)
 {
@@ -178,10 +204,15 @@ void doInsertComment(const httplib::Request &req, httplib::Response &res)
     printf("doInsertComment end!!!\n");
     res.set_content(resjson.toStyledString(), "json");
 }
+
 int main()
 {
     using namespace httplib;
     Server server;
+    // 注册用户
+    server.Post("/register", doRegisterUser);
+    // 登录用户
+    server.Post("/login", doLoginUser);
     // 获取单个题目
     server.Get("/problem", doGetProblem);
     // 获取题库

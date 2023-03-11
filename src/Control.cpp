@@ -8,6 +8,17 @@
 #include "Comment.h"
 #include <iostream>
 using namespace std;
+
+Json::Value Control::RegisterUser(Json::Value &registerjson)
+{
+    return UserSet::GetInstance().RegisterUser(registerjson);
+}
+
+Json::Value Control::LoginUser(Json::Value &loginjson)
+{
+    return UserSet::GetInstance().LoginUser(loginjson);
+}
+
 string Control::GetProblemDescription(string problemid)
 {
     return ProblemSet::GetInstance().getProblemDescription(problemid);
@@ -25,7 +36,7 @@ Json::Value Control::GetJudgeCode(Json::Value judgejson)
     Json::Value insertjson;
     insertjson["ProblemId"] = judgejson["ProblemId"];
     insertjson["UserId"] = judgejson["UserId"];
-    insertjson["UserNickName"] = UserSet::GetInstance().getUserNickNameById(judgejson["UserId"].asString());
+    // insertjson["UserNickName"] = UserSet::GetInstance().getUserNickNameById(judgejson["UserId"].asString());
     insertjson["ProblemTitle"] = ProblemSet::GetInstance().getProblemTitleById(judgejson["ProblemId"].asString());
     insertjson["Language"] = judgejson["Language"];
     insertjson["Code"] = judgejson["Code"];
@@ -106,9 +117,6 @@ Control::Control()
 
     // 初始化题库
     ProblemSet::GetInstance().Init();
-
-    // 初始化用户
-    UserSet::GetInstance().LoadDataBaseInfo();
 }
 
 Control::~Control()

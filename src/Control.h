@@ -6,6 +6,11 @@
 class Control
 {
 public:
+    // 注册用户
+    Json::Value RegisterUser(Json::Value &registerjson);
+    // 登录用户
+    Json::Value LoginUser(Json::Value &loginjson);
+
     // 返回具体题目
     std::string GetProblemDescription(std::string problemid);
 

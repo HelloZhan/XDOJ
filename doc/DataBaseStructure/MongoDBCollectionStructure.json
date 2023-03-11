@@ -75,7 +75,10 @@
             "NickName": "String",
             "Account": "String",
             "PassWord": "String",
-            "Likes": "[int]"
+            "PersonalProfile": "String",
+            "School": "String",
+            "Major": "String",
+            "JoinTime": "String"
         }
     ]
 }

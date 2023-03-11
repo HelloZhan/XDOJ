@@ -9,21 +9,15 @@ class UserSet
 public:
     // 局部静态特性的方式实现单实例
     static UserSet &GetInstance();
-
-    // 加载数据库信息
-    bool LoadDataBaseInfo();
-
-    // 获取某用户信息
-    Json::Value getUserInfoById(std::string userid);
-
-    // 获取某用户昵称
-    std::string getUserNickNameById(std::string userid);
+    // 注册用户
+    Json::Value RegisterUser(Json::Value &registerjson);
+    // 登录用户
+    Json::Value LoginUser(Json::Value &loginjson);
 
 private:
     UserSet();
     ~UserSet();
 
 private:
-    std::unordered_map<std::string, User *> heap;
 };
 #endif

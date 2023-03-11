@@ -30,11 +30,108 @@ bool MoDB::InitDB()
     // 连接数据库
     db = client["XDOJ"];
     // 连接集合
+    usercoll = db["User"];
     articlecoll = db["Article"];
     discusscoll = db["Discuss"];
     commentcoll = db["Comment"];
 }
+/*
+    功能：注册用户
+    前端传入
+    Json(NickName,Account,PassWord,PersonalProfile,School,Major)
+    后端传出
+    Json(Result,Reason)
+*/
+Json::Value MoDB::RegisterUser(Json::Value &registerjson)
+{
+    Json::Value resjson;
+    string account = registerjson["Account"].asString();
+    mongocxx::cursor cursor = usercoll.find({make_document(kvp("Account", account.data()))});
+    // 判断账户是否存在
+    if (cursor.begin() != cursor.end())
+    {
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "账户已存在，请重新填写！";
+        return resjson;
+    }
+    string nickname = registerjson["NickName"].asString();
+    // 检查昵称是否存在
+    cursor = usercoll.find({make_document(kvp("NickName", nickname.data()))});
+    if (cursor.begin() != cursor.end())
+    {
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "昵称已存在，请重新填写！";
+        return resjson;
+    }
+    string password = registerjson["PassWord"].asString();
+    string personalprofile = registerjson["PersonalProfile"].asString();
+    string school = registerjson["School"].asString();
+    string major = registerjson["Major"].asString();
+    int64_t id = uuid.nextid();
+    string jointime = GetTime();
+    // 默认头像
+    string avatar = "http://192.168.49.131:8081/image/1";
+    // 插入
+    bsoncxx::builder::stream::document document{};
+    document
+        << "_id" << id
+        << "Avatar" << avatar.data()
+        << "NickName" << nickname.data()
+        << "Account" << account.data()
+        << "PassWord" << password.data()
+        << "PersonalProfile" << personalprofile.data()
+        << "School" << school.data()
+        << "Major" << major.data()
+        << "JoinTime" << jointime.data();
 
+    usercoll.insert_one(document.view());
+
+    resjson["Result"] = "Success";
+    resjson["Reason"] = "注册成功！";
+    return resjson;
+}
+/*
+        功能：登录用户
+        前端传入
+        Json(Account,PassWord)
+        后端传出
+        Json(Result,Reason,_id,NickName,Avatar)
+    */
+Json::Value MoDB::LoginUser(Json::Value &loginjson)
+{
+    Json::Value resjson;
+    string account = loginjson["Account"].asString();
+    string password = loginjson["PassWord"].asString();
+    mongocxx::pipeline pipe;
+    bsoncxx::builder::stream::document document{};
+    document
+        << "Account" << account.data()
+        << "PassWord" << password.data();
+    pipe.match(document.view());
+    document.clear();
+    document
+        << "NickName" << 1
+        << "Avatar" << 1;
+
+    pipe.project(document.view());
+
+    mongocxx::cursor cursor = usercoll.aggregate(pipe);
+    if (cursor.begin() == cursor.end())
+    {
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "账户或密码错误！";
+        return resjson;
+    }
+    Json::Reader reader;
+    for (auto doc : cursor)
+    {
+        Json::Value jsonvalue;
+        reader.parse(bsoncxx::to_json(doc), resjson);
+    }
+    resjson["Result"] = "Success";
+    resjson["Reason"] = "登录成功！";
+    return resjson;
+}
 Json::Value MoDB::getAllDiscuss()
 {
     Json::Reader reader;
@@ -61,6 +158,8 @@ Json::Value MoDB::getFatherComment(Json::Value &queryjson)
     bsoncxx::builder::stream::document document{};
     // 匹配ParentId
     pipe.match({make_document(kvp("ParentId", parentid))});
+    // 按照时间先后顺序
+    pipe.sort({make_document(kvp("CreateTime", 1))});
     // 跳过多少条
     pipe.skip(skip);
     // 限制多少条
@@ -104,7 +203,6 @@ Json::Value MoDB::getFatherComment(Json::Value &queryjson)
         << "Child_Comments.Author";
     pipe.lookup(document.view());
     document.clear();
-
     // 将其合并
     document
         << "_id"
@@ -157,6 +255,8 @@ Json::Value MoDB::getFatherComment(Json::Value &queryjson)
         << close_array;
     pipe.append_stage(document.view());
     document.clear();
+    // 按照时间先后顺序
+    pipe.sort({make_document(kvp("CreateTime", 1))});
 
     Json::Reader reader;
     Json::Value jsoninfo;
@@ -252,9 +352,7 @@ Json::Value MoDB::getSonComment(Json::Value &queryjson)
     mongocxx::cursor cursor = commentcoll.aggregate(pipe);
     for (auto doc : cursor)
     {
-        Json::Value jsonvalue;
-        reader.parse(bsoncxx::to_json(doc), jsonvalue);
-        resjson.append(jsonvalue);
+        reader.parse(bsoncxx::to_json(doc), resjson);
     }
     return resjson;
 }
@@ -280,20 +378,15 @@ Json::Value MoDB::InsertFatherComment(Json::Value &insertjson)
     int64_t parentid = atoll(insertjson["ParentId"].asString().data());
     string content = insertjson["Content"].asString();
     int64_t authorid = atoll(insertjson["AuthorId"].asString().data());
-    string authorname = insertjson["AuthorName"].asString();
-    string authoravatar = insertjson["AuthorAvatar"].asString();
+    string createtime = GetTime();
     bsoncxx::builder::stream::document document{};
     document
         << "_id" << id
         << "ParentId" << parentid
         << "Content" << content.data()
-        << "Author" << open_document
         << "AuthorId" << authorid
-        << "AuthorName" << authorname.data()
-        << "AuthorAvatar" << authoravatar.data()
-        << close_document
         << "Likes" << 0
-        << "CreateTime" << GetTime().data()
+        << "CreateTime" << createtime.data()
         << "Child_Comments" << open_array
         << close_array;
 
@@ -302,6 +395,7 @@ Json::Value MoDB::InsertFatherComment(Json::Value &insertjson)
 
     Json::Value resjson;
     resjson["_id"] = to_string(id);
+    resjson["CreateTime"] = createtime.data();
     return resjson;
 }
 
@@ -312,8 +406,7 @@ Json::Value MoDB::InsertSonComment(Json::Value &insertjson)
     int64_t id = uuid.nextid();
     string content = insertjson["Content"].asString();
     int64_t authorid = stoll(insertjson["AuthorId"].asString().data());
-    string authorname = insertjson["AuthorName"].asString();
-    string authoravatar = insertjson["AuthorAvatar"].asString();
+    string createtime = GetTime();
     bsoncxx::builder::stream::document document{};
     document
         << "$addToSet" << open_document
@@ -321,16 +414,10 @@ Json::Value MoDB::InsertSonComment(Json::Value &insertjson)
         << "_id" << id
         << "Content"
         << content.data()
-        << "Author" << open_document
         << "AuthorId" << authorid
-        << "AuthorName"
-        << authorname.data()
-        << "AuthorAvatar"
-        << authoravatar.data()
-        << close_document
         << "Likes" << 0
         << "CreateTime"
-        << GetTime().data()
+        << createtime.data()
         << close_document
         << close_document;
     std::cout << "the document:" << bsoncxx::to_json(document) << std::endl;
@@ -339,6 +426,7 @@ Json::Value MoDB::InsertSonComment(Json::Value &insertjson)
 
     Json::Value resjson;
     resjson["_id"] = to_string(id);
+    resjson["CreateTime"] = createtime;
     return resjson;
 }
 MoDB::MoDB()

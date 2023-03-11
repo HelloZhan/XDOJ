@@ -1,6 +1,5 @@
 #include "UserSet.h"
-#include "MySQLDataBase.h"
-#include "User.h"
+#include "MongoDataBase.h"
 #include <iostream>
 using namespace std;
 
@@ -9,29 +8,15 @@ UserSet &UserSet::GetInstance()
     static UserSet userset;
     return userset;
 }
-
-bool UserSet::LoadDataBaseInfo()
+Json::Value UserSet::RegisterUser(Json::Value &registerjson)
 {
-    Json::Value UserInfo = MyDB::GetInstance().getAllUserInfo();
-    int UserNum = (int)UserInfo["Array"].size();
-    for (int i = 0; i < UserNum; i++)
-    {
-        User *tmp = new User(UserInfo["Array"][i]);
-        heap[UserInfo["Array"][i]["UserId"].asString()] = tmp;
-    }
-    return true;
+    return MoDB::GetInstance().RegisterUser(registerjson);
 }
 
-Json::Value UserSet::getUserInfoById(std::string userid)
+Json::Value UserSet::LoginUser(Json::Value &loginjson)
 {
-    return heap[userid]->getUserInfo();
+    return MoDB::GetInstance().LoginUser(loginjson);
 }
-
-string UserSet::getUserNickNameById(string userid)
-{
-    return heap[userid]->getNickName();
-}
-
 UserSet::UserSet()
 {
 }

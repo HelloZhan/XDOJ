@@ -140,42 +140,6 @@ Json::Value MyDB::getAllProblemInfo()
     printf("MySQL getAllProblemInfo finish!!\n");
     return resJson;
 }
-Json::Value MyDB::getAllUserInfo()
-{
-    printf("MySQL getAllUserInfo!!\n");
-    string sql = "select UserId, Avatar,NickName,Account,Password from User;";
-
-    Json::Value resJson;
-    if (mysql_query(mysql, sql.data()))
-    {
-        printf("query fail: %s\n", mysql_error(mysql));
-        exit(1);
-    }
-    else
-    {
-        /*获取结果集*/
-        result = mysql_store_result(mysql);
-
-        int rownum = mysql_num_rows(result);
-        int fieldnum = mysql_num_fields(result);
-        for (int i = 0; i < rownum; i++)
-        {
-            row = mysql_fetch_row(result);
-            if (row <= 0)
-                break;
-            Json::Value info;
-            info["UserId"] = row[0];
-            info["Avatar"] = row[1];
-            info["NickName"] = row[2];
-            info["Account"] = row[3];
-            info["Password"] = row[4];
-            resJson["Array"].append(info);
-        }
-        mysql_free_result(result);
-    }
-    printf("MySQL getAllUserInfo finish!!\n");
-    return resJson;
-}
 
 Json::Value MyDB::SelectProblemSetInfo(Json::Value &queryjson)
 {
