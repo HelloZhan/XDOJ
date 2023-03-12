@@ -28,7 +28,7 @@ public:
 
     // 初始化
     bool InitDB();
-
+    // ------------------用户表User---------------------------
     /*
         功能：注册用户
         前端传入
@@ -46,6 +46,22 @@ public:
         Json(Result,Reason,_id,NickName,Avatar)
     */
     Json::Value LoginUser(Json::Value &loginjson);
+
+    // ----------------------题目表Problem--------------------
+    /*
+        功能：获取全部题目信息（是ProblemSet类进行初始化）
+        Json(_id,Title,TimeLimit,MemoryLimit,Description,JudgeNum)
+    */
+    Json::Value getAllProblem();
+
+    /*
+        功能：分页获取题目列表（包含查询条件，暂时未添加）
+        前端传入
+        Json(QueryType,Page,PageSize,MatchString)
+        后端传出
+        Json(ProblemId,Title,SubmitNum,CENum,ACNum,WANum,TLENum,MLENum),TotalNum
+    */
+    Json::Value getProblemSet(Json::Value &queryjson);
     // Disscuss 讨论
 
     // 查询所有讨论
@@ -63,18 +79,15 @@ public:
     Json::Value InsertSonComment(Json::Value &insertjson);
 
 private:
-    // 必须只能一个连接
     mongocxx::instance instance{}; // This should be done only once.
     mongocxx::client client{mongocxx::uri{}};
     mongocxx::database db;
 
     mongocxx::collection usercoll;
+    mongocxx::collection problemcoll;
     mongocxx::collection articlecoll;
-
     mongocxx::collection discusscoll;
-
     mongocxx::collection commentcoll;
-
     MoDB();
     ~MoDB();
 };

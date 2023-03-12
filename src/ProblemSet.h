@@ -21,6 +21,7 @@ public:
     static ProblemSet &GetInstance();
 
     void Init();
+
     std::string getProblemDescription(std::string id);
 
     // 通过普通查询获取题库数据

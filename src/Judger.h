@@ -3,14 +3,23 @@
 #include <jsoncpp/json/json.h>
 #include <string>
 
-#define PJ "Pending & Judging"
-#define CE "Compile Error"
-#define AC "Accepted"
-#define WA "Wrong Answer"
-#define RE "Runtime Error"
-#define TLE "Time Limit Exceeded"
-#define MLE "Memory Limit Exceeded"
-#define SE "System Error"
+// #define PJ "Pending & Judging"
+// #define CE "Compile Error"
+// #define AC "Accepted"
+// #define WA "Wrong Answer"
+// #define RE "Runtime Error"
+// #define TLE "Time Limit Exceeded"
+// #define MLE "Memory Limit Exceeded"
+// #define SE "System Error"
+
+#define PJ 0
+#define CE 1
+#define AC 2
+#define WA 3
+#define RE 4
+#define TLE 5
+#define MLE 6
+#define SE 7
 
 class Judger
 {
@@ -18,6 +27,12 @@ public:
     Judger();
     // 传入: Json(SubmitId,ProblemId,JudgeNum,Code,Language,TimeLimit,MemoryLimit,Length)
     // 返回：Json(Result,Reason,RunTime,RunMemory)
+    /*
+        功能：判题函数
+        传入数据：Json(SubmitId,ProblemId,JudgeNum,Code,Language,TimeLimit,MemoryLimit)
+        传出数据：Json(Status,RunTime,RunMemory,Length,CompilerInfo,
+            TestInfo(Status,StandardOutput,PersonalOutput,RunTime,RunMemory))
+    */
     Json::Value Run(Json::Value &runjson);
 
 private:

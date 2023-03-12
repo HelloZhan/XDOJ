@@ -18,6 +18,12 @@ public:
     // 获取题目标题
     std::string getProblemTitle();
 
+    // 获取时间限制MS
+    int getProblemTimeLimit();
+
+    // 获取空间限制MB
+    int getProblemMemoryLimit();
+
     // 修改题目的信息
     bool UpdateStatusNum(std::string &statusnum);
 
@@ -25,6 +31,8 @@ private:
     std::string m_problemid;
     std::string m_title;
     std::string m_description;
+    int m_timelimit;   // MS
+    int m_memorylimit; // MB
     int m_judgenum;
 };
 

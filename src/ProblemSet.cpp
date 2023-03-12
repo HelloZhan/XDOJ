@@ -1,5 +1,6 @@
 #include "ProblemSet.h"
 #include "MySQLDataBase.h"
+#include "MongoDataBase.h"
 #include "Problem.h"
 #include <iostream>
 using namespace std;
@@ -8,12 +9,12 @@ ProblemSet::ProblemSet()
 }
 void ProblemSet::Init()
 {
-    Json::Value jsonvalue = MyDB::GetInstance().getAllProblemInfo();
-    ProblemNum = (int)jsonvalue["Array"].size();
+    Json::Value jsonvalue = MoDB::GetInstance().getAllProblem();
+    ProblemNum = (int)jsonvalue.size();
     for (int i = 0; i < ProblemNum; i++)
     {
-        Problem *tmp = new Problem(jsonvalue["Array"][i]);
-        heap[jsonvalue["Array"][i]["ProblemId"].asString()] = tmp;
+        Problem *tmp = new Problem(jsonvalue[i]);
+        heap[jsonvalue[i]["_id"].asString()] = tmp;
     }
 }
 std::string ProblemSet::getProblemDescription(std::string id)
@@ -23,7 +24,7 @@ std::string ProblemSet::getProblemDescription(std::string id)
 
 Json::Value ProblemSet::SelectProblemSetInfo(Json::Value &queryjson)
 {
-    return MyDB::GetInstance().SelectProblemSetInfo(queryjson);
+    return MoDB::GetInstance().getProblemSet(queryjson);
 }
 
 int ProblemSet::getProblemJudgeNum(std::string id)

@@ -1,4 +1,58 @@
 ﻿{
+    "User": [
+        {
+            "_id": "int64_t",
+            "Avatar": "String",
+            "NickName": "String",
+            "Account": "String",
+            "PassWord": "String",
+            "PersonalProfile": "String",
+            "School": "String",
+            "Major": "String",
+            "JoinTime": "String"
+        }
+    ],
+    "Problem": [
+        {
+            "_id": "int",
+            "Title": "String",
+            "Description": "String",
+            "JudgeNum": "int",
+            "SubmitNum": "int",
+            "CENum": "int",
+            "ACNum": "int",
+            "WANum": "int",
+            "TLENum": "int",
+            "MLENum": "int",
+            "Tags": "[String]"
+        }
+    ],
+    "StatusRecord": [
+        {
+            "_id": "int64_t",
+            "ProblemId": "int64_t",
+            "UserId": "int64_t",
+            "UserNickName": "String",
+            "ProblemTitle": "String",
+            "Status": "int",
+            "RunTime": "String",
+            "RunMemory": "String",
+            "Length": "String",
+            "Language": "String",
+            "SubmitTime": "String",
+            "Code": "String",
+            "CompilerInfo": "String",
+            "TestInfo": [
+                {
+                    "Status": "int",
+                    "StandardOutput": "String",
+                    "PersonalOutput": "String",
+                    "RunTime": "String",
+                    "RunMemory": "String"
+                }
+            ]
+        }
+    ],
     "Article": [
         {
             "_id": "int64_t",
@@ -66,19 +120,6 @@
                     "CreateTime": "time"
                 }
             ]
-        }
-    ],
-    "User": [
-        {
-            "_id": "int64_t",
-            "Avatar": "String",
-            "NickName": "String",
-            "Account": "String",
-            "PassWord": "String",
-            "PersonalProfile": "String",
-            "School": "String",
-            "Major": "String",
-            "JoinTime": "String"
         }
     ]
 }

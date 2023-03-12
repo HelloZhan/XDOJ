@@ -60,7 +60,7 @@ bool Judger::Init(Json::Value &initjson)
 
     m_judgenum = initjson["JudgeNum"].asInt();
     m_timelimit = initjson["TimeLimit"].asInt();
-    m_memorylimit = initjson["MemoryLimit"].asLargestInt();
+    m_memorylimit = initjson["MemoryLimit"].asLargestInt() * 1024 * 1024;
     m_language = initjson["Language"].asString();
     m_maxtimelimit = m_timelimit * 2;
     m_maxmemorylimie = m_memorylimit * 2;
@@ -122,7 +122,7 @@ bool Judger::CompilerC()
     // 编译失败
     if (access(m_command.data(), F_OK) == -1)
     {
-        // 返回编译失败原因 TODO：未返回完全所有信息
+        // 返回编译失败原因
         ifstream infile;
 
         m_command = "./" + m_submitid + "/compileinfo.txt";
@@ -152,7 +152,7 @@ bool Judger::CompilerCpp()
     // 编译失败
     if (access(m_command.data(), F_OK) == -1)
     {
-        // 返回编译失败原因 TODO：未返回完全所有信息
+        // 返回编译失败原因
         ifstream infile;
 
         m_command = "./" + m_submitid + "/compileinfo.txt";
@@ -182,7 +182,7 @@ bool Judger::CompilerGo()
     // 编译失败
     if (access(m_command.data(), F_OK) == -1)
     {
-        // 返回编译失败原因 TODO：未返回完全所有信息
+        // 返回编译失败原因
         ifstream infile;
 
         m_command = "./" + m_submitid + "/compileinfo.txt";

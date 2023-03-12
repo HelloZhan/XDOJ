@@ -31,6 +31,7 @@ bool MoDB::InitDB()
     db = client["XDOJ"];
     // 连接集合
     usercoll = db["User"];
+    problemcoll = db["Problem"];
     articlecoll = db["Article"];
     discusscoll = db["Discuss"];
     commentcoll = db["Comment"];
@@ -91,12 +92,12 @@ Json::Value MoDB::RegisterUser(Json::Value &registerjson)
     return resjson;
 }
 /*
-        功能：登录用户
-        前端传入
-        Json(Account,PassWord)
-        后端传出
-        Json(Result,Reason,_id,NickName,Avatar)
-    */
+    功能：登录用户
+    前端传入
+    Json(Account,PassWord)
+    后端传出
+    Json(Result,Reason,_id,NickName,Avatar)
+*/
 Json::Value MoDB::LoginUser(Json::Value &loginjson)
 {
     Json::Value resjson;
@@ -130,6 +131,81 @@ Json::Value MoDB::LoginUser(Json::Value &loginjson)
     }
     resjson["Result"] = "Success";
     resjson["Reason"] = "登录成功！";
+    return resjson;
+}
+
+/*
+    功能：获取全部题目信息（是ProblemSet类进行初始化）
+    Json(_id,Title,Description,JudgeNum)
+*/
+Json::Value MoDB::getAllProblem()
+{
+    Json::Value resjson;
+    Json::Reader reader;
+    mongocxx::cursor cursor = problemcoll.find({});
+    for (auto doc : cursor)
+    {
+        Json::Value jsonvalue;
+        reader.parse(bsoncxx::to_json(doc), jsonvalue);
+        resjson.append(jsonvalue);
+    }
+    return resjson;
+}
+/*
+    功能：分页获取题目列表（包含查询条件，暂时未添加）
+    前端传入
+    Json(QueryType,Page,PageSize)
+    后端传出
+    Json(([ProblemId,Title,SubmitNum,CENum,ACNum,WANum,TLENum,MLENum]),TotalNum)
+*/
+Json::Value MoDB::getProblemSet(Json::Value &queryjson)
+{
+    string querytype = queryjson["QueryType"].asString();
+    int page = stoi(queryjson["Page"].asString());
+    int pagesize = stoi(queryjson["PageSize"].asString());
+    int skip = (page - 1) * pagesize;
+    Json::Value resjson;
+    Json::Reader reader;
+    mongocxx::pipeline pipe, pipetot;
+    bsoncxx::builder::stream::document document{};
+
+    // 获取总条数
+    pipetot.count("TotalNum");
+    mongocxx::cursor cursor = problemcoll.aggregate(pipetot);
+    for (auto doc : cursor)
+    {
+        reader.parse(bsoncxx::to_json(doc), resjson);
+    }
+    // TODO:查询条件
+
+    // 排序
+    pipe.sort({make_document(kvp("_id", 1))});
+    // 跳过
+    pipe.skip(skip);
+    // 限制
+    pipe.limit(pagesize);
+    // 进行
+    document
+        << "ProblemId"
+        << "$_id"
+        << "Title" << 1
+        << "SubmitNum" << 1
+        << "CENum" << 1
+        << "ACNum" << 1
+        << "WANum" << 1
+        << "TLENum" << 1
+        << "MLENum" << 1;
+    pipe.project(document.view());
+
+    Json::Value arryjson;
+    cursor = problemcoll.aggregate(pipe);
+    for (auto doc : cursor)
+    {
+        Json::Value jsonvalue;
+        reader.parse(bsoncxx::to_json(doc), jsonvalue);
+        arryjson.append(jsonvalue);
+    }
+    resjson["Array"] = arryjson;
     return resjson;
 }
 Json::Value MoDB::getAllDiscuss()

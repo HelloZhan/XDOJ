@@ -36,7 +36,7 @@ Json::Value Control::GetJudgeCode(Json::Value judgejson)
     Json::Value insertjson;
     insertjson["ProblemId"] = judgejson["ProblemId"];
     insertjson["UserId"] = judgejson["UserId"];
-    // insertjson["UserNickName"] = UserSet::GetInstance().getUserNickNameById(judgejson["UserId"].asString());
+    insertjson["UserNickName"] = judgejson["UserNickName"];
     insertjson["ProblemTitle"] = ProblemSet::GetInstance().getProblemTitleById(judgejson["ProblemId"].asString());
     insertjson["Language"] = judgejson["Language"];
     insertjson["Code"] = judgejson["Code"];
