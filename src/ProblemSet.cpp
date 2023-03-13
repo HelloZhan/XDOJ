@@ -1,5 +1,4 @@
 #include "ProblemSet.h"
-#include "MySQLDataBase.h"
 #include "MongoDataBase.h"
 #include "Problem.h"
 #include <iostream>
@@ -37,21 +36,14 @@ string ProblemSet::getProblemTitleById(std::string id)
     return heap[id]->getProblemTitle();
 }
 
-bool ProblemSet::UpdateProblemStatusNumById(string &id, string &status)
+int ProblemSet::getProblemTimeLimit(std::string id)
 {
-    string statusnum;
-    if (status == CE)
-        statusnum = "CENum";
-    else if (status == AC)
-        statusnum = "ACNum";
-    else if (status == WA)
-        statusnum = "WANum";
-    else if (status == TLE)
-        statusnum = "TLENum";
-    else if (status == MLE)
-        statusnum = "MLENum";
+    return heap[id]->getProblemTimeLimit();
+}
 
-    return heap[id]->UpdateStatusNum(statusnum);
+int ProblemSet::getProblemMemoryLimit(std::string id)
+{
+    return heap[id]->getProblemMemoryLimit();
 }
 
 ProblemSet &ProblemSet::GetInstance()

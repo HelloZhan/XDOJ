@@ -23,7 +23,7 @@ aux_source_directory(./utils DIR_UTILS)
 add_executable(xdoj ${DIR_SRCS} ${DIR_UTILS})
 
 # 链接库
-target_link_libraries(xdoj jsoncpp pthread mysqlclient judger mongocxx bsoncxx)
+target_link_libraries(xdoj jsoncpp pthread judger mongocxx bsoncxx)
 
 # 指定编译参数
 set(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O3 -Wall")

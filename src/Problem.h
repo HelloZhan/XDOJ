@@ -24,9 +24,6 @@ public:
     // 获取空间限制MB
     int getProblemMemoryLimit();
 
-    // 修改题目的信息
-    bool UpdateStatusNum(std::string &statusnum);
-
 private:
     std::string m_problemid;
     std::string m_title;

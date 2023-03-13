@@ -220,7 +220,7 @@ int main()
     // 获取状态记录
     server.Get("/statusrecord", doGetStatusRecord);
     // 提交代码
-    server.Post("/problecode", doPostCode);
+    server.Post("/problemcode", doPostCode);
     // 获取讨论
     server.Get("/discuss", doGetDiscuss);
     // 获取评论

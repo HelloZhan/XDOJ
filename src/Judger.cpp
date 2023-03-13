@@ -64,10 +64,13 @@ bool Judger::Init(Json::Value &initjson)
     m_language = initjson["Language"].asString();
     m_maxtimelimit = m_timelimit * 2;
     m_maxmemorylimie = m_memorylimit * 2;
-    m_result = "";
+    m_result = PJ;
     m_reason = "";
     m_runmemory = 0;
     m_runtime = 0;
+
+    // 获取信息
+    m_resjson.clear();
 
     // 创建中间文件夹
     m_command = "mkdir " + m_submitid;
@@ -228,8 +231,9 @@ bool Judger::RunProgramC_Cpp()
     // 根据测试数量进行判定
     for (int i = 1; i <= m_judgenum; i++)
     {
+        Json::Value testinfo;
         string index = to_string(i);
-        string input_path = "../problem/" + m_problemid + "/" + index + ".in";
+        string input_path = "../../problem/" + m_problemid + "/" + index + ".in";
         conf.input_path = (char *)input_path.data();
         string output_path = "./" + m_submitid + "/" + index + ".out";
         conf.output_path = (char *)output_path.data();
@@ -242,12 +246,16 @@ bool Judger::RunProgramC_Cpp()
         m_runtime = max(m_runtime, res.cpu_time);
         m_runmemory = max(m_runmemory, res.memory);
 
+        // 获取运行时间和运行内存的数据
+        testinfo["RunTime"] = to_string(res.cpu_time) + "MS";
+        testinfo["RunMemory"] = to_string(res.memory / 1024 / 1024) + "MB";
+
         // 判断结果
         if (res.result == 0)
         {
             // 获取标准答案
             ifstream infile1;
-            m_command = "../problem/" + m_problemid + "/" + index + ".out";
+            m_command = "../../problem/" + m_problemid + "/" + index + ".out";
             infile1.open(m_command.data());
             string standardanswer;
             infile1 >> standardanswer;
@@ -262,42 +270,49 @@ bool Judger::RunProgramC_Cpp()
             printf("standardanswer = %s\n", standardanswer.data());
             printf("calculateanswer = %s\n", calculateanswer.data());
 
+            testinfo["StandardOutput"] = standardanswer;
+            testinfo["PersonalOutput"] = calculateanswer;
+
             // 判断是否超出时间限制
             if (res.cpu_time > m_timelimit)
             {
                 m_result = TLE;
-                return false;
+                testinfo["Status"] = TLE;
             }
             // 判断是否超出空间限制
             if (res.memory > m_memorylimit)
             {
                 m_result = MLE;
-                return false;
+                testinfo["Status"] = MLE;
             }
             // 比较答案 TODO：简易版，后续完善（添加去除行末空格）
             if (strcmp(standardanswer.data(), calculateanswer.data()) != 0)
             {
                 m_result = WA;
+                testinfo["Status"] = WA;
                 m_reason = "standardanswer = " + standardanswer + ",calculateanswer = " + calculateanswer + ";";
                 cout << "答案错误" << endl;
-                return false;
             }
-            printf("测试%d正确\n", i);
+            else
+            {
+                testinfo["Status"] = AC;
+                printf("测试%d正确\n", i);
+            }
         }
         else if (res.result == 1) // CPU_TIME_LIMIT_EXCEEDED
         {
             m_result = TLE;
-            return false;
+            testinfo["Status"] = TLE;
         }
         else if (res.result == 2) // REAL_TIME_LIMIT_EXCEEDED
         {
             m_result = TLE;
-            return false;
+            testinfo["Status"] = TLE;
         }
         else if (res.result == 3) // MEMORY_LIMIT_EXCEEDED
         {
             m_result = MLE;
-            return false;
+            testinfo["Status"] = MLE;
         }
         else if (res.result == 4)
         {
@@ -308,13 +323,13 @@ bool Judger::RunProgramC_Cpp()
 
             string reason((istreambuf_iterator<char>(infile)),
                           (istreambuf_iterator<char>()));
-            // infile >> reason;
+
             m_reason = reason;
             m_result = RE;
-            return false;
+            testinfo["Status"] = RE;
         }
+        m_resjson["TestInfo"].append(testinfo);
     }
-    m_result = AC;
     return true;
 }
 
@@ -352,8 +367,9 @@ bool Judger::RunProgramGo()
     // 根据测试数量进行判定
     for (int i = 1; i <= m_judgenum; i++)
     {
+        Json::Value testinfo;
         string index = to_string(i);
-        string input_path = "../problem/" + m_problemid + "/" + index + ".in";
+        string input_path = "../../problem/" + m_problemid + "/" + index + ".in";
         conf.input_path = (char *)input_path.data();
         string output_path = "./" + m_submitid + "/" + index + ".out";
         conf.output_path = (char *)output_path.data();
@@ -366,12 +382,16 @@ bool Judger::RunProgramGo()
         m_runtime = max(m_runtime, res.cpu_time);
         m_runmemory = max(m_runmemory, res.memory);
 
+        // 获取运行时间和运行内存的数据
+        testinfo["RunTime"] = to_string(res.cpu_time) + "MS";
+        testinfo["RunMemory"] = to_string(res.memory / 1024 / 1024) + "MB";
+
         // 判断结果
         if (res.result == 0)
         {
             // 获取标准答案
             ifstream infile1;
-            m_command = "../problem/" + m_problemid + "/" + index + ".out";
+            m_command = "../../problem/" + m_problemid + "/" + index + ".out";
             infile1.open(m_command.data());
             string standardanswer;
             infile1 >> standardanswer;
@@ -386,42 +406,49 @@ bool Judger::RunProgramGo()
             printf("standardanswer = %s\n", standardanswer.data());
             printf("calculateanswer = %s\n", calculateanswer.data());
 
+            testinfo["StandardOutput"] = standardanswer;
+            testinfo["PersonalOutput"] = calculateanswer;
+
             // 判断是否超出时间限制
             if (res.cpu_time > m_timelimit)
             {
                 m_result = TLE;
-                return false;
+                testinfo["Status"] = TLE;
             }
             // 判断是否超出空间限制
             if (res.memory > m_memorylimit)
             {
                 m_result = MLE;
-                return false;
+                testinfo["Status"] = MLE;
             }
             // 比较答案 TODO：简易版，后续完善（添加去除行末空格）
             if (strcmp(standardanswer.data(), calculateanswer.data()) != 0)
             {
                 m_result = WA;
+                testinfo["Status"] = WA;
                 m_reason = "standardanswer = " + standardanswer + ",calculateanswer = " + calculateanswer + ";";
                 cout << "答案错误" << endl;
-                return false;
+            }
+            else
+            {
+                testinfo["Status"] = AC;
             }
             printf("测试%d正确\n", i);
         }
         else if (res.result == 1) // CPU_TIME_LIMIT_EXCEEDED
         {
             m_result = TLE;
-            return false;
+            testinfo["Status"] = TLE;
         }
         else if (res.result == 2) // REAL_TIME_LIMIT_EXCEEDED
         {
             m_result = TLE;
-            return false;
+            testinfo["Status"] = TLE;
         }
         else if (res.result == 3) // MEMORY_LIMIT_EXCEEDED
         {
             m_result = MLE;
-            return false;
+            testinfo["Status"] = MLE;
         }
         else if (res.result == 4)
         {
@@ -432,28 +459,34 @@ bool Judger::RunProgramGo()
 
             string reason((istreambuf_iterator<char>(infile)),
                           (istreambuf_iterator<char>()));
-            // infile >> reason;
             m_reason = reason;
             m_result = RE;
-            return false;
+            testinfo["Status"] = RE;
         }
     }
-    m_result = AC;
     return true;
 }
 Json::Value Judger::Done()
 {
     // 返回：Json(Result,Reason,RunTime,RunMemory)
-    Json::Value resjson;
-    resjson["Result"] = m_result;
-    resjson["Reason"] = m_reason;
-    resjson["RunTime"] = to_string(m_runtime) + "MS";
-    resjson["RunMemory"] = to_string(int(m_runmemory / 1024 / 1024)) + "MB";
-    resjson["Length"] = m_length;
+    // Json::Value resjson;
+    // resjson["Result"] = m_result;
+    // resjson["Reason"] = m_reason;
+    // resjson["RunTime"] = to_string(m_runtime) + "MS";
+    // resjson["RunMemory"] = to_string(int(m_runmemory / 1024 / 1024)) + "MB";
+    // resjson["Length"] = m_length;
+    if (m_result == PJ)
+        m_result = AC;
 
+    m_resjson["SubmitId"] = m_submitid;
+    m_resjson["Status"] = m_result;
+    m_resjson["ComplierInfo"] = m_reason;
+    m_resjson["RunTime"] = to_string(m_runtime) + "MS";
+    m_resjson["RunMemory"] = to_string(int(m_runmemory / 1024 / 1024)) + "MB";
+    m_resjson["Length"] = m_length;
     // 删除中间文件夹
     m_command = "rm -rf ./" + m_submitid;
     system(m_command.data());
 
-    return resjson;
+    return m_resjson;
 }

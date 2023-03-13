@@ -53,12 +53,14 @@ private:
     Json::Value Done();
 
 private:
+    Json::Value m_resjson;
+
     std::string m_submitid;  // 运行ID
     std::string m_problemid; // 题目ID
     int m_judgenum;          // 测试用例数目
     std::string m_code;
 
-    std::string m_result;   // 运行结果
+    int m_result;           // 运行结果
     std::string m_reason;   // 错误原因
     std::string m_command;  // 命令（中间变量）
     std::string m_language; // 测评语言

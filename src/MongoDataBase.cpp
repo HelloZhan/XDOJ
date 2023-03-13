@@ -32,6 +32,7 @@ bool MoDB::InitDB()
     // 连接集合
     usercoll = db["User"];
     problemcoll = db["Problem"];
+    statusrecordcoll = db["StatusRecord"];
     articlecoll = db["Article"];
     discusscoll = db["Discuss"];
     commentcoll = db["Comment"];
@@ -199,6 +200,144 @@ Json::Value MoDB::getProblemSet(Json::Value &queryjson)
 
     Json::Value arryjson;
     cursor = problemcoll.aggregate(pipe);
+    for (auto doc : cursor)
+    {
+        Json::Value jsonvalue;
+        reader.parse(bsoncxx::to_json(doc), jsonvalue);
+        arryjson.append(jsonvalue);
+    }
+    resjson["Array"] = arryjson;
+    return resjson;
+}
+/*
+    功能：向测评表插入一条待测评记录
+    传入：Json(ProblemId,UserId,UserNickName,ProblemTitle,Language,Code)
+    传出：SubmitId测评的ID
+*/
+string MoDB::InsertStatusRecord(Json::Value &insertjson)
+{
+    int64_t id = uuid.nextid();
+    int64_t problemid = stoll(insertjson["ProblemId"].asString());
+    int64_t userid = stoll(insertjson["UserId"].asString());
+    string usernickname = insertjson["UserNickName"].asString();
+    string problemtitle = insertjson["ProblemTitle"].asString();
+    string language = insertjson["Language"].asString();
+    string code = insertjson["Code"].asString();
+
+    bsoncxx::builder::stream::document document{};
+
+    document
+        << "_id" << id
+        << "ProblemId" << problemid
+        << "UserId" << userid
+        << "UserNickName" << usernickname.data()
+        << "ProblemTitle" << problemtitle.data()
+        << "Status" << 0
+        << "RunTime"
+        << "0MS"
+        << "RunMemory"
+        << "0MB"
+        << "Length"
+        << "0B"
+        << "Language" << language.data()
+        << "SubmitTime" << GetTime().data()
+        << "Code" << code.data()
+        << "ComplierInfo"
+        << ""
+        << "TestInfo" << open_array << close_array;
+    statusrecordcoll.insert_one(document.view());
+    return to_string(id);
+}
+
+/*
+    功能：更新测评记录并返回测评记录
+    传入：Json(SubmitId,Status,RunTime,RunMemory,Length,ComplierInfo,
+    TestInfo[(Status,StandardOutput,PersonalOutput,RunTime,RunMemory)])
+
+    传出：Json() 测评记录
+*/
+Json::Value MoDB::UpdateStatusRecord(Json::Value &updatejson)
+{
+    int64_t submitid = stoll(updatejson["SubmitId"].asString());
+    int status = stoi(updatejson["Status"].asString());
+    string runtime = updatejson["RunTime"].asString();
+    string runmemory = updatejson["RunMemory"].asString();
+    string length = updatejson["Length"].asString();
+    string complierinfo = updatejson["ComplierInfo"].asString();
+
+    // 更新测评记录
+    bsoncxx::builder::stream::document document{};
+    auto in_array = document
+                    << "$set" << open_document
+                    << "Status" << status
+                    << "RunTime" << runtime.data()
+                    << "RunMemory" << runmemory.data()
+                    << "Length" << length.data()
+                    << "ComplierInfo" << complierinfo.data()
+                    << "TestInfo" << open_array;
+
+    for (int i = 0; i < updatejson["TestInfo"].size(); i++)
+    {
+        int teststatus = stoi(updatejson["TestInfo"][i]["Status"].asString());
+        string standardoutput = updatejson["TestInfo"][i]["StandardOutput"].asString();
+        string personaloutput = updatejson["TestInfo"][i]["PersonalOutput"].asString();
+        string testruntime = updatejson["TestInfo"][i]["RunTime"].asString();
+        string testrunmemory = updatejson["TestInfo"][i]["RunMemory"].asString();
+        in_array = in_array << open_document
+                            << "Status" << teststatus
+                            << "StandardOutput" << standardoutput
+                            << "PersonalOutput" << personaloutput
+                            << "RunTime" << testruntime
+                            << "RunMemory" << testrunmemory << close_document;
+    }
+    bsoncxx::document::value doc = in_array << close_array << close_document << finalize;
+
+    statusrecordcoll.update_one({make_document(kvp("_id", submitid))}, doc.view());
+    // 查询测评记录
+    Json::Reader reader;
+    Json::Value resjson;
+    mongocxx::cursor cursor = statusrecordcoll.find({{make_document(kvp("_id", submitid))}});
+    for (auto doc : cursor)
+    {
+        reader.parse(bsoncxx::to_json(doc), resjson);
+    }
+    cout << resjson.toStyledString() << endl;
+    return resjson;
+}
+/*
+    功能：分页查询测评记录
+    传入：Json(QueryType,PageSize,Page)
+    传出：测评全部信息，详情请见MongoDB集合表
+*/
+Json::Value MoDB::SelectStatusRecord(Json::Value &queryjson)
+{
+    string querytype = queryjson["QueryType"].asString();
+    int page = stoi(queryjson["Page"].asString());
+    int pagesize = stoi(queryjson["PageSize"].asString());
+    int skip = (page - 1) * pagesize;
+    Json::Value resjson;
+    Json::Reader reader;
+    mongocxx::pipeline pipe, pipetot;
+    bsoncxx::builder::stream::document document{};
+
+    // 获取总条数
+    pipetot.count("TotalNum");
+    mongocxx::cursor cursor = statusrecordcoll.aggregate(pipetot);
+    for (auto doc : cursor)
+    {
+        reader.parse(bsoncxx::to_json(doc), resjson);
+    }
+    // TODO:查询条件
+
+    // 排序
+    pipe.sort({make_document(kvp("SubmitTime", -1))});
+    // 跳过
+    pipe.skip(skip);
+    // 限制
+    pipe.limit(pagesize);
+
+    Json::Value arryjson;
+    cursor = statusrecordcoll.aggregate(pipe);
     for (auto doc : cursor)
     {
         Json::Value jsonvalue;

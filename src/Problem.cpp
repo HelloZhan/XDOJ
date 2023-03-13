@@ -1,5 +1,4 @@
 #include "Problem.h"
-#include "MySQLDataBase.h"
 #include <iostream>
 using namespace std;
 Problem::Problem(Json::Value &jsonvalue)
@@ -34,9 +33,4 @@ int Problem::getProblemTimeLimit()
 int Problem::getProblemMemoryLimit()
 {
     return m_memorylimit;
-}
-
-bool Problem::UpdateStatusNum(std::string &statusnum)
-{
-    return MyDB::GetInstance().UpdateProblemStatusNum(m_problemid, statusnum);
 }

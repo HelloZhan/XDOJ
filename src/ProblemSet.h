@@ -33,8 +33,11 @@ public:
     // 获取题目标题
     std::string getProblemTitleById(std::string id);
 
-    // 改变题目的状态数量
-    bool UpdateProblemStatusNumById(std::string &id, std::string &status);
+    // 获取题目时间限制
+    int getProblemTimeLimit(std::string id);
+
+    // 获取题目空间限制
+    int getProblemMemoryLimit(std::string id);
 
 private:
     ProblemSet();

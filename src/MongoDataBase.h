@@ -62,6 +62,27 @@ public:
         Json(ProblemId,Title,SubmitNum,CENum,ACNum,WANum,TLENum,MLENum),TotalNum
     */
     Json::Value getProblemSet(Json::Value &queryjson);
+
+    // ---------------------评测表StatusRecord-----------------------
+
+    /*
+        功能：向测评表插入一条待测评记录
+        传入：Json(ProblemId,UserId,UserNickName,ProblemTitle,Language,Code)
+        传出：SubmitId测评的ID
+    */
+    std::string InsertStatusRecord(Json::Value &insertjson);
+
+    /*
+        功能：更新测评记录并返回测评记录
+        传入：Json(SubmitId,Status,RunTime,RunMemory,Length,ComplierInfo,
+        TestInfo[(Status,StandardOutput,PersonalOutput,RunTime,RunMemory)])
+
+        传出：Json() 测评记录
+    */
+    Json::Value UpdateStatusRecord(Json::Value &updatejson);
+
+    Json::Value SelectStatusRecord(Json::Value &queryjson);
+
     // Disscuss 讨论
 
     // 查询所有讨论
@@ -85,6 +106,7 @@ private:
 
     mongocxx::collection usercoll;
     mongocxx::collection problemcoll;
+    mongocxx::collection statusrecordcoll;
     mongocxx::collection articlecoll;
     mongocxx::collection discusscoll;
     mongocxx::collection commentcoll;

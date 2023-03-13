@@ -1,4 +1,3 @@
-#include "MySQLDataBase.h"
 #include "MongoDataBase.h"
 #include "Control.h"
 #include "ProblemSet.h"
@@ -31,45 +30,52 @@ Json::Value Control::SelectProblemSetInfo(Json::Value &queryjson)
 
 Json::Value Control::GetJudgeCode(Json::Value judgejson)
 {
+    string problemid = judgejson["ProblemId"].asString();
     // 添加状态记录
     // 传入：Json(ProblemId,UserId,UserNickName,ProblemTitle,Language,Code);
     Json::Value insertjson;
-    insertjson["ProblemId"] = judgejson["ProblemId"];
+    insertjson["ProblemId"] = problemid;
     insertjson["UserId"] = judgejson["UserId"];
     insertjson["UserNickName"] = judgejson["UserNickName"];
     insertjson["ProblemTitle"] = ProblemSet::GetInstance().getProblemTitleById(judgejson["ProblemId"].asString());
     insertjson["Language"] = judgejson["Language"];
     insertjson["Code"] = judgejson["Code"];
 
-    string submitid = MyDB::GetInstance().InsertStatusRecordInfo(insertjson);
+    string submitid = MoDB::GetInstance().InsertStatusRecord(insertjson);
 
     // 运行代码
     Json::Value runjson;
     runjson["Code"] = judgejson["Code"];
     runjson["SubmitId"] = submitid;
-    runjson["ProblemId"] = judgejson["ProblemId"];
+    runjson["ProblemId"] = problemid;
     runjson["Language"] = judgejson["Language"];
-    runjson["JudgeNum"] = ProblemSet::GetInstance().getProblemJudgeNum(judgejson["ProblemId"].asString());
-    runjson["TimeLimit"] = 2000;
-    runjson["MemoryLimit"] = 134217728;
+    runjson["JudgeNum"] = ProblemSet::GetInstance().getProblemJudgeNum(problemid);
+    runjson["TimeLimit"] = ProblemSet::GetInstance().getProblemTimeLimit(problemid);
+    runjson["MemoryLimit"] = ProblemSet::GetInstance().getProblemMemoryLimit(problemid);
 
     Json::Value resjson = judger.Run(runjson);
-
+    cout << resjson.toStyledString() << endl;
+    // 更新状态信息
+    Json::Value statusjson = MoDB::GetInstance().UpdateStatusRecord(resjson);
+    cout << statusjson.toStyledString() << endl;
     // 更新状态记录
     // 传入：Json(SubmitId,Status,RunTime,RunMemory,Length)
-    Json::Value updatejson;
-    updatejson["SubmitId"] = submitid;
-    updatejson["Status"] = resjson["Result"];
-    updatejson["RunTime"] = resjson["RunTime"];
-    updatejson["RunMemory"] = resjson["RunMemory"];
-    updatejson["Length"] = resjson["Length"];
-    MyDB::GetInstance().UpdateStatusRecordInfo(updatejson);
+    // Json::Value updatejson;
+    // updatejson["SubmitId"] = submitid;
+    // updatejson["Status"] = resjson["Result"];
+    // updatejson["RunTime"] = resjson["RunTime"];
+    // updatejson["RunMemory"] = resjson["RunMemory"];
+    // updatejson["Length"] = resjson["Length"];
+    // MyDB::GetInstance().UpdateStatusRecordInfo(updatejson);
 
     // 更新题目的状态
-    string problemid = judgejson["ProblemId"].asString();
-    string result = resjson["Result"].asString();
-    ProblemSet::GetInstance().UpdateProblemStatusNumById(problemid, result);
-    return resjson;
+    // string problemid = judgejson["ProblemId"].asString();
+    // string result = resjson["Result"].asString();
+    // ProblemSet::GetInstance().UpdateProblemStatusNumById(problemid, result);
+
+    // TODO:更新用户的状态
+
+    return statusjson;
 }
 
 Json::Value Control::SelectStatusRecordInfo(Json::Value &queryjson)
@@ -109,9 +115,6 @@ Json::Value Control::InsertComment(Json::Value &insertjson)
 
 Control::Control()
 {
-    // 连接MySQL数据库
-    MyDB::GetInstance().InitDB("192.168.49.131", "root", "1", "XDOJ");
-
     // 初始化MongoDB数据库
     MoDB::GetInstance().InitDB();
 
