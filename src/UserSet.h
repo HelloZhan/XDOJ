@@ -18,6 +18,9 @@ public:
     // 更新用户题目信息
     bool UpdateUserProblemInfo(Json::Value &updatejson);
 
+    // 获取用户Rank排名
+    Json::Value SelectUserRank(Json::Value &queryjson);
+
 private:
     UserSet();
     ~UserSet();

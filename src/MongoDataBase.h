@@ -55,6 +55,13 @@ public:
     */
     bool UpdateUserProblemInfo(Json::Value &updatejson);
 
+    /*
+        功能：获取用户的Rank排名
+        传入：Json(Page,PageSize)
+        传出：Json(_id,Rank,Avatar,NickName,PersonalProfile,SubmitNum,ACNum),TotalNum
+    */
+    Json::Value SelectUserRank(Json::Value &queryjson);
+
     // ----------------------题目表Problem--------------------
     /*
         功能：获取全部题目信息（是ProblemSet类进行初始化）
@@ -128,11 +135,13 @@ public:
     // 查询所有讨论
     Json::Value getAllDiscuss();
 
+    // -------------------文章表 Article-----------------------
+    Json::Value getAllArticle();
+    // -------------------评论表 Comment----------------------
+
     Json::Value getFatherComment(Json::Value &queryjson);
 
     Json::Value getSonComment(Json::Value &queryjson);
-
-    Json::Value getAllArticle();
 
     // 评论
     Json::Value InsertFatherComment(Json::Value &insertjson);
@@ -141,7 +150,6 @@ public:
 
 private:
     mongocxx::instance instance{}; // This should be done only once.
-    mongocxx::client client{mongocxx::uri{}};
     mongocxx::uri uri{};
     mongocxx::pool pool{uri};
 

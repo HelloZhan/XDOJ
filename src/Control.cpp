@@ -18,6 +18,11 @@ Json::Value Control::LoginUser(Json::Value &loginjson)
 	return UserSet::GetInstance().LoginUser(loginjson);
 }
 
+Json::Value Control::SelectUserRank(Json::Value &queryjson)
+{
+	return UserSet::GetInstance().SelectUserRank(queryjson);
+}
+
 string Control::GetProblemDescription(string problemid)
 {
 	return ProblemSet::GetInstance().getProblemDescription(problemid);

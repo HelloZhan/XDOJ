@@ -36,6 +36,29 @@ void doLoginUser(const httplib::Request &req, httplib::Response &res)
     printf("doLoginUser end!!!\n");
     res.set_content(resjson.toStyledString(), "json");
 }
+void doGetUserRank(const httplib::Request &req, httplib::Response &res)
+{
+    printf("doGetUserRank start!!!\n");
+    string page = "1";
+    if (req.has_param("Page"))
+    {
+        page = req.get_param_value("Page");
+    }
+
+    string pagesize = "10";
+    if (req.has_param("PageSize"))
+    {
+        pagesize = req.get_param_value("PageSize");
+    }
+
+    Json::Value queryjson;
+    queryjson["Page"] = page;
+    queryjson["PageSize"] = pagesize;
+    Json::Value resjson = control.SelectUserRank(queryjson);
+    printf("doGetUserRank end!!!\n");
+    res.set_content(resjson.toStyledString(), "json");
+}
+
 // 返回网页请求的题目描述
 void doGetProblem(const httplib::Request &req, httplib::Response &res)
 {
@@ -248,6 +271,8 @@ int main()
     server.Post("/register", doRegisterUser);
     // 登录用户
     server.Post("/login", doLoginUser);
+    // 返回用户排名
+    server.Get("/userrank", doGetUserRank);
     // 获取单个题目
     server.Get("/problem", doGetProblem);
     // 获取题库

@@ -23,6 +23,11 @@ bool UserSet::UpdateUserProblemInfo(Json::Value &updatejson)
     return MoDB::GetInstance().UpdateUserProblemInfo(updatejson);
 }
 
+Json::Value UserSet::SelectUserRank(Json::Value &queryjson)
+{
+    return MoDB::GetInstance().SelectUserRank(queryjson);
+}
+
 UserSet::UserSet()
 {
 }

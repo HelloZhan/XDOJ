@@ -192,6 +192,68 @@ bool MoDB::UpdateUserProblemInfo(Json::Value &updatejson)
     }
     return false;
 }
+
+/*
+    功能：获取用户的Rank排名
+    传入：Json(Page,PageSize)
+    传出：Json(_id,Rank,Avatar,NickName,PersonalProfile,SubmitNum,ACNum),TotalNum
+*/
+Json::Value MoDB::SelectUserRank(Json::Value &queryjson)
+{
+    int page = stoi(queryjson["Page"].asString());
+    int pagesize = stoi(queryjson["PageSize"].asString());
+    int skip = (page - 1) * pagesize;
+
+    auto client = pool.acquire();
+    mongocxx::collection usercoll = (*client)["XDOJ"]["User"];
+    bsoncxx::builder::stream::document document{};
+    mongocxx::pipeline pipe, pipetot;
+    Json::Reader reader;
+    Json::Value resjson;
+
+    // 获取总条数
+    pipetot.count("TotalNum");
+    mongocxx::cursor cursor = usercoll.aggregate(pipetot);
+    for (auto doc : cursor)
+    {
+        reader.parse(bsoncxx::to_json(doc), resjson);
+    }
+
+    document
+        << "$set" << open_document
+        << "ACNum" << open_document
+        << "$size"
+        << "$ACProblems"
+        << close_document << close_document;
+    pipe.append_stage(document.view());
+    pipe.sort({make_document(kvp("ACNum", -1))});
+    pipe.skip(skip);
+    pipe.limit(pagesize);
+    document.clear();
+    document
+        << "Avatar" << 1
+        << "NickName" << 1
+        << "PersonalProfile" << 1
+        << "SubmitNum" << 1
+        << "ACNum" << 1;
+    pipe.project(document.view());
+
+    cursor = usercoll.aggregate(pipe);
+    for (auto doc : cursor)
+    {
+        Json::Value jsonvalue;
+        reader.parse(bsoncxx::to_json(doc), jsonvalue);
+        resjson["ArrayInfo"].append(jsonvalue);
+    }
+    // 添加Rank排名
+    int currank = (page - 1) * pagesize + 1;
+    for (int i = 0; i < resjson["ArrayInfo"].size(); i++)
+    {
+        resjson["ArrayInfo"][i]["Rank"] = currank++;
+    }
+    return resjson;
+}
+
 /*
     功能：获取全部题目信息（用于ProblemSet类进行初始化）
     Json(_id,Title,Description,JudgeNum)
@@ -597,6 +659,23 @@ Json::Value MoDB::getAllDiscuss()
     }
     return resjson;
 }
+
+Json::Value MoDB::getAllArticle()
+{
+    auto client = pool.acquire();
+    mongocxx::collection articlecoll = (*client)["XDOJ"]["Article"];
+    Json::Reader reader;
+    Json::Value resjson;
+    mongocxx::cursor cursor = articlecoll.find({});
+    for (auto doc : cursor)
+    {
+        Json::Value jsonvalue;
+        reader.parse(bsoncxx::to_json(doc), jsonvalue);
+        resjson.append(jsonvalue);
+    }
+    return resjson;
+}
+
 // Json(ParentId,Skip,Limie,SonNum)
 Json::Value MoDB::getFatherComment(Json::Value &queryjson)
 {
@@ -808,21 +887,6 @@ Json::Value MoDB::getSonComment(Json::Value &queryjson)
     for (auto doc : cursor)
     {
         reader.parse(bsoncxx::to_json(doc), resjson);
-    }
-    return resjson;
-}
-Json::Value MoDB::getAllArticle()
-{
-    auto client = pool.acquire();
-    mongocxx::collection articlecoll = (*client)["XDOJ"]["Article"];
-    Json::Reader reader;
-    Json::Value resjson;
-    mongocxx::cursor cursor = articlecoll.find({});
-    for (auto doc : cursor)
-    {
-        Json::Value jsonvalue;
-        reader.parse(bsoncxx::to_json(doc), jsonvalue);
-        resjson.append(jsonvalue);
     }
     return resjson;
 }
