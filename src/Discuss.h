@@ -12,6 +12,15 @@ public:
     // 获取所有讨论
     Json::Value getAllDiscuss();
 
+    // 添加讨论
+    bool InsertDiscuss(Json::Value &insertjson);
+
+    // 分页查询讨论
+    Json::Value SelectDiscuss(Json::Value &queryjson);
+
+    // 查询讨论的内容
+    Json::Value SelectDiscussContent(Json::Value &queryjson);
+
 private:
     Disscuss();
     ~Disscuss();

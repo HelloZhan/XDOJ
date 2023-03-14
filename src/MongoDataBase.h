@@ -102,8 +102,28 @@ public:
     */
     Json::Value SelectStatusRecord(Json::Value &queryjson);
 
-    // Disscuss 讨论
+    // --------------------Disscuss 讨论表----------------------
 
+    /*
+        功能：添加讨论
+        传入：Json(Title,Content,ParentId,UserId) 如果是父讨论ParentId=0
+        传出：bool
+    */
+    bool InsertDiscuss(Json::Value &insertjson);
+
+    /*
+        功能：分页查询讨论
+        传入：Json(ParentId,Page,PageSize)
+        传出：Json(_id,Title,Views,Comments,CreateTime,User.Avatar,User.NickName)
+    */
+    Json::Value SelectDiscuss(Json::Value &queryjson);
+
+    /*
+        功能：查询讨论的详细内容，并且将其浏览量加一
+        传入：Json(DiscussId)
+        传出：Json(Content)
+    */
+    Json::Value SelectDiscussContent(Json::Value &queryjson);
     // 查询所有讨论
     Json::Value getAllDiscuss();
 

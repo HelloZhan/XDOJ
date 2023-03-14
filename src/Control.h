@@ -8,6 +8,7 @@ class Control
 public:
     // 注册用户
     Json::Value RegisterUser(Json::Value &registerjson);
+
     // 登录用户
     Json::Value LoginUser(Json::Value &loginjson);
 
@@ -27,6 +28,12 @@ public:
 
     // 获取所有讨论
     Json::Value GetAllDiscuss();
+
+    // 分页查询讨论
+    Json::Value SelectDiscuss(Json::Value &queryjson);
+
+    // 获取讨论的内容
+    Json::Value SelectDiscussContent(Json::Value &queryjson);
 
     // 获取评论 根据Id
     Json::Value GetComment(Json::Value &queryjson);

@@ -91,6 +91,16 @@ Json::Value Control::GetAllDiscuss()
 	return Disscuss::GetInstance().getAllDiscuss();
 }
 
+Json::Value Control::SelectDiscuss(Json::Value &queryjson)
+{
+	return Disscuss::GetInstance().SelectDiscuss(queryjson);
+}
+
+Json::Value Control::SelectDiscussContent(Json::Value &queryjson)
+{
+	return Disscuss::GetInstance().SelectDiscussContent(queryjson);
+}
+
 Json::Value Control::GetComment(Json::Value &queryjson)
 {
 	if (queryjson["Type"].asString() == "Father")

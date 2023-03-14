@@ -151,8 +151,44 @@ void doGetStatusRecord(const httplib::Request &req, httplib::Response &res)
 void doGetDiscuss(const httplib::Request &req, httplib::Response &res)
 {
     printf("doGetDiscuss start!!!\n");
-    Json::Value resjson = control.GetAllDiscuss();
+    string page = "1";
+    if (req.has_param("Page"))
+    {
+        page = req.get_param_value("Page");
+    }
+
+    string pagesize = "10";
+    if (req.has_param("PageSize"))
+    {
+        pagesize = req.get_param_value("PageSize");
+    }
+
+    string parentid = "0";
+    if (req.has_param("ParentId"))
+    {
+        parentid = req.get_param_value("ParentId");
+    }
+    Json::Value queryjson;
+    queryjson["ParentId"] = parentid;
+    queryjson["Page"] = page;
+    queryjson["PageSize"] = pagesize;
+    Json::Value resjson = control.SelectDiscuss(queryjson);
     printf("doGetDiscuss end!!!\n");
+    res.set_content(resjson.toStyledString(), "json");
+}
+
+void doGetDiscussContent(const httplib::Request &req, httplib::Response &res)
+{
+    printf("doGetDiscussContent start!!!\n");
+    string discussid = "0";
+    if (req.has_param("DiscussId"))
+    {
+        discussid = req.get_param_value("DiscussId");
+    }
+    Json::Value queryjson;
+    queryjson["DiscussId"] = discussid;
+    Json::Value resjson = control.SelectDiscussContent(queryjson);
+    printf("doGetDiscussContent end!!!\n");
     res.set_content(resjson.toStyledString(), "json");
 }
 void doGetComment(const httplib::Request &req, httplib::Response &res)
@@ -222,6 +258,8 @@ int main()
     server.Post("/problemcode", doPostCode);
     // 获取讨论
     server.Get("/discuss", doGetDiscuss);
+    // 获取评论内容
+    server.Get("/discuss/content", doGetDiscussContent);
     // 获取评论
     server.Get("/comment", doGetComment);
     // 获取图片资源

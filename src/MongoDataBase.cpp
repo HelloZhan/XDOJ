@@ -437,6 +437,129 @@ Json::Value MoDB::SelectStatusRecord(Json::Value &queryjson)
     resjson["Array"] = arryjson;
     return resjson;
 }
+
+/*
+    功能：添加讨论
+    传入：Json(Title,Content,ParentId,UserId) 如果是父讨论ParentId=0
+    传出：bool
+*/
+bool MoDB::InsertDiscuss(Json::Value &insertjson)
+{
+    uuid.init(1, 1);
+    auto id = uuid.nextid();
+    string title = insertjson["Title"].asString();
+    string content = insertjson["Content"].asString();
+    int64_t parentid = atoll(insertjson["ParentId"].asString().data());
+    int64_t userid = atoll(insertjson["UserId"].asString().data());
+    bsoncxx::builder::stream::document document{};
+    document
+        << "_id" << id
+        << "Title" << title.data()
+        << "Content" << content.data()
+        << "ParentId" << parentid
+        << "UserId" << userid
+        << "Views" << 0
+        << "Comments" << 0
+        << "CreateTime" << GetTime().data()
+        << "UpdateTime" << GetTime().data();
+
+    discusscoll.insert_one(document.view());
+}
+/*
+    功能：分页查询讨论
+    传入：Json(ParentId,Page,PageSize)
+    传出：Json(_id,Title,Views,Comments,CreateTime,User.Avatar,User.NickName)
+*/
+Json::Value MoDB::SelectDiscuss(Json::Value &queryjson)
+{
+    int64_t parentid = stoll(queryjson["ParentId"].asString());
+    int page = stoi(queryjson["Page"].asString());
+    int pagesize = stoi(queryjson["PageSize"].asString());
+    int skip = (page - 1) * pagesize;
+
+    Json::Value resjson;
+    Json::Reader reader;
+    bsoncxx::builder::stream::document document{};
+    mongocxx::pipeline pipe, pipetot;
+
+    // 获取总条数
+    pipetot.match({make_document(kvp("ParentId", parentid))});
+    pipetot.count("TotalNum");
+    mongocxx::cursor cursor = discusscoll.aggregate(pipetot);
+    for (auto doc : cursor)
+    {
+        reader.parse(bsoncxx::to_json(doc), resjson);
+    }
+
+    pipe.match({make_document(kvp("ParentId", parentid))});
+    pipe.sort({make_document(kvp("CreateTime", -1))});
+    pipe.skip(skip);
+    pipe.limit(pagesize);
+    document
+        << "from"
+        << "User"
+        << "localField"
+        << "UserId"
+        << "foreignField"
+        << "_id"
+        << "as"
+        << "User";
+    pipe.lookup(document.view());
+
+    document.clear();
+    document
+        << "Title" << 1
+        << "Views" << 1
+        << "Comments" << 1
+        << "CreateTime" << 1
+        << "User.Avatar" << 1
+        << "User.NickName" << 1;
+    pipe.project(document.view());
+
+    cursor = discusscoll.aggregate(pipe);
+    for (auto doc : cursor)
+    {
+        Json::Value jsonvalue;
+        reader.parse(bsoncxx::to_json(doc), jsonvalue);
+        resjson["ArrayInfo"].append(jsonvalue);
+    }
+    return resjson;
+}
+
+/*
+    功能：查询讨论的详细内容，并且将其浏览量加一
+    传入：Json(DiscussId)
+    传出：Json(Content)
+*/
+Json::Value MoDB::SelectDiscussContent(Json::Value &queryjson)
+{
+    int64_t discussid = stoll(queryjson["DiscussId"].asString());
+
+    // 浏览量加一
+    bsoncxx::builder::stream::document document{};
+    document
+        << "$inc" << open_document
+        << "Views" << 1 << close_document;
+    discusscoll.update_one({make_document(kvp("_id", discussid))}, document.view());
+
+    // 查询Content
+    mongocxx::pipeline pipe;
+    pipe.match({make_document(kvp("_id", 603757867216015360))});
+    document.clear();
+    document
+        << "Content" << 1;
+    pipe.project(document.view());
+    mongocxx::cursor cursor = discusscoll.aggregate(pipe);
+
+    Json::Reader reader;
+    Json::Value resjson;
+    for (auto doc : cursor)
+    {
+        reader.parse(bsoncxx::to_json(doc), resjson);
+    }
+
+    return resjson;
+}
 Json::Value MoDB::getAllDiscuss()
 {
     Json::Reader reader;

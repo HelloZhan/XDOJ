@@ -61,11 +61,11 @@
     "Article": [
         {
             "_id": "int64_t",
-            "ParentId": "int64_t",
             "Title": "string",
+            "ParentId": "int64_t",
             "Content": "string",
-            "AuthorId": "int64_t",
-            "Likes": "int",
+            "UserId": "int64_t",
+            "Views": "int",
             "Comments": "int",
             "CreatTime": "time",
             "UpdateTime": "time"
@@ -76,9 +76,9 @@
             "_id": "int64_t",
             "Title": "string",
             "Content": "string",
-            "ParentId": "string",
-            "AuthorId": "int64_t",
-            "Likes": "int",
+            "ParentId": "int64_t",
+            "UserId": "int64_t",
+            "Views": "int",
             "Comments": "int",
             "CreatTime": "time",
             "UpdateTime": "time"
@@ -89,14 +89,14 @@
             "_id": "int64_t",
             "ParentId": "int64_t",
             "Content": "string",
-            "AuthorId": "int64_t",
+            "UserId": "int64_t",
             "Likes": "int",
             "CreateTime": "time",
             "Child_Comments": [
                 {
                     "_id": "int64_t",
                     "Content": "string",
-                    "AuthorId": "int64_t",
+                    "UserId": "int64_t",
                     "Likes": "int",
                     "CreateTime": "time"
                 }
