@@ -72,7 +72,7 @@ Json::Value MoDB::RegisterUser(Json::Value &registerjson)
     int64_t id = uuid.nextid();
     string jointime = GetTime();
     // 默认头像
-    string avatar = "http://192.168.49.131:8081/image/1";
+    string avatar = "http://192.168.49.132:8081/image/1";
     // 插入
     bsoncxx::builder::stream::document document{};
     document
@@ -136,9 +136,62 @@ Json::Value MoDB::LoginUser(Json::Value &loginjson)
 
     return resjson;
 }
-
 /*
-    功能：获取全部题目信息（是ProblemSet类进行初始化）
+    功能：更新用户的题目信息，当用户提交代码时
+    传入：Json(UserId,ProblemId,Status)
+    传出：bool(如果AC是否向其添加)
+*/
+bool MoDB::UpdateUserProblemInfo(Json::Value &updatejson)
+{
+    int64_t userid = stoll(updatejson["UserId"].asString());
+    int problemid = stoi(updatejson["ProblemId"].asString());
+    int status = stoi(updatejson["Status"].asString());
+
+    // 将用户提交数目加一
+    bsoncxx::builder::stream::document document{};
+    document
+        << "$inc" << open_document
+        << "SubmitNum" << 1 << close_document;
+
+    usercoll.update_one({make_document(kvp("_id", userid))}, document.view());
+
+    // 如果AC了
+    if (status == 2)
+    {
+        // 查询AC题目是否已经添加至ACProblems的数组中
+        mongocxx::pipeline pipe;
+        pipe.match({make_document(kvp("_id", userid))});
+        document.clear();
+        document
+            << "IsHasAc" << open_document
+            << "$in" << open_array << problemid << "$ACProblems" << close_array
+            << close_document;
+        pipe.project(document.view());
+        Json::Reader reader;
+        Json::Value tmpjson;
+        mongocxx::cursor cursor = usercoll.aggregate(pipe);
+
+        for (auto doc : cursor)
+        {
+            reader.parse(bsoncxx::to_json(doc), tmpjson);
+        }
+        // 未添加
+        if (tmpjson["IsHasAc"].asBool() == false)
+        {
+            document.clear();
+            document
+                << "$push" << open_document
+                << "ACProblems" << problemid
+                << close_document;
+            usercoll.update_one({make_document(kvp("_id", userid))}, document.view());
+            return true;
+        }
+        return false;
+    }
+    return false;
+}
+/*
+    功能：获取全部题目信息（用于ProblemSet类进行初始化）
     Json(_id,Title,Description,JudgeNum)
 */
 Json::Value MoDB::getAllProblem()
@@ -159,7 +212,7 @@ Json::Value MoDB::getAllProblem()
     前端传入
     Json(QueryType,Page,PageSize)
     后端传出
-    Json(([ProblemId,Title,SubmitNum,CENum,ACNum,WANum,TLENum,MLENum]),TotalNum)
+    Json(([ProblemId,Title,SubmitNum,CENum,ACNum,WANum,TLENum,MLENum,SENum]),TotalNum)
 */
 Json::Value MoDB::getProblemSet(Json::Value &queryjson)
 {

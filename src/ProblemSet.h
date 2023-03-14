@@ -27,6 +27,9 @@ public:
     // 通过普通查询获取题库数据
     Json::Value SelectProblemSetInfo(Json::Value &queryjson);
 
+    // 更新题目状态数量
+    bool UpdateProblemStatusNum(Json::Value &updatejson);
+
     // 获取题目的测试数量
     int getProblemJudgeNum(std::string id);
 

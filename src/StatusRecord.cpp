@@ -1,5 +1,8 @@
 #include "StatusRecord.h"
 #include "MongoDataBase.h"
+#include <string>
+
+using namespace std;
 
 StatusRecord &StatusRecord::GetInstance()
 {
@@ -11,9 +14,21 @@ Json::Value StatusRecord::SelectStatusRecordInfo(Json::Value &queryjson)
 {
     return MoDB::GetInstance().SelectStatusRecord(queryjson);
 }
+
+string StatusRecord::InsertStatusRecord(Json::Value &insertjson)
+{
+    return MoDB::GetInstance().InsertStatusRecord(insertjson);
+}
+
+Json::Value StatusRecord::UpdateStatusRecord(Json::Value &updatejson)
+{
+    return MoDB::GetInstance().UpdateStatusRecord(updatejson);
+}
+
 StatusRecord::StatusRecord()
 {
 }
+
 StatusRecord::~StatusRecord()
 {
 }

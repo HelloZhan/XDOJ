@@ -17,6 +17,12 @@ Json::Value UserSet::LoginUser(Json::Value &loginjson)
 {
     return MoDB::GetInstance().LoginUser(loginjson);
 }
+
+bool UserSet::UpdateUserProblemInfo(Json::Value &updatejson)
+{
+    return MoDB::GetInstance().UpdateUserProblemInfo(updatejson);
+}
+
 UserSet::UserSet()
 {
 }

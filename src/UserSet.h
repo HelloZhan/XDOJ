@@ -11,8 +11,12 @@ public:
     static UserSet &GetInstance();
     // 注册用户
     Json::Value RegisterUser(Json::Value &registerjson);
+
     // 登录用户
     Json::Value LoginUser(Json::Value &loginjson);
+
+    // 更新用户题目信息
+    bool UpdateUserProblemInfo(Json::Value &updatejson);
 
 private:
     UserSet();

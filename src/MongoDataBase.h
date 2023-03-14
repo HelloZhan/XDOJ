@@ -47,6 +47,13 @@ public:
     */
     Json::Value LoginUser(Json::Value &loginjson);
 
+    /*
+        功能：更新用户的题目信息，当用户提交代码时
+        传入：Json(UserId,ProblemId,Status)
+        传出：bool(如果AC是否向其添加)
+    */
+    bool UpdateUserProblemInfo(Json::Value &updatejson);
+
     // ----------------------题目表Problem--------------------
     /*
         功能：获取全部题目信息（是ProblemSet类进行初始化）

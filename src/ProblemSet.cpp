@@ -26,6 +26,11 @@ Json::Value ProblemSet::SelectProblemSetInfo(Json::Value &queryjson)
     return MoDB::GetInstance().getProblemSet(queryjson);
 }
 
+bool ProblemSet::UpdateProblemStatusNum(Json::Value &updatejson)
+{
+    return MoDB::GetInstance().UpdateProblemStatusNum(updatejson);
+}
+
 int ProblemSet::getProblemJudgeNum(std::string id)
 {
     return heap[id]->getJudgeNum();

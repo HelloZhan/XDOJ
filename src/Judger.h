@@ -19,8 +19,6 @@ class Judger
 {
 public:
     Judger();
-    // 传入: Json(SubmitId,ProblemId,JudgeNum,Code,Language,TimeLimit,MemoryLimit,Length)
-    // 返回：Json(Result,Reason,RunTime,RunMemory)
     /*
         功能：判题函数
         传入数据：Json(SubmitId,ProblemId,JudgeNum,Code,Language,TimeLimit,MemoryLimit)
