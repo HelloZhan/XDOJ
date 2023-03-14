@@ -43,7 +43,7 @@ public:
         前端传入
         Json(Account,PassWord)
         后端传出
-        Json(Result,Reason,_id,NickName,Avatar)
+        Json(Result,Reason,Info(_id,NickName,Avatar...))用户的全部信息，详情请见MongoDB集合表
     */
     Json::Value LoginUser(Json::Value &loginjson);
 
@@ -59,9 +59,16 @@ public:
         前端传入
         Json(QueryType,Page,PageSize,MatchString)
         后端传出
-        Json(ProblemId,Title,SubmitNum,CENum,ACNum,WANum,TLENum,MLENum),TotalNum
+        Json(ProblemId,Title,SubmitNum,CENum,ACNum,WANum,TLENum,MLENum,SENum),TotalNum
     */
     Json::Value getProblemSet(Json::Value &queryjson);
+
+    /*
+        功能：更新题目的状态数量
+        传入：Json(ProblemId,Status)
+        传出：bool
+    */
+    bool UpdateProblemStatusNum(Json::Value &updatejson);
 
     // ---------------------评测表StatusRecord-----------------------
 
@@ -81,6 +88,11 @@ public:
     */
     Json::Value UpdateStatusRecord(Json::Value &updatejson);
 
+    /*
+        功能：分页查询测评记录
+        传入：Json(QueryType,PageSize,Page)
+        传出：测评全部信息，详情请见MongoDB集合表
+    */
     Json::Value SelectStatusRecord(Json::Value &queryjson);
 
     // Disscuss 讨论

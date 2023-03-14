@@ -84,7 +84,11 @@ Json::Value MoDB::RegisterUser(Json::Value &registerjson)
         << "PersonalProfile" << personalprofile.data()
         << "School" << school.data()
         << "Major" << major.data()
-        << "JoinTime" << jointime.data();
+        << "JoinTime" << jointime.data()
+        << "CommentLikes" << open_array << close_array
+        << "ACProblems" << open_array << close_array
+        << "SubmitNum" << 0
+        << "Authority" << 3;
 
     usercoll.insert_one(document.view());
 
@@ -97,7 +101,7 @@ Json::Value MoDB::RegisterUser(Json::Value &registerjson)
     前端传入
     Json(Account,PassWord)
     后端传出
-    Json(Result,Reason,_id,NickName,Avatar)
+    Json(Result,Reason,Info(_id,NickName,Avatar...))用户的全部信息，详情请见MongoDB集合表
 */
 Json::Value MoDB::LoginUser(Json::Value &loginjson)
 {
@@ -110,13 +114,8 @@ Json::Value MoDB::LoginUser(Json::Value &loginjson)
         << "Account" << account.data()
         << "PassWord" << password.data();
     pipe.match(document.view());
-    document.clear();
-    document
-        << "NickName" << 1
-        << "Avatar" << 1;
 
-    pipe.project(document.view());
-
+    // 匹配账号和密码
     mongocxx::cursor cursor = usercoll.aggregate(pipe);
     if (cursor.begin() == cursor.end())
     {
@@ -124,14 +123,17 @@ Json::Value MoDB::LoginUser(Json::Value &loginjson)
         resjson["Reason"] = "账户或密码错误！";
         return resjson;
     }
+    // 匹配成功
     Json::Reader reader;
     for (auto doc : cursor)
     {
         Json::Value jsonvalue;
-        reader.parse(bsoncxx::to_json(doc), resjson);
+        reader.parse(bsoncxx::to_json(doc), jsonvalue);
+        resjson["Info"] = jsonvalue;
     }
     resjson["Result"] = "Success";
     resjson["Reason"] = "登录成功！";
+
     return resjson;
 }
 
@@ -208,6 +210,41 @@ Json::Value MoDB::getProblemSet(Json::Value &queryjson)
     }
     resjson["Array"] = arryjson;
     return resjson;
+}
+/*
+    功能：更新题目的状态数量
+    传入：Json(ProblemId,Status)
+    传出：bool
+*/
+bool MoDB::UpdateProblemStatusNum(Json::Value &updatejson)
+{
+    int64_t problemid = stoll(updatejson["ProblemId"].asString());
+    int status = stoi(updatejson["Status"].asString());
+
+    string statusnum = "";
+    if (status == 1)
+        statusnum = "CENum";
+    else if (status == 2)
+        statusnum = "ACNum";
+    else if (status == 3)
+        statusnum = "WANum";
+    else if (status == 4)
+        statusnum = "RENum";
+    else if (status == 5)
+        statusnum = "TLENum";
+    else if (status == 6)
+        statusnum = "MLENum";
+    else if (status == 7)
+        statusnum = "SENum";
+
+    bsoncxx::builder::stream::document document{};
+    document
+        << "$inc" << open_document
+        << "SubmitNum" << 1
+        << statusnum << 1 << close_document;
+
+    problemcoll.update_one({make_document(kvp("_id", problemid))}, document.view());
+    return true;
 }
 /*
     功能：向测评表插入一条待测评记录

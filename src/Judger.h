@@ -3,23 +3,17 @@
 #include <jsoncpp/json/json.h>
 #include <string>
 
-// #define PJ "Pending & Judging"
-// #define CE "Compile Error"
-// #define AC "Accepted"
-// #define WA "Wrong Answer"
-// #define RE "Runtime Error"
-// #define TLE "Time Limit Exceeded"
-// #define MLE "Memory Limit Exceeded"
-// #define SE "System Error"
-
-#define PJ 0
-#define CE 1
-#define AC 2
-#define WA 3
-#define RE 4
-#define TLE 5
-#define MLE 6
-#define SE 7
+enum Status
+{
+    PJ,  // PJ "Pending & Judging"
+    CE,  // CE "Compile Error"
+    AC,  // AC "Accepted"
+    WA,  // WA "Wrong Answer"
+    RE,  // RE "Runtime Error"
+    TLE, // TLE "Time Limit Exceeded"
+    MLE, // MLE "Memory Limit Exceeded"
+    SE   // SE "System Error"
+};
 
 class Judger
 {

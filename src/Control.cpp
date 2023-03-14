@@ -54,24 +54,15 @@ Json::Value Control::GetJudgeCode(Json::Value judgejson)
     runjson["MemoryLimit"] = ProblemSet::GetInstance().getProblemMemoryLimit(problemid);
 
     Json::Value resjson = judger.Run(runjson);
-    cout << resjson.toStyledString() << endl;
-    // 更新状态信息
-    Json::Value statusjson = MoDB::GetInstance().UpdateStatusRecord(resjson);
-    cout << statusjson.toStyledString() << endl;
-    // 更新状态记录
-    // 传入：Json(SubmitId,Status,RunTime,RunMemory,Length)
-    // Json::Value updatejson;
-    // updatejson["SubmitId"] = submitid;
-    // updatejson["Status"] = resjson["Result"];
-    // updatejson["RunTime"] = resjson["RunTime"];
-    // updatejson["RunMemory"] = resjson["RunMemory"];
-    // updatejson["Length"] = resjson["Length"];
-    // MyDB::GetInstance().UpdateStatusRecordInfo(updatejson);
 
-    // 更新题目的状态
-    // string problemid = judgejson["ProblemId"].asString();
-    // string result = resjson["Result"].asString();
-    // ProblemSet::GetInstance().UpdateProblemStatusNumById(problemid, result);
+    // 更新状态信息 返回结果
+    Json::Value statusjson = MoDB::GetInstance().UpdateStatusRecord(resjson);
+
+    // TODO:更新题目的状态
+    Json::Value updatejson;
+    updatejson["ProblemId"] = problemid;
+    updatejson["Status"] = statusjson["Status"].asString();
+    MoDB::GetInstance().UpdateProblemStatusNum(updatejson);
 
     // TODO:更新用户的状态
 

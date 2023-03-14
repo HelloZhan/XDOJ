@@ -2,21 +2,25 @@
     "User": [
         {
             "_id": "int64_t",
-            "Avatar": "String",
-            "NickName": "String",
-            "Account": "String",
-            "PassWord": "String",
-            "PersonalProfile": "String",
-            "School": "String",
-            "Major": "String",
-            "JoinTime": "String"
+            "Avatar": "string",
+            "NickName": "string",
+            "Account": "string",
+            "PassWord": "string",
+            "PersonalProfile": "string",
+            "School": "string",
+            "Major": "string",
+            "JoinTime": "string",
+            "CommentLikes": "['string']",
+            "ACProblems": "['int']",
+            "SubmitNum": "int",
+            "Authority": "int"
         }
     ],
     "Problem": [
         {
             "_id": "int",
-            "Title": "String",
-            "Description": "String",
+            "Title": "string",
+            "Description": "string",
             "JudgeNum": "int",
             "SubmitNum": "int",
             "CENum": "int",
@@ -24,7 +28,8 @@
             "WANum": "int",
             "TLENum": "int",
             "MLENum": "int",
-            "Tags": "[String]"
+            "SENum": "int",
+            "Tags": "['string']"
         }
     ],
     "StatusRecord": [
@@ -32,23 +37,23 @@
             "_id": "int64_t",
             "ProblemId": "int64_t",
             "UserId": "int64_t",
-            "UserNickName": "String",
-            "ProblemTitle": "String",
+            "UserNickName": "string",
+            "ProblemTitle": "string",
             "Status": "int",
-            "RunTime": "String",
-            "RunMemory": "String",
-            "Length": "String",
-            "Language": "String",
-            "SubmitTime": "String",
-            "Code": "String",
-            "CompilerInfo": "String",
+            "RunTime": "string",
+            "RunMemory": "string",
+            "Length": "string",
+            "Language": "string",
+            "SubmitTime": "string",
+            "Code": "string",
+            "CompilerInfo": "string",
             "TestInfo": [
                 {
                     "Status": "int",
-                    "StandardOutput": "String",
-                    "PersonalOutput": "String",
-                    "RunTime": "String",
-                    "RunMemory": "String"
+                    "StandardOutput": "string",
+                    "PersonalOutput": "string",
+                    "RunTime": "string",
+                    "RunMemory": "string"
                 }
             ]
         }
@@ -56,31 +61,10 @@
     "Article": [
         {
             "_id": "int64_t",
-            "ProblemId": "int64_t",
-            "Title": "String",
-            "Content": "String",
-            "Author": {
-                "AuthorId": "int64_t",
-                "AuthorName": "String",
-                "AuthorAvatar": "String"
-            },
-            "Likes": "int",
-            "Comments": "int",
-            "CreatTime": "time",
-            "UpdateTime": "time"
-        }
-    ],
-    "ProblemDiscuss": [
-        {
-            "_id": "int64_t",
-            "ProblemId": "int64_t",
-            "Title": "String",
-            "Content": "String",
-            "Author": {
-                "AuthorId": "int64_t",
-                "AuthorName": "String",
-                "AuthorAvatar": "String"
-            },
+            "ParentId": "int64_t",
+            "Title": "string",
+            "Content": "string",
+            "AuthorId": "int64_t",
             "Likes": "int",
             "Comments": "int",
             "CreatTime": "time",
@@ -90,13 +74,10 @@
     "Discuss": [
         {
             "_id": "int64_t",
-            "Title": "String",
-            "Content": "String",
-            "Author": {
-                "AuthorId": "int64_t",
-                "AuthorName": "String",
-                "AuthorAvatar": "String"
-            },
+            "Title": "string",
+            "Content": "string",
+            "ParentId": "string",
+            "AuthorId": "int64_t",
             "Likes": "int",
             "Comments": "int",
             "CreatTime": "time",
@@ -107,14 +88,14 @@
         {
             "_id": "int64_t",
             "ParentId": "int64_t",
-            "Content": "String",
+            "Content": "string",
             "AuthorId": "int64_t",
             "Likes": "int",
             "CreateTime": "time",
             "Child_Comments": [
                 {
                     "_id": "int64_t",
-                    "Content": "String",
+                    "Content": "string",
                     "AuthorId": "int64_t",
                     "Likes": "int",
                     "CreateTime": "time"
