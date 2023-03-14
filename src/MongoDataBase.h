@@ -6,6 +6,7 @@
 #include <mongocxx/uri.hpp>
 #include <mongocxx/instance.hpp>
 #include <mongocxx/pipeline.hpp>
+#include <mongocxx/pool.hpp>
 #include <bsoncxx/builder/stream/helpers.hpp>
 #include <bsoncxx/builder/stream/document.hpp>
 #include <bsoncxx/builder/stream/array.hpp>
@@ -141,14 +142,9 @@ public:
 private:
     mongocxx::instance instance{}; // This should be done only once.
     mongocxx::client client{mongocxx::uri{}};
-    mongocxx::database db;
+    mongocxx::uri uri{};
+    mongocxx::pool pool{uri};
 
-    mongocxx::collection usercoll;
-    mongocxx::collection problemcoll;
-    mongocxx::collection statusrecordcoll;
-    mongocxx::collection articlecoll;
-    mongocxx::collection discusscoll;
-    mongocxx::collection commentcoll;
     MoDB();
     ~MoDB();
 };

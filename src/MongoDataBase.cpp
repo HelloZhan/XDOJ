@@ -27,15 +27,6 @@ MoDB &MoDB::GetInstance()
 
 bool MoDB::InitDB()
 {
-    // 连接数据库
-    db = client["XDOJ"];
-    // 连接集合
-    usercoll = db["User"];
-    problemcoll = db["Problem"];
-    statusrecordcoll = db["StatusRecord"];
-    articlecoll = db["Article"];
-    discusscoll = db["Discuss"];
-    commentcoll = db["Comment"];
 }
 /*
     功能：注册用户
@@ -48,6 +39,10 @@ Json::Value MoDB::RegisterUser(Json::Value &registerjson)
 {
     Json::Value resjson;
     string account = registerjson["Account"].asString();
+
+    auto client = pool.acquire();
+    mongocxx::collection usercoll = (*client)["XDOJ"]["User"];
+
     mongocxx::cursor cursor = usercoll.find({make_document(kvp("Account", account.data()))});
     // 判断账户是否存在
     if (cursor.begin() != cursor.end())
@@ -108,6 +103,10 @@ Json::Value MoDB::LoginUser(Json::Value &loginjson)
     Json::Value resjson;
     string account = loginjson["Account"].asString();
     string password = loginjson["PassWord"].asString();
+
+    auto client = pool.acquire();
+    mongocxx::collection usercoll = (*client)["XDOJ"]["User"];
+
     mongocxx::pipeline pipe;
     bsoncxx::builder::stream::document document{};
     document
@@ -148,6 +147,9 @@ bool MoDB::UpdateUserProblemInfo(Json::Value &updatejson)
     int status = stoi(updatejson["Status"].asString());
 
     // 将用户提交数目加一
+    auto client = pool.acquire();
+    mongocxx::collection usercoll = (*client)["XDOJ"]["User"];
+
     bsoncxx::builder::stream::document document{};
     document
         << "$inc" << open_document
@@ -198,6 +200,8 @@ Json::Value MoDB::getAllProblem()
 {
     Json::Value resjson;
     Json::Reader reader;
+    auto client = pool.acquire();
+    mongocxx::collection problemcoll = (*client)["XDOJ"]["Problem"];
     mongocxx::cursor cursor = problemcoll.find({});
     for (auto doc : cursor)
     {
@@ -220,6 +224,9 @@ Json::Value MoDB::getProblemSet(Json::Value &queryjson)
     int page = stoi(queryjson["Page"].asString());
     int pagesize = stoi(queryjson["PageSize"].asString());
     int skip = (page - 1) * pagesize;
+
+    auto client = pool.acquire();
+    mongocxx::collection problemcoll = (*client)["XDOJ"]["Problem"];
     Json::Value resjson;
     Json::Reader reader;
     mongocxx::pipeline pipe, pipetot;
@@ -290,6 +297,8 @@ bool MoDB::UpdateProblemStatusNum(Json::Value &updatejson)
     else if (status == 7)
         statusnum = "SENum";
 
+    auto client = pool.acquire();
+    mongocxx::collection problemcoll = (*client)["XDOJ"]["Problem"];
     bsoncxx::builder::stream::document document{};
     document
         << "$inc" << open_document
@@ -314,6 +323,8 @@ string MoDB::InsertStatusRecord(Json::Value &insertjson)
     string language = insertjson["Language"].asString();
     string code = insertjson["Code"].asString();
 
+    auto client = pool.acquire();
+    mongocxx::collection statusrecordcoll = (*client)["XDOJ"]["StatusRecord"];
     bsoncxx::builder::stream::document document{};
 
     document
@@ -356,6 +367,8 @@ Json::Value MoDB::UpdateStatusRecord(Json::Value &updatejson)
     string complierinfo = updatejson["ComplierInfo"].asString();
 
     // 更新测评记录
+    auto client = pool.acquire();
+    mongocxx::collection statusrecordcoll = (*client)["XDOJ"]["StatusRecord"];
     bsoncxx::builder::stream::document document{};
     auto in_array = document
                     << "$set" << open_document
@@ -409,6 +422,8 @@ Json::Value MoDB::SelectStatusRecord(Json::Value &queryjson)
     Json::Reader reader;
     mongocxx::pipeline pipe, pipetot;
     bsoncxx::builder::stream::document document{};
+    auto client = pool.acquire();
+    mongocxx::collection statusrecordcoll = (*client)["XDOJ"]["StatusRecord"];
 
     // 获取总条数
     pipetot.count("TotalNum");
@@ -451,6 +466,9 @@ bool MoDB::InsertDiscuss(Json::Value &insertjson)
     string content = insertjson["Content"].asString();
     int64_t parentid = atoll(insertjson["ParentId"].asString().data());
     int64_t userid = atoll(insertjson["UserId"].asString().data());
+
+    auto client = pool.acquire();
+    mongocxx::collection discusscoll = (*client)["XDOJ"]["Discuss"];
     bsoncxx::builder::stream::document document{};
     document
         << "_id" << id
@@ -482,6 +500,8 @@ Json::Value MoDB::SelectDiscuss(Json::Value &queryjson)
     bsoncxx::builder::stream::document document{};
     mongocxx::pipeline pipe, pipetot;
 
+    auto client = pool.acquire();
+    mongocxx::collection discusscoll = (*client)["XDOJ"]["Discuss"];
     // 获取总条数
     pipetot.match({make_document(kvp("ParentId", parentid))});
     pipetot.count("TotalNum");
@@ -535,6 +555,8 @@ Json::Value MoDB::SelectDiscussContent(Json::Value &queryjson)
 {
     int64_t discussid = stoll(queryjson["DiscussId"].asString());
 
+    auto client = pool.acquire();
+    mongocxx::collection discusscoll = (*client)["XDOJ"]["Discuss"];
     // 浏览量加一
     bsoncxx::builder::stream::document document{};
     document
@@ -562,6 +584,8 @@ Json::Value MoDB::SelectDiscussContent(Json::Value &queryjson)
 }
 Json::Value MoDB::getAllDiscuss()
 {
+    auto client = pool.acquire();
+    mongocxx::collection discusscoll = (*client)["XDOJ"]["Discuss"];
     Json::Reader reader;
     Json::Value resjson;
     mongocxx::cursor cursor = discusscoll.find({});
@@ -581,7 +605,8 @@ Json::Value MoDB::getFatherComment(Json::Value &queryjson)
     int skip = stoi(queryjson["Skip"].asString());
     int limit = stoi(queryjson["Limit"].asString());
     int sonnum = stoi(queryjson["SonNum"].asString());
-
+    auto client = pool.acquire();
+    mongocxx::collection commentcoll = (*client)["XDOJ"]["Comment"];
     mongocxx::pipeline pipe;
     bsoncxx::builder::stream::document document{};
     // 匹配ParentId
@@ -708,6 +733,8 @@ Json::Value MoDB::getSonComment(Json::Value &queryjson)
     int skip = stoi(queryjson["Skip"].asString());
     int limit = stoi(queryjson["Limit"].asString());
 
+    auto client = pool.acquire();
+    mongocxx::collection commentcoll = (*client)["XDOJ"]["Comment"];
     mongocxx::pipeline pipe;
     bsoncxx::builder::stream::document document{};
     // 匹配id
@@ -786,6 +813,8 @@ Json::Value MoDB::getSonComment(Json::Value &queryjson)
 }
 Json::Value MoDB::getAllArticle()
 {
+    auto client = pool.acquire();
+    mongocxx::collection articlecoll = (*client)["XDOJ"]["Article"];
     Json::Reader reader;
     Json::Value resjson;
     mongocxx::cursor cursor = articlecoll.find({});
@@ -807,6 +836,9 @@ Json::Value MoDB::InsertFatherComment(Json::Value &insertjson)
     string content = insertjson["Content"].asString();
     int64_t authorid = atoll(insertjson["AuthorId"].asString().data());
     string createtime = GetTime();
+
+    auto client = pool.acquire();
+    mongocxx::collection commentcoll = (*client)["XDOJ"]["Comment"];
     bsoncxx::builder::stream::document document{};
     document
         << "_id" << id
@@ -835,6 +867,10 @@ Json::Value MoDB::InsertSonComment(Json::Value &insertjson)
     string content = insertjson["Content"].asString();
     int64_t authorid = stoll(insertjson["AuthorId"].asString().data());
     string createtime = GetTime();
+
+    auto client = pool.acquire();
+    mongocxx::collection commentcoll = (*client)["XDOJ"]["Comment"];
+
     bsoncxx::builder::stream::document document{};
     document
         << "$addToSet" << open_document
