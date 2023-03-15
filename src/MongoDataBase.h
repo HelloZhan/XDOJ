@@ -29,7 +29,8 @@ public:
 
     // 初始化
     bool InitDB();
-    // ------------------用户表User---------------------------
+
+    // +++++++++++++++++++++++用户表User+++++++++++++++++++++++++++++
     /*
         功能：注册用户
         前端传入
@@ -62,7 +63,7 @@ public:
     */
     Json::Value SelectUserRank(Json::Value &queryjson);
 
-    // ----------------------题目表Problem--------------------
+    // ++++++++++++++++++++++++++题目表Problem+++++++++++++++++++++++++++++
     /*
         功能：获取全部题目信息（是ProblemSet类进行初始化）
         Json(_id,Title,TimeLimit,MemoryLimit,Description,JudgeNum)
@@ -85,7 +86,7 @@ public:
     */
     bool UpdateProblemStatusNum(Json::Value &updatejson);
 
-    // ---------------------评测表StatusRecord-----------------------
+    // ++++++++++++++++++++++++评测表StatusRecord+++++++++++++++++++++++++
 
     /*
         功能：向测评表插入一条待测评记录
@@ -110,7 +111,7 @@ public:
     */
     Json::Value SelectStatusRecord(Json::Value &queryjson);
 
-    // --------------------Disscuss 讨论表----------------------
+    // +++++++++++++++++++++++++Disscuss 讨论表++++++++++++++++++++++++++++
 
     /*
         功能：添加讨论
@@ -135,23 +136,44 @@ public:
     // 查询所有讨论
     Json::Value getAllDiscuss();
 
-    // -------------------文章表 Article-----------------------
+    // ++++++++++++++++++++++文章表 Article+++++++++++++++++++++
     Json::Value getAllArticle();
-    // -------------------评论表 Comment----------------------
-
+    // ++++++++++++++++++++++评论表 Comment+++++++++++++++++++++++
+    /*
+        功能：查询父评论
+        传入：Json(ParentId,Skip,Limie,SonNum)
+        传出：
+        Json(ParentId,Content,Likes,CreateTime,Child_Total,
+        User(Avatar,NickName),
+        Child_Comments(_id,Content,Likes,CreateTime,User(Avatar,NickName)))
+    */
     Json::Value getFatherComment(Json::Value &queryjson);
 
+    /*
+        功能：获取子评论
+        传入：Json(ParentId,Skip,Limit)
+        传出：Json(Child_Total,Child_Comments(_id,Content,Likes,CreateTime,User(NickName,Avatar)))
+    */
     Json::Value getSonComment(Json::Value &queryjson);
 
-    // 评论
+    /*
+        功能：插入父评论
+        传入：Json(ParentId,Content,UserId)
+        传出：Json(_id,CreateTime)
+    */
     Json::Value InsertFatherComment(Json::Value &insertjson);
 
+    /*
+        功能：插入子评论
+        传入：Json(ParentId,Content,UserId)
+        传出：Json(_id,CreateTime)
+    */
     Json::Value InsertSonComment(Json::Value &insertjson);
 
 private:
     mongocxx::instance instance{}; // This should be done only once.
-    mongocxx::uri uri{};
-    mongocxx::pool pool{uri};
+    mongocxx::uri uri{};           // 连接配置
+    mongocxx::pool pool{uri};      // 连接池
 
     MoDB();
     ~MoDB();

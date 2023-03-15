@@ -675,8 +675,14 @@ Json::Value MoDB::getAllArticle()
     }
     return resjson;
 }
-
-// Json(ParentId,Skip,Limie,SonNum)
+/*
+    功能：查询父评论
+    传入：Json(ParentId,Skip,Limie,SonNum)
+    传出：
+    Json(ParentId,Content,Likes,CreateTime,Child_Total,
+    User(Avatar,NickName),
+    Child_Comments(_id,Content,Likes,CreateTime,User(Avatar,NickName)))
+*/
 Json::Value MoDB::getFatherComment(Json::Value &queryjson)
 {
 
@@ -684,8 +690,10 @@ Json::Value MoDB::getFatherComment(Json::Value &queryjson)
     int skip = stoi(queryjson["Skip"].asString());
     int limit = stoi(queryjson["Limit"].asString());
     int sonnum = stoi(queryjson["SonNum"].asString());
+
     auto client = pool.acquire();
     mongocxx::collection commentcoll = (*client)["XDOJ"]["Comment"];
+
     mongocxx::pipeline pipe;
     bsoncxx::builder::stream::document document{};
     // 匹配ParentId
@@ -728,11 +736,11 @@ Json::Value MoDB::getFatherComment(Json::Value &queryjson)
         << "from"
         << "User"
         << "localField"
-        << "Child_Comments.AuthorId"
+        << "Child_Comments.UserId"
         << "foreignField"
         << "_id"
         << "as"
-        << "Child_Comments.Author";
+        << "Child_Comments.User";
     pipe.lookup(document.view());
     document.clear();
     // 将其合并
@@ -748,9 +756,9 @@ Json::Value MoDB::getFatherComment(Json::Value &queryjson)
         << "Likes" << open_document
         << "$first"
         << "$Likes" << close_document
-        << "AuthorId" << open_document
+        << "UserId" << open_document
         << "$first"
-        << "$AuthorId" << close_document
+        << "$UserId" << close_document
         << "CreateTime" << open_document
         << "$first"
         << "$CreateTime" << close_document
@@ -767,45 +775,51 @@ Json::Value MoDB::getFatherComment(Json::Value &queryjson)
         << "from"
         << "User"
         << "localField"
-        << "AuthorId"
+        << "UserId"
         << "foreignField"
         << "_id"
         << "as"
-        << "Author";
+        << "User";
     pipe.lookup(document.view());
     document.clear();
-    // 将不需要的字段消除
+    // 选择需要的字段
     document
-        << "$unset" << open_array
-        << "AuthorId"
-        << "Author.Account"
-        << "Author.PassWord"
-        << "Author.Likes"
-        << "Child_Comments.Author.Account"
-        << "Child_Comments.Author.PassWord"
-        << "Child_Comments.Author.Likes"
-        << close_array;
-    pipe.append_stage(document.view());
+        << "ParentId" << 1
+        << "Content" << 1
+        << "Likes" << 1
+        << "CreateTime" << 1
+        << "Child_Total" << 1
+        << "User.Avatar" << 1
+        << "User.NickName" << 1
+        << "Child_Comments._id" << 1
+        << "Child_Comments.Content" << 1
+        << "Child_Comments.Likes" << 1
+        << "Child_Comments.CreateTime" << 1
+        << "Child_Comments.User.Avatar" << 1
+        << "Child_Comments.User.NickName" << 1;
+    pipe.project(document.view());
     document.clear();
     // 按照时间先后顺序
     pipe.sort({make_document(kvp("CreateTime", 1))});
 
     Json::Reader reader;
-    Json::Value jsoninfo;
+    Json::Value resjson;
     mongocxx::cursor cursor = commentcoll.aggregate(pipe);
     for (auto doc : cursor)
     {
         Json::Value jsonvalue;
         reader.parse(bsoncxx::to_json(doc), jsonvalue);
-        jsoninfo.append(jsonvalue);
+        resjson["ArryInfo"].append(jsonvalue);
     }
-    Json::Value resjson;
-    resjson["Total"] = to_string(commentcoll.count_documents({make_document(kvp("ParentId", parentid))}));
-    resjson["Info"] = jsoninfo;
-    cout << resjson.toStyledString() << endl;
+    resjson["TotalNum"] = to_string(commentcoll.count_documents({make_document(kvp("ParentId", parentid))}));
     return resjson;
 }
-// Json(ParentId,Skip,Limit)
+
+/*
+    功能：获取子评论
+    传入：Json(ParentId,Skip,Limit)
+    传出：Json(Child_Total,Child_Comments(_id,Content,Likes,CreateTime,User(NickName,Avatar)))
+*/
 Json::Value MoDB::getSonComment(Json::Value &queryjson)
 {
     int64_t _id = stoll(queryjson["ParentId"].asString());
@@ -851,11 +865,11 @@ Json::Value MoDB::getSonComment(Json::Value &queryjson)
         << "from"
         << "User"
         << "localField"
-        << "Child_Comments.AuthorId"
+        << "Child_Comments.UserId"
         << "foreignField"
         << "_id"
         << "as"
-        << "Child_Comments.Author";
+        << "Child_Comments.User";
     pipe.lookup(document.view());
     document.clear();
 
@@ -871,14 +885,15 @@ Json::Value MoDB::getSonComment(Json::Value &queryjson)
         << "$Child_Comments" << close_document;
     pipe.group(document.view());
     document.clear();
-
     document
-        << "$unset" << open_array
-        << "Child_Comments.Author.Account"
-        << "Child_Comments.Author.PassWord"
-        << "Child_Comments.Author.Likes"
-        << close_array;
-    pipe.append_stage(document.view());
+        << "Child_Total" << 1
+        << "Child_Comments._id" << 1
+        << "Child_Comments.Content" << 1
+        << "Child_Comments.Likes" << 1
+        << "Child_Comments.CreateTime" << 1
+        << "Child_Comments.User.NickName" << 1
+        << "Child_Comments.User.Avatar" << 1;
+    pipe.project(document.view());
     document.clear();
 
     Json::Reader reader;
@@ -891,14 +906,18 @@ Json::Value MoDB::getSonComment(Json::Value &queryjson)
     return resjson;
 }
 
-// Json(ParentId,Content,AuthorId,AuthorName,AuthorAvatar)
+/*
+    功能：插入父评论
+    传入：Json(ParentId,Content,UserId)
+    传出：Json(_id,CreateTime)
+*/
 Json::Value MoDB::InsertFatherComment(Json::Value &insertjson)
 {
     uuid.init(1, 1);
     int64_t id = uuid.nextid();
     int64_t parentid = atoll(insertjson["ParentId"].asString().data());
     string content = insertjson["Content"].asString();
-    int64_t authorid = atoll(insertjson["AuthorId"].asString().data());
+    int64_t userid = atoll(insertjson["UserId"].asString().data());
     string createtime = GetTime();
 
     auto client = pool.acquire();
@@ -908,7 +927,7 @@ Json::Value MoDB::InsertFatherComment(Json::Value &insertjson)
         << "_id" << id
         << "ParentId" << parentid
         << "Content" << content.data()
-        << "AuthorId" << authorid
+        << "UserId" << userid
         << "Likes" << 0
         << "CreateTime" << createtime.data()
         << "Child_Comments" << open_array
@@ -923,13 +942,17 @@ Json::Value MoDB::InsertFatherComment(Json::Value &insertjson)
     return resjson;
 }
 
-// Json(ParentId,Content,AuthorId,AuthorName,AuthorAvatar)
+/*
+    功能：插入子评论
+    传入：Json(ParentId,Content,UserId)
+    传出：Json(_id,CreateTime)
+*/
 Json::Value MoDB::InsertSonComment(Json::Value &insertjson)
 {
     int64_t parentid = stoll(insertjson["ParentId"].asString().data());
     int64_t id = uuid.nextid();
     string content = insertjson["Content"].asString();
-    int64_t authorid = stoll(insertjson["AuthorId"].asString().data());
+    int64_t userid = stoll(insertjson["UserId"].asString().data());
     string createtime = GetTime();
 
     auto client = pool.acquire();
@@ -942,7 +965,7 @@ Json::Value MoDB::InsertSonComment(Json::Value &insertjson)
         << "_id" << id
         << "Content"
         << content.data()
-        << "AuthorId" << authorid
+        << "UserId" << userid
         << "Likes" << 0
         << "CreateTime"
         << createtime.data()
