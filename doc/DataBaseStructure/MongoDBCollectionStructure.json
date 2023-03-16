@@ -58,7 +58,7 @@
             ]
         }
     ],
-    "Article": [
+    "Solution": [
         {
             "_id": "int64_t",
             "Title": "string",

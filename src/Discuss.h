@@ -13,13 +13,16 @@ public:
     Json::Value getAllDiscuss();
 
     // 添加讨论
-    bool InsertDiscuss(Json::Value &insertjson);
+    Json::Value InsertDiscuss(Json::Value &insertjson);
 
     // 分页查询讨论
     Json::Value SelectDiscuss(Json::Value &queryjson);
 
     // 查询讨论的内容
     Json::Value SelectDiscussContent(Json::Value &queryjson);
+
+    // 修改评论数的数量
+    bool UpdateDiscussComments(Json::Value &updatejson);
 
 private:
     Disscuss();

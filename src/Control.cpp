@@ -23,6 +23,16 @@ Json::Value Control::SelectUserRank(Json::Value &queryjson)
 	return UserSet::GetInstance().SelectUserRank(queryjson);
 }
 
+Json::Value Control::SelectUserInfo(Json::Value &queryjson)
+{
+	return UserSet::GetInstance().SelectUserInfo(queryjson);
+}
+
+Json::Value Control::UpdateUserInfo(Json::Value &updatejson)
+{
+	return UserSet::GetInstance().UpdateUserInfo(updatejson);
+}
+
 string Control::GetProblemDescription(string problemid)
 {
 	return ProblemSet::GetInstance().getProblemDescription(problemid);
@@ -121,16 +131,28 @@ Json::Value Control::GetComment(Json::Value &queryjson)
 Json::Value Control::InsertComment(Json::Value &insertjson)
 {
 	string type = insertjson["Type"].asString();
-	if (type == "Father")
+
+	// TODO:添加评论，需要将其讨论或者文章的评论数加一
+	if (type == "Father") // 父评论
 	{
+
 		return Comment::GetInstance().InsertFatherComment(insertjson);
 	}
-	else
+	else // 子评论
 	{
 		return Comment::GetInstance().InsertSonComment(insertjson);
 	}
 }
-
+Json::Value Control::InsertArticle(Json::Value &insertjson)
+{
+	if (insertjson["ArticleType"].asString() == "Discuss") // 插入讨论
+	{
+		return Disscuss::GetInstance().InsertDiscuss(insertjson);
+	}
+	else // TODO:插入题解
+	{
+	}
+}
 Control::Control()
 {
 	// 初始化MongoDB数据库

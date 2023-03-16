@@ -21,6 +21,12 @@ public:
     // 获取用户Rank排名
     Json::Value SelectUserRank(Json::Value &queryjson);
 
+    // 获取用户大部分信息
+    Json::Value SelectUserInfo(Json::Value &queryjson);
+
+    // 更新用户信息
+    Json::Value UpdateUserInfo(Json::Value &updatejson);
+
 private:
     UserSet();
     ~UserSet();

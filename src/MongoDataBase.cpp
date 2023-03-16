@@ -3,6 +3,24 @@
 #include <iostream>
 #include "./utils/snowflake.hpp"
 #include <ctime>
+#include <bsoncxx/json.hpp>
+#include <mongocxx/client.hpp>
+#include <mongocxx/stdx.hpp>
+#include <mongocxx/pipeline.hpp>
+
+#include <bsoncxx/builder/stream/helpers.hpp>
+#include <bsoncxx/builder/stream/document.hpp>
+#include <bsoncxx/builder/stream/array.hpp>
+
+using bsoncxx::builder::stream::close_array;
+using bsoncxx::builder::stream::close_document;
+using bsoncxx::builder::stream::document;
+using bsoncxx::builder::stream::finalize;
+using bsoncxx::builder::stream::open_array;
+using bsoncxx::builder::stream::open_document;
+
+using bsoncxx::builder::basic::kvp;
+using bsoncxx::builder::basic::make_document;
 
 using namespace std;
 // 雪花算法
@@ -254,6 +272,94 @@ Json::Value MoDB::SelectUserRank(Json::Value &queryjson)
     return resjson;
 }
 
+/*
+    功能：获取用户大部分信息，主要用于用户主页的展示
+    传入：Json(UserId)
+    传出：Json(Result,Reason,_id,Avatar,NickName,PersonalProfile,School,Major,JoinTime,ACProblems,ACNum,SubmitNum)
+*/
+Json::Value MoDB::SelectUserInfo(Json::Value &queryjson)
+{
+    int64_t userid = stoll(queryjson["UserId"].asString());
+
+    auto client = pool.acquire();
+    mongocxx::collection usercoll = (*client)["XDOJ"]["User"];
+
+    bsoncxx::builder::stream::document document{};
+    mongocxx::pipeline pipe;
+
+    pipe.match({make_document(kvp("_id", userid))});
+
+    document
+        << "$set" << open_document
+        << "ACNum" << open_document
+        << "$size"
+        << "$ACProblems"
+        << close_document << close_document;
+    pipe.append_stage(document.view());
+    document.clear();
+    document
+        << "Avatar" << 1
+        << "NickName" << 1
+        << "PersonalProfile" << 1
+        << "School" << 1
+        << "Major" << 1
+        << "JoinTime" << 1
+        << "ACProblems" << 1
+        << "ACNum" << 1
+        << "SubmitNum" << 1;
+    pipe.project(document.view());
+
+    Json::Reader reader;
+    Json::Value resjson;
+
+    mongocxx::cursor cursor = usercoll.aggregate(pipe);
+
+    if (cursor.begin() == cursor.end())
+    {
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "数据库未查询到该信息！";
+        return resjson;
+    }
+
+    for (auto doc : cursor)
+    {
+        reader.parse(bsoncxx::to_json(doc), resjson);
+    }
+    resjson["Result"] = "Success";
+    return resjson;
+}
+
+/*
+    功能：更改用户信息
+    传入：Json(UserId,Avatar,PersonalProfile,School,Major)
+    传出：Json(Result,Reason)
+*/
+Json::Value MoDB::UpdateUserInfo(Json::Value &updatejson)
+{
+    int64_t userid = stoll(updatejson["UserId"].asString());
+    string avatar = updatejson["Avatar"].asString();
+    string personalprofile = updatejson["PersonalProfile"].asString();
+    string school = updatejson["School"].asString();
+    string major = updatejson["Major"].asString();
+
+    auto client = pool.acquire();
+    mongocxx::collection usercoll = (*client)["XDOJ"]["User"];
+
+    bsoncxx::builder::stream::document document{};
+    document
+        << "$set" << open_document
+        << "Avatar" << avatar.data()
+        << "PersonalProfile" << personalprofile.data()
+        << "School" << school.data()
+        << "Major" << major.data()
+        << close_document;
+
+    usercoll.update_one({make_document(kvp("_id", userid))}, document.view());
+
+    Json::Value resjson;
+    resjson["Result"] = "Success";
+    return resjson;
+}
 /*
     功能：获取全部题目信息（用于ProblemSet类进行初始化）
     Json(_id,Title,Description,JudgeNum)
@@ -518,9 +624,9 @@ Json::Value MoDB::SelectStatusRecord(Json::Value &queryjson)
 /*
     功能：添加讨论
     传入：Json(Title,Content,ParentId,UserId) 如果是父讨论ParentId=0
-    传出：bool
+    传出：Json(Result)
 */
-bool MoDB::InsertDiscuss(Json::Value &insertjson)
+Json::Value MoDB::InsertDiscuss(Json::Value &insertjson)
 {
     uuid.init(1, 1);
     auto id = uuid.nextid();
@@ -544,6 +650,10 @@ bool MoDB::InsertDiscuss(Json::Value &insertjson)
         << "UpdateTime" << GetTime().data();
 
     discusscoll.insert_one(document.view());
+
+    Json::Value resjson;
+    resjson["Result"] = "Success";
+    return resjson;
 }
 /*
     功能：分页查询讨论
@@ -628,7 +738,7 @@ Json::Value MoDB::SelectDiscussContent(Json::Value &queryjson)
 
     // 查询Content
     mongocxx::pipeline pipe;
-    pipe.match({make_document(kvp("_id", 603757867216015360))});
+    pipe.match({make_document(kvp("_id", discussid))});
     document.clear();
     document
         << "Content" << 1;
@@ -643,6 +753,26 @@ Json::Value MoDB::SelectDiscussContent(Json::Value &queryjson)
     }
 
     return resjson;
+}
+
+/*
+    功能：修改讨论的评论数（加一或减一）
+    传入：Json(DiscussId,Num(1,-1))
+    传出：bool
+*/
+bool MoDB::UpdateDiscussComments(Json::Value &updatejson)
+{
+    int64_t discussid = stoll(updatejson["DiscussId"].asString());
+    int num = stoi(updatejson["Num"].asString());
+    auto client = pool.acquire();
+    mongocxx::collection discusscoll = (*client)["XDOJ"]["Discuss"];
+
+    bsoncxx::builder::stream::document document{};
+    document
+        << "$inc" << open_document
+        << "Comments" << num << close_document;
+    discusscoll.update_one({make_document(kvp("_id", discussid))}, document.view());
+    return true;
 }
 Json::Value MoDB::getAllDiscuss()
 {

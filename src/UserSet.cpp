@@ -28,6 +28,16 @@ Json::Value UserSet::SelectUserRank(Json::Value &queryjson)
     return MoDB::GetInstance().SelectUserRank(queryjson);
 }
 
+Json::Value UserSet::SelectUserInfo(Json::Value &queryjson)
+{
+    return MoDB::GetInstance().SelectUserInfo(queryjson);
+}
+
+Json::Value UserSet::UpdateUserInfo(Json::Value &updatejson)
+{
+    return MoDB::GetInstance().UpdateUserInfo(updatejson);
+}
+
 UserSet::UserSet()
 {
 }

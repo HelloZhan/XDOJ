@@ -16,6 +16,11 @@ public:
     // 获取用户Rank排名
     Json::Value SelectUserRank(Json::Value &queryjson);
 
+    // 获取用户大部分信息
+    Json::Value SelectUserInfo(Json::Value &queryjson);
+
+    // 更新用户信息
+    Json::Value UpdateUserInfo(Json::Value &updatejson);
     // ---------------题目 Problem -------------------
     // 返回具体题目
     std::string GetProblemDescription(std::string problemid);
@@ -29,8 +34,6 @@ public:
     // 返回状态记录的信息
     Json::Value SelectStatusRecordInfo(Json::Value &queryjson);
 
-    // 讨论
-
     // 获取所有讨论
     Json::Value GetAllDiscuss();
 
@@ -40,11 +43,15 @@ public:
     // 获取讨论的内容
     Json::Value SelectDiscussContent(Json::Value &queryjson);
 
+    // ---------------评论Comment-------------------
     // 获取评论 根据Id
     Json::Value GetComment(Json::Value &queryjson);
 
     // 插入评论
     Json::Value InsertComment(Json::Value &insertjson);
+
+    // 插入文章（讨论，题解）
+    Json::Value InsertArticle(Json::Value &insertjson);
 
     Control();
 

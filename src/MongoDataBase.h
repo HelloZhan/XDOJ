@@ -1,26 +1,11 @@
 #ifndef MONGODATABASE_H
 #define MONGODATABASE_H
-#include <bsoncxx/json.hpp>
-#include <mongocxx/client.hpp>
-#include <mongocxx/stdx.hpp>
-#include <mongocxx/uri.hpp>
-#include <mongocxx/instance.hpp>
-#include <mongocxx/pipeline.hpp>
+
 #include <mongocxx/pool.hpp>
-#include <bsoncxx/builder/stream/helpers.hpp>
-#include <bsoncxx/builder/stream/document.hpp>
-#include <bsoncxx/builder/stream/array.hpp>
+#include <mongocxx/instance.hpp>
+#include <mongocxx/uri.hpp>
 #include <jsoncpp/json/json.h>
 
-using bsoncxx::builder::stream::close_array;
-using bsoncxx::builder::stream::close_document;
-using bsoncxx::builder::stream::document;
-using bsoncxx::builder::stream::finalize;
-using bsoncxx::builder::stream::open_array;
-using bsoncxx::builder::stream::open_document;
-
-using bsoncxx::builder::basic::kvp;
-using bsoncxx::builder::basic::make_document;
 class MoDB
 {
 public:
@@ -63,6 +48,19 @@ public:
     */
     Json::Value SelectUserRank(Json::Value &queryjson);
 
+    /*
+        功能：获取用户大部分信息，主要用于用户主页的展示
+        传入：Json(UserId)
+        传出：Json(_id,Avatar,NickName,PersonalProfile,School,Major,JoinTime,ACProblems,ACNum,SubmitNum)
+    */
+    Json::Value SelectUserInfo(Json::Value &queryjson);
+
+    /*
+        功能：更改用户信息
+        传入：Json(UserId,Avatar,PersonalProfile,School,Major)
+        传出：Json(Result,Reason)
+    */
+    Json::Value UpdateUserInfo(Json::Value &updatejson);
     // ++++++++++++++++++++++++++题目表Problem+++++++++++++++++++++++++++++
     /*
         功能：获取全部题目信息（是ProblemSet类进行初始化）
@@ -116,9 +114,9 @@ public:
     /*
         功能：添加讨论
         传入：Json(Title,Content,ParentId,UserId) 如果是父讨论ParentId=0
-        传出：bool
+        传出：Json(Result)
     */
-    bool InsertDiscuss(Json::Value &insertjson);
+    Json::Value InsertDiscuss(Json::Value &insertjson);
 
     /*
         功能：分页查询讨论
@@ -133,6 +131,13 @@ public:
         传出：Json(Content)
     */
     Json::Value SelectDiscussContent(Json::Value &queryjson);
+
+    /*
+        功能：修改讨论的评论数（加一或减一）
+        传入：Json(DiscussId,Num(1,-1))
+        传出：bool
+    */
+    bool UpdateDiscussComments(Json::Value &updatejson);
     // 查询所有讨论
     Json::Value getAllDiscuss();
 

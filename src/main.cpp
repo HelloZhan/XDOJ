@@ -59,6 +59,33 @@ void doGetUserRank(const httplib::Request &req, httplib::Response &res)
     res.set_content(resjson.toStyledString(), "json");
 }
 
+void doGetUserInfo(const httplib::Request &req, httplib::Response &res)
+{
+    printf("doGetUserInfo start!!!\n");
+    string userid = "1";
+    if (req.has_param("UserId"))
+    {
+        userid = req.get_param_value("UserId");
+    }
+
+    Json::Value queryjson;
+    queryjson["UserId"] = userid;
+    Json::Value resjson = control.SelectUserInfo(queryjson);
+    printf("doGetUserInfo end!!!\n");
+    res.set_content(resjson.toStyledString(), "json");
+}
+void doUpdateUserInfo(const httplib::Request &req, httplib::Response &res)
+{
+    printf("doUpdateUserInfo start!!!\n");
+    Json::Value jsonvalue;
+    Json::Reader reader;
+    // 解析传入的json
+    reader.parse(req.body, jsonvalue);
+    Json::Value resjson = control.UpdateUserInfo(jsonvalue);
+    printf("doUpdateUserInfo end!!!\n");
+    res.set_content(resjson.toStyledString(), "json");
+}
+
 // 返回网页请求的题目描述
 void doGetProblem(const httplib::Request &req, httplib::Response &res)
 {
@@ -250,7 +277,17 @@ void doGetImage(const httplib::Request &req, httplib::Response &res)
     printf("doTest end!!!\n");
     res.set_content(image, "webp");
 }
-
+void doInsertArticle(const httplib::Request &req, httplib::Response &res)
+{
+    printf("doInsertArticle start!!!\n");
+    Json::Value jsonvalue;
+    Json::Reader reader;
+    // 解析传入的json
+    reader.parse(req.body, jsonvalue);
+    Json::Value resjson = control.InsertArticle(jsonvalue);
+    printf("doInsertArticle end!!!\n");
+    res.set_content(resjson.toStyledString(), "json");
+}
 void doInsertComment(const httplib::Request &req, httplib::Response &res)
 {
     printf("doInsertComment start!!!\n");
@@ -273,6 +310,11 @@ int main()
     server.Post("/login", doLoginUser);
     // 返回用户排名
     server.Get("/userrank", doGetUserRank);
+
+    // 返回用户信息，用于主页展示
+    server.Get("/user/userhome", doGetUserInfo);
+    // 更新用户信息
+    server.Post("/user/usersetting", doUpdateUserInfo);
     // 获取单个题目
     server.Get("/problem", doGetProblem);
     // 获取题库
@@ -289,6 +331,8 @@ int main()
     server.Get("/comment", doGetComment);
     // 获取图片资源
     server.Get(R"(/image/(\d+))", doGetImage);
+    // 用户提交文章（讨论，题解）
+    server.Post("/article/insert", doInsertArticle);
 
     server.Post("/comment/insert", doInsertComment);
     // 设置静态资源
