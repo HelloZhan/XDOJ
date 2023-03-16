@@ -164,6 +164,14 @@ Json::Value Control::UpdateArticle(Json::Value &updatejson)
 	{
 	}
 }
+
+Json::Value Control::DeleteArticle(Json::Value &deletejson)
+{
+	if (deletejson["ArticleType"].asString() == "Discuss")
+	{
+		return Discuss::GetInstance().DeleteDiscuss(deletejson);
+	} // TODO:
+}
 Control::Control()
 {
 	// 初始化MongoDB数据库

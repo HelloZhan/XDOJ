@@ -27,6 +27,9 @@ public:
     // 更新讨论
     Json::Value UpdateDiscuss(Json::Value &updatejson);
 
+    // 删除讨论
+    Json::Value DeleteDiscuss(Json::Value &deletejson);
+
 private:
     Discuss();
     ~Discuss();

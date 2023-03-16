@@ -801,6 +801,30 @@ Json::Value MoDB::UpdateDiscuss(Json::Value &updatejson)
     resjson["Result"] = "Success";
     return resjson;
 }
+
+/*
+    功能：删除讨论
+    传入：Json(ArticleId)
+    传出：Json(Result,Reason)
+*/
+Json::Value MoDB::DeleteDiscuss(Json::Value &deletejson)
+{
+    int64_t articleid = stoll(deletejson["ArticleId"].asString());
+
+    auto client = pool.acquire();
+    mongocxx::collection discusscoll = (*client)["XDOJ"]["Discuss"];
+
+    auto result = discusscoll.delete_one({make_document(kvp("_id", articleid))});
+    Json::Value resjson;
+    if ((*result).deleted_count() < 1)
+    {
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "数据库删除失败！";
+        return resjson;
+    }
+    resjson["Result"] = "Success";
+    return resjson;
+}
 Json::Value MoDB::getAllDiscuss()
 {
     auto client = pool.acquire();

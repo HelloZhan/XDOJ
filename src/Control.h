@@ -55,6 +55,9 @@ public:
 
     // 更新文章
     Json::Value UpdateArticle(Json::Value &updatejson);
+
+    // 删除文章
+    Json::Value DeleteArticle(Json::Value &deletejson);
     Control();
 
     ~Control();

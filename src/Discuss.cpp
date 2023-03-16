@@ -36,6 +36,10 @@ Json::Value Discuss::UpdateDiscuss(Json::Value &updatejson)
     return MoDB::GetInstance().UpdateDiscuss(updatejson);
 }
 
+Json::Value Discuss::DeleteDiscuss(Json::Value &deletejson)
+{
+    return MoDB::GetInstance().DeleteDiscuss(deletejson);
+}
 Discuss::Discuss()
 {
 }
