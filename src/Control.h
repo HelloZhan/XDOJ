@@ -53,6 +53,8 @@ public:
     // 插入文章（讨论，题解）
     Json::Value InsertArticle(Json::Value &insertjson);
 
+    // 更新文章
+    Json::Value UpdateArticle(Json::Value &updatejson);
     Control();
 
     ~Control();

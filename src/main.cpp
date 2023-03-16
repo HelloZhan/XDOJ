@@ -288,6 +288,19 @@ void doInsertArticle(const httplib::Request &req, httplib::Response &res)
     printf("doInsertArticle end!!!\n");
     res.set_content(resjson.toStyledString(), "json");
 }
+
+void doUpdateArticle(const httplib::Request &req, httplib::Response &res)
+{
+    printf("doUpdateArticle start!!!\n");
+    Json::Value jsonvalue;
+    Json::Reader reader;
+    // 解析传入的json
+    reader.parse(req.body, jsonvalue);
+    Json::Value resjson = control.UpdateArticle(jsonvalue);
+    printf("doUpdateArticle end!!!\n");
+    res.set_content(resjson.toStyledString(), "json");
+}
+
 void doInsertComment(const httplib::Request &req, httplib::Response &res)
 {
     printf("doInsertComment start!!!\n");
@@ -333,6 +346,8 @@ int main()
     server.Get(R"(/image/(\d+))", doGetImage);
     // 用户提交文章（讨论，题解）
     server.Post("/article/insert", doInsertArticle);
+    // 用户修改文章（讨论，题解）
+    server.Post("/article/update", doUpdateArticle);
 
     server.Post("/comment/insert", doInsertComment);
     // 设置静态资源

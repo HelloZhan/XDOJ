@@ -138,6 +138,13 @@ public:
         传出：bool
     */
     bool UpdateDiscussComments(Json::Value &updatejson);
+
+    /*
+        功能：更新讨论
+        传入：Json(ArticleId,Title,Content)
+        传出；Json(Result,Reason)
+    */
+    Json::Value UpdateDiscuss(Json::Value &updatejson);
     // 查询所有讨论
     Json::Value getAllDiscuss();
 

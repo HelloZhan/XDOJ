@@ -3,11 +3,11 @@
 #include <jsoncpp/json/json.h>
 #include <string>
 // 讨论类
-class Disscuss
+class Discuss
 {
 public:
     // 局部静态特性的方式实现单实例
-    static Disscuss &GetInstance();
+    static Discuss &GetInstance();
 
     // 获取所有讨论
     Json::Value getAllDiscuss();
@@ -24,8 +24,11 @@ public:
     // 修改评论数的数量
     bool UpdateDiscussComments(Json::Value &updatejson);
 
+    // 更新讨论
+    Json::Value UpdateDiscuss(Json::Value &updatejson);
+
 private:
-    Disscuss();
-    ~Disscuss();
+    Discuss();
+    ~Discuss();
 };
 #endif

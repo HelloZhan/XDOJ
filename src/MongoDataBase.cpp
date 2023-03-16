@@ -774,6 +774,33 @@ bool MoDB::UpdateDiscussComments(Json::Value &updatejson)
     discusscoll.update_one({make_document(kvp("_id", discussid))}, document.view());
     return true;
 }
+
+/*
+    功能：更新讨论
+    传入：Json(ArticleId,Title,Content)
+    传出；Json(Result,Reason)
+*/
+Json::Value MoDB::UpdateDiscuss(Json::Value &updatejson)
+{
+    int64_t articleid = stoll(updatejson["ArticleId"].asString());
+    string title = updatejson["Title"].asString();
+    string content = updatejson["Content"].asString();
+
+    auto client = pool.acquire();
+    mongocxx::collection discusscoll = (*client)["XDOJ"]["Discuss"];
+
+    bsoncxx::builder::stream::document document{};
+    document
+        << "$set" << open_document
+        << "Title" << title.data()
+        << "Content" << content.data()
+        << close_document;
+
+    discusscoll.update_one({make_document(kvp("_id", articleid))}, document.view());
+    Json::Value resjson;
+    resjson["Result"] = "Success";
+    return resjson;
+}
 Json::Value MoDB::getAllDiscuss()
 {
     auto client = pool.acquire();

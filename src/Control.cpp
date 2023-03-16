@@ -103,17 +103,17 @@ Json::Value Control::SelectStatusRecordInfo(Json::Value &queryjson)
 
 Json::Value Control::GetAllDiscuss()
 {
-	return Disscuss::GetInstance().getAllDiscuss();
+	return Discuss::GetInstance().getAllDiscuss();
 }
 
 Json::Value Control::SelectDiscuss(Json::Value &queryjson)
 {
-	return Disscuss::GetInstance().SelectDiscuss(queryjson);
+	return Discuss::GetInstance().SelectDiscuss(queryjson);
 }
 
 Json::Value Control::SelectDiscussContent(Json::Value &queryjson)
 {
-	return Disscuss::GetInstance().SelectDiscussContent(queryjson);
+	return Discuss::GetInstance().SelectDiscussContent(queryjson);
 }
 
 Json::Value Control::GetComment(Json::Value &queryjson)
@@ -147,9 +147,20 @@ Json::Value Control::InsertArticle(Json::Value &insertjson)
 {
 	if (insertjson["ArticleType"].asString() == "Discuss") // 插入讨论
 	{
-		return Disscuss::GetInstance().InsertDiscuss(insertjson);
+		return Discuss::GetInstance().InsertDiscuss(insertjson);
 	}
 	else // TODO:插入题解
+	{
+	}
+}
+
+Json::Value Control::UpdateArticle(Json::Value &updatejson)
+{
+	if (updatejson["ArticleType"].asString() == "Discuss") // 更新讨论
+	{
+		return Discuss::GetInstance().UpdateDiscuss(updatejson);
+	}
+	else // TODO：更新题解
 	{
 	}
 }
