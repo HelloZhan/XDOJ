@@ -360,6 +360,51 @@ Json::Value MoDB::UpdateUserInfo(Json::Value &updatejson)
     resjson["Result"] = "Success";
     return resjson;
 }
+
+/*
+    功能：管理员查询题目信息
+    传入：Json(ProblemId)
+    传出：Json(Result,Reason,_id,Title,Description,TimeLimit,MemoryLimit,JudgeNum,Tags)
+*/
+Json::Value MoDB::SelectProblemInfoByAdmin(Json::Value &queryjson)
+{
+    int64_t problemid = stoll(queryjson["ProblemId"].asString());
+
+    auto client = pool.acquire();
+    mongocxx::collection problemcoll = (*client)["XDOJ"]["Problem"];
+
+    bsoncxx::builder::stream::document document{};
+    mongocxx::pipeline pipe;
+    pipe.match({make_document(kvp("_id", problemid))});
+
+    document
+        << "Title" << 1
+        << "Description" << 1
+        << "TimeLimit" << 1
+        << "MemoryLimit" << 1
+        << "JudgeNum" << 1
+        << "Tags" << 1;
+    pipe.project(document.view());
+
+    Json::Reader reader;
+    Json::Value resjson;
+
+    mongocxx::cursor cursor = problemcoll.aggregate(pipe);
+
+    if (cursor.begin() == cursor.end())
+    {
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "数据库未查询到该信息！";
+        return resjson;
+    }
+
+    for (auto doc : cursor)
+    {
+        reader.parse(bsoncxx::to_json(doc), resjson);
+    }
+    resjson["Result"] = "Success";
+    return resjson;
+}
 /*
     功能：获取全部题目信息（用于ProblemSet类进行初始化）
     Json(_id,Title,Description,JudgeNum)

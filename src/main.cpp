@@ -141,6 +141,24 @@ void doGetProblemSet(const httplib::Request &req, httplib::Response &res)
     printf("doGetProblemSet end!!!\n");
     res.set_content(resvalue.toStyledString(), "json");
 }
+
+// 返回网页请求的题目描述
+void doGetProblemInfo(const httplib::Request &req, httplib::Response &res)
+{
+    printf("doGetProblemInfo start!!!\n");
+    // 默认为 1
+    string ProblemId = "1";
+    if (req.has_param("ProblemId"))
+    {
+        ProblemId = req.get_param_value("ProblemId");
+    }
+    Json::Value queryjson;
+    queryjson["ProblemId"] = ProblemId;
+    Json::Value resjson = control.SelectProblemInfoByAdmin(queryjson);
+    printf("doGetProblemInfo end!!!\n");
+    res.set_content(resjson.toStyledString(), "json");
+}
+
 // 前端提交代码进行判定并返回结果
 void doPostCode(const httplib::Request &req, httplib::Response &res)
 {
@@ -373,6 +391,9 @@ int main()
     server.Get("/problem", doGetProblem);
     // 获取题库
     server.Get("/problemset", doGetProblemSet);
+
+    // 获取单个题目详细信息
+    server.Get("/problem/select", doGetProblemInfo);
 
     // 获取状态记录
     server.Get("/statusrecord", doGetStatusRecord);

@@ -22,6 +22,8 @@ public:
 
     void Init();
 
+    Json::Value SelectProblemInfoByAdmin(Json::Value &queryjson);
+
     std::string getProblemDescription(std::string id);
 
     // 通过普通查询获取题库数据

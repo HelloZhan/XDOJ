@@ -33,6 +33,11 @@ Json::Value Control::UpdateUserInfo(Json::Value &updatejson)
 	return UserSet::GetInstance().UpdateUserInfo(updatejson);
 }
 
+Json::Value Control::SelectProblemInfoByAdmin(Json::Value &queryjson)
+{
+	return ProblemSet::GetInstance().SelectProblemInfoByAdmin(queryjson);
+}
+
 string Control::GetProblemDescription(string problemid)
 {
 	return ProblemSet::GetInstance().getProblemDescription(problemid);

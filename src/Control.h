@@ -22,6 +22,10 @@ public:
     // 更新用户信息
     Json::Value UpdateUserInfo(Json::Value &updatejson);
     // ---------------题目 Problem -------------------
+
+    // 管理员查看题目数据
+    Json::Value SelectProblemInfoByAdmin(Json::Value &queryjson);
+
     // 返回具体题目
     std::string GetProblemDescription(std::string problemid);
 

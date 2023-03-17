@@ -159,6 +159,7 @@ bool Judger::CompilerC()
 
         m_reason = reason;
         m_result = CE;
+        infile.close();
         return false;
     }
     return true;
@@ -189,6 +190,7 @@ bool Judger::CompilerCpp()
 
         m_reason = reason;
         m_result = CE;
+        infile.close();
         return false;
     }
     return true;
@@ -219,6 +221,7 @@ bool Judger::CompilerGo()
 
         m_reason = reason;
         m_result = CE;
+        infile.close();
         return false;
     }
     return true;
@@ -339,14 +342,14 @@ bool Judger::JudgmentResult(struct result *res, string &index)
         infile1.open(datapath.data());
         string standardanswer;
         infile1 >> standardanswer;
-
+        infile1.close();
         // 获取计算答案
         ifstream infile2;
         string runpath = RUN_PATH + index + ".out";
         infile2.open(runpath.data());
         string calculateanswer;
         infile2 >> calculateanswer;
-
+        infile2.close();
         printf("standardanswer = %s\n", standardanswer.data());
         printf("calculateanswer = %s\n", calculateanswer.data());
 
@@ -414,6 +417,7 @@ bool Judger::JudgmentResult(struct result *res, string &index)
         m_reason = reason;
         m_result = RE;
         testinfo["Status"] = RE;
+        infile.close();
     }
     m_resjson["TestInfo"].append(testinfo);
 }

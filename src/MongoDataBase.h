@@ -62,6 +62,8 @@ public:
     */
     Json::Value UpdateUserInfo(Json::Value &updatejson);
     // ++++++++++++++++++++++++++题目表Problem+++++++++++++++++++++++++++++
+
+    Json::Value SelectProblemInfoByAdmin(Json::Value &queryjson);
     /*
         功能：获取全部题目信息（是ProblemSet类进行初始化）
         Json(_id,Title,TimeLimit,MemoryLimit,Description,JudgeNum)
