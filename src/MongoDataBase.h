@@ -190,6 +190,27 @@ public:
     */
     Json::Value InsertSonComment(Json::Value &insertjson);
 
+    /*
+        功能：删除某一篇文章（讨论，题解，公告）的所有文章，主要服务于删除文章
+        传入：Json(ArticleId)
+        传出：bool
+    */
+    bool DeleteArticleComment(Json::Value &deletejson);
+
+    /*
+        功能：删除父评论
+        传入：Json(CommentId)
+        传出：Json(Result,Reason,DeleteNum,ArticleId)
+    */
+    Json::Value DeleteFatherComment(Json::Value &deletejson);
+
+    /*
+        功能：删除子评论
+        传入：Json(CommentId)
+        传出：Json(Result,Reason,ArticleId)
+    */
+    Json::Value DeleteSonComment(Json::Value &deletejson);
+
 private:
     mongocxx::instance instance{}; // This should be done only once.
     mongocxx::uri uri{};           // 连接配置

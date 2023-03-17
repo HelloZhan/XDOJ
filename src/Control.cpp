@@ -167,10 +167,13 @@ Json::Value Control::UpdateArticle(Json::Value &updatejson)
 
 Json::Value Control::DeleteArticle(Json::Value &deletejson)
 {
+	// 删除文章所有评论
+	Comment::GetInstance().DeleteArticleComment(deletejson);
+
 	if (deletejson["ArticleType"].asString() == "Discuss")
 	{
 		return Discuss::GetInstance().DeleteDiscuss(deletejson);
-	} // TODO:
+	}
 }
 Control::Control()
 {

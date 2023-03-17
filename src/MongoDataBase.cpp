@@ -794,6 +794,7 @@ Json::Value MoDB::UpdateDiscuss(Json::Value &updatejson)
         << "$set" << open_document
         << "Title" << title.data()
         << "Content" << content.data()
+        << "UpdateTime" << GetTime().data()
         << close_document;
 
     discusscoll.update_one({make_document(kvp("_id", articleid))}, document.view());
@@ -1114,7 +1115,6 @@ Json::Value MoDB::InsertFatherComment(Json::Value &insertjson)
         << "Child_Comments" << open_array
         << close_array;
 
-    std::cout << "the document:" << bsoncxx::to_json(document) << std::endl;
     commentcoll.insert_one(document.view());
 
     Json::Value resjson;
@@ -1159,6 +1159,114 @@ Json::Value MoDB::InsertSonComment(Json::Value &insertjson)
     Json::Value resjson;
     resjson["_id"] = to_string(id);
     resjson["CreateTime"] = createtime;
+    return resjson;
+}
+
+/*
+    功能：删除某一篇文章（讨论，题解，公告）的所有文章，主要服务于删除文章
+    传入：Json(ArticleId)
+    传出：bool
+*/
+bool MoDB::DeleteArticleComment(Json::Value &deletejson)
+{
+    int64_t articleid = stoll(deletejson["ArticleId"].asString());
+
+    auto client = pool.acquire();
+    mongocxx::collection commentcoll = (*client)["XDOJ"]["Comment"];
+    auto result = commentcoll.delete_many({make_document(kvp("ParentId", articleid))});
+
+    return true;
+}
+
+/*
+    功能：删除父评论
+    传入：Json(CommentId)
+    传出：Json(Result,Reason,DeleteNum,ArticleId)
+*/
+Json::Value MoDB::DeleteFatherComment(Json::Value &deletejson)
+{
+    int64_t commentid = stoll(deletejson["CommentId"].asString());
+
+    auto client = pool.acquire();
+    mongocxx::collection commentcoll = (*client)["XDOJ"]["Comment"];
+
+    mongocxx::pipeline pipe;
+    bsoncxx::builder::stream::document document{};
+
+    pipe.match({make_document(kvp("_id", commentid))});
+    document
+        << "$set" << open_document
+        << "Child_Total" << open_document
+        << "$size"
+        << "$Child_Comments"
+        << close_document << close_document;
+
+    pipe.append_stage(document.view());
+    mongocxx::cursor cursor = commentcoll.aggregate(pipe);
+    Json::Value jsonvalue;
+    Json::Reader reader;
+    for (auto doc : cursor)
+    {
+        reader.parse(bsoncxx::to_json(doc), jsonvalue);
+    }
+    int sonnum = stoi(jsonvalue["Child_Total"].asString());
+    string articleid = jsonvalue["ParentId"].asString();
+
+    auto result = commentcoll.delete_one({make_document(kvp("_id", commentid))});
+
+    Json::Value resjson;
+    if ((*result).deleted_count() < 1)
+    {
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "数据库未查询到该数据！";
+        return resjson;
+    }
+    resjson["Result"] = "Success";
+    resjson["DeleteNum"] = sonnum + 1;
+    resjson["ArticleId"] = articleid;
+    return resjson;
+}
+
+/*
+    功能：删除子评论
+    传入：Json(CommentId)
+    传出：Json(Result,Reason,ArticleId)
+*/
+Json::Value MoDB::DeleteSonComment(Json::Value &deletejson)
+{
+    int64_t commentid = stoll(deletejson["CommentId"].asString());
+
+    auto client = pool.acquire();
+    mongocxx::collection commentcoll = (*client)["XDOJ"]["Comment"];
+    // 找出父评论ID
+    mongocxx::cursor cursor = commentcoll.find({make_document(kvp("Child_Comments._id", commentid))});
+    Json::Value jsonvalue;
+    Json::Reader reader;
+    for (auto doc : cursor)
+    {
+        reader.parse(bsoncxx::to_json(doc), jsonvalue);
+    }
+    int64_t fatherid = stoll(jsonvalue["_id"].asString());
+    string articleid = jsonvalue["ParentId"].asString();
+    // 删除子评论
+    bsoncxx::builder::stream::document document{};
+    document
+        << "$pull" << open_document
+        << "Child_Comments" << open_document
+        << "_id" << commentid
+        << close_document << close_document;
+
+    auto result = commentcoll.update_one({make_document(kvp("_id", fatherid))}, document.view());
+
+    Json::Value resjson;
+    if ((*result).matched_count() < 1)
+    {
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "数据库未找到该数据！";
+        return resjson;
+    }
+    resjson["Result"] = "Success";
+    resjson["ArticleId"] = articleid;
     return resjson;
 }
 MoDB::MoDB()

@@ -68,6 +68,7 @@
             "Views": "int",
             "Comments": "int",
             "CreatTime": "time",
+            "Public": "int",
             "UpdateTime": "time"
         }
     ],

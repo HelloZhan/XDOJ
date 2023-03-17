@@ -21,6 +21,15 @@ public:
     // 插入子评论
     Json::Value InsertSonComment(Json::Value &insertjson);
 
+    // 删除某一篇文章的所有评论
+    bool DeleteArticleComment(Json::Value &deletejson);
+
+    // 删除父评论
+    Json::Value DeleteFatherComment(Json::Value &deletejson);
+
+    // 删除子评论
+    Json::Value DeleteSonComment(Json::Value &deletejson);
+
 private:
     Comment();
     ~Comment();

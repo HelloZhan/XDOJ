@@ -26,6 +26,22 @@ Json::Value Comment::InsertSonComment(Json::Value &insertjson)
 {
     return MoDB::GetInstance().InsertSonComment(insertjson);
 }
+
+bool Comment::DeleteArticleComment(Json::Value &deletejson)
+{
+    return MoDB::GetInstance().DeleteArticleComment(deletejson);
+}
+
+Json::Value Comment::DeleteFatherComment(Json::Value &deletejson)
+{
+    return MoDB::GetInstance().DeleteFatherComment(deletejson);
+}
+
+Json::Value Comment::DeleteSonComment(Json::Value &deletejson)
+{
+    return MoDB::GetInstance().DeleteSonComment(deletejson);
+}
+
 Comment::Comment()
 {
 }

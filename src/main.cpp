@@ -262,7 +262,7 @@ void doGetComment(const httplib::Request &req, httplib::Response &res)
 }
 void doGetImage(const httplib::Request &req, httplib::Response &res)
 {
-    printf("doTest start!!!\n");
+    printf("doGetImage start!!!\n");
     int index = stoi(req.matches[1]);
     string path = "../../WWW/image/avatar_" + to_string(index) + ".webp";
     ifstream infile;
@@ -274,7 +274,7 @@ void doGetImage(const httplib::Request &req, httplib::Response &res)
     }
     string image((istreambuf_iterator<char>(infile)),
                  (istreambuf_iterator<char>()));
-    printf("doTest end!!!\n");
+    printf("doGetImage end!!!\n");
     res.set_content(image, "webp");
 }
 void doInsertArticle(const httplib::Request &req, httplib::Response &res)
@@ -301,6 +301,17 @@ void doUpdateArticle(const httplib::Request &req, httplib::Response &res)
     res.set_content(resjson.toStyledString(), "json");
 }
 
+void doDeleteArticle(const httplib::Request &req, httplib::Response &res)
+{
+    printf("doDeleteArticle start!!!\n");
+    Json::Value jsonvalue;
+    Json::Reader reader;
+    // 解析传入的json
+    reader.parse(req.body, jsonvalue);
+    Json::Value resjson = control.DeleteArticle(jsonvalue);
+    printf("doDeleteArticle end!!!\n");
+    res.set_content(resjson.toStyledString(), "json");
+}
 void doInsertComment(const httplib::Request &req, httplib::Response &res)
 {
     printf("doInsertComment start!!!\n");
@@ -348,7 +359,9 @@ int main()
     server.Post("/article/insert", doInsertArticle);
     // 用户修改文章（讨论，题解）
     server.Post("/article/update", doUpdateArticle);
-
+    // 用户删除文章（讨论，题解）
+    server.Post("/article/delete", doDeleteArticle);
+    // 提交评论
     server.Post("/comment/insert", doInsertComment);
     // 设置静态资源
     server.set_base_dir("../WWW");
