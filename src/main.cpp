@@ -257,25 +257,7 @@ void doGetArticleContent(const httplib::Request &req, httplib::Response &res)
     printf("doGetArticleContent end!!!\n");
     res.set_content(resjson.toStyledString(), "json");
 }
-void doGetComment(const httplib::Request &req, httplib::Response &res)
-{
-    printf("doGetComment start!!!\n");
-    Json::Value queryjson;
-    string type = req.get_param_value("Type");
-    string parentid = req.get_param_value("ParentId");
-    string skip = req.get_param_value("Skip");
-    string limit = req.get_param_value("Limit");
-    string sonsnum = req.get_param_value("SonNum");
-    queryjson["Type"] = type;
-    queryjson["ParentId"] = parentid;
-    queryjson["Skip"] = skip;
-    queryjson["Limit"] = limit;
-    queryjson["SonNum"] = sonsnum;
 
-    Json::Value resjson = control.GetComment(queryjson);
-    printf("doGetComment end!!!\n");
-    res.set_content(resjson.toStyledString(), "json");
-}
 void doGetImage(const httplib::Request &req, httplib::Response &res)
 {
     printf("doGetImage start!!!\n");
@@ -328,6 +310,27 @@ void doDeleteArticle(const httplib::Request &req, httplib::Response &res)
     printf("doDeleteArticle end!!!\n");
     res.set_content(resjson.toStyledString(), "json");
 }
+
+void doGetComment(const httplib::Request &req, httplib::Response &res)
+{
+    printf("doGetComment start!!!\n");
+    Json::Value queryjson;
+    string type = req.get_param_value("Type");
+    string parentid = req.get_param_value("ParentId");
+    string skip = req.get_param_value("Skip");
+    string limit = req.get_param_value("Limit");
+    string sonsnum = req.get_param_value("SonNum");
+    queryjson["Type"] = type;
+    queryjson["ParentId"] = parentid;
+    queryjson["Skip"] = skip;
+    queryjson["Limit"] = limit;
+    queryjson["SonNum"] = sonsnum;
+
+    Json::Value resjson = control.GetComment(queryjson);
+    printf("doGetComment end!!!\n");
+    res.set_content(resjson.toStyledString(), "json");
+}
+
 void doInsertComment(const httplib::Request &req, httplib::Response &res)
 {
     printf("doInsertComment start!!!\n");
@@ -361,21 +364,20 @@ int main()
     server.Post("/login", doLoginUser);
     // 返回用户排名
     server.Get("/userrank", doGetUserRank);
-
     // 返回用户信息，用于主页展示
     server.Get("/user/userhome", doGetUserInfo);
     // 更新用户信息
     server.Post("/user/usersetting", doUpdateUserInfo);
+
     // 获取单个题目
     server.Get("/problem", doGetProblem);
     // 获取题库
     server.Get("/problemset", doGetProblemSet);
+
     // 获取状态记录
     server.Get("/statusrecord", doGetStatusRecord);
     // 提交代码
     server.Post("/problemcode", doPostCode);
-    // 获取评论
-    server.Get("/comment", doGetComment);
     // 获取图片资源
     server.Get(R"(/image/(\d+))", doGetImage);
 
@@ -389,6 +391,9 @@ int main()
     server.Post("/article/update", doUpdateArticle);
     // 用户删除文章（讨论，题解）
     server.Post("/article/delete", doDeleteArticle);
+
+    // 获取评论
+    server.Get("/comment", doGetComment);
     // 提交评论
     server.Post("/comment/insert", doInsertComment);
     // 删除评论

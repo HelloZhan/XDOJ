@@ -31,6 +31,8 @@ private:
     // 数据初始化
     bool Init(Json::Value &initjson);
 
+    bool CompilerSPJ(); // 编译SPJ文件
+
     // -----C-----
     bool CompilerC(); // 编译C
 
@@ -41,11 +43,17 @@ private:
     bool RunProgramC_Cpp(); // 运行C或者C++
 
     bool RunProgramGo(); // 运行Go
+
+    bool JudgmentResult(struct result *res, std::string &index); // 判断结果
     // 返回结果
     Json::Value Done();
 
 private:
-    Json::Value m_resjson;
+    Json::Value m_resjson; // 存储运行结果的Json
+
+    std::string RUN_PATH;  // 运行的路径
+    std::string DATA_PATH; // 存储数据的路径
+    bool m_isspj;
 
     std::string m_submitid;  // 运行ID
     std::string m_problemid; // 题目ID
