@@ -127,7 +127,7 @@ public:
 
     /*
         功能：查询讨论的详细内容，并且将其浏览量加一
-        传入：Json(DiscussId)
+        传入：Json(ArticleId)
         传出：Json(Content)
     */
     Json::Value SelectDiscussContent(Json::Value &queryjson);
@@ -153,11 +153,6 @@ public:
     */
     Json::Value DeleteDiscuss(Json::Value &deletejson);
 
-    // 查询所有讨论
-    Json::Value getAllDiscuss();
-
-    // ++++++++++++++++++++++文章表 Article+++++++++++++++++++++
-    Json::Value getAllArticle();
     // ++++++++++++++++++++++评论表 Comment+++++++++++++++++++++++
     /*
         功能：查询父评论
@@ -200,14 +195,14 @@ public:
     /*
         功能：删除父评论
         传入：Json(CommentId)
-        传出：Json(Result,Reason,DeleteNum,ArticleId)
+        传出：Json(Result,Reason,DeleteNum)
     */
     Json::Value DeleteFatherComment(Json::Value &deletejson);
 
     /*
         功能：删除子评论
         传入：Json(CommentId)
-        传出：Json(Result,Reason,ArticleId)
+        传出：Json(Result,Reason,DeleteNum)
     */
     Json::Value DeleteSonComment(Json::Value &deletejson);
 

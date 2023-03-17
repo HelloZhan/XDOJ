@@ -720,12 +720,12 @@ Json::Value MoDB::SelectDiscuss(Json::Value &queryjson)
 
 /*
     功能：查询讨论的详细内容，并且将其浏览量加一
-    传入：Json(DiscussId)
+    传入：Json(ArticleId)
     传出：Json(Content)
 */
 Json::Value MoDB::SelectDiscussContent(Json::Value &queryjson)
 {
-    int64_t discussid = stoll(queryjson["DiscussId"].asString());
+    int64_t discussid = stoll(queryjson["ArticleId"].asString());
 
     auto client = pool.acquire();
     mongocxx::collection discusscoll = (*client)["XDOJ"]["Discuss"];
@@ -756,13 +756,13 @@ Json::Value MoDB::SelectDiscussContent(Json::Value &queryjson)
 }
 
 /*
-    功能：修改讨论的评论数（加一或减一）
-    传入：Json(DiscussId,Num(1,-1))
+    功能：修改讨论的评论数
+    传入：Json(ArticleId,Num)
     传出：bool
 */
 bool MoDB::UpdateDiscussComments(Json::Value &updatejson)
 {
-    int64_t discussid = stoll(updatejson["DiscussId"].asString());
+    int64_t discussid = stoll(updatejson["ArticleId"].asString());
     int num = stoi(updatejson["Num"].asString());
     auto client = pool.acquire();
     mongocxx::collection discusscoll = (*client)["XDOJ"]["Discuss"];
@@ -826,37 +826,7 @@ Json::Value MoDB::DeleteDiscuss(Json::Value &deletejson)
     resjson["Result"] = "Success";
     return resjson;
 }
-Json::Value MoDB::getAllDiscuss()
-{
-    auto client = pool.acquire();
-    mongocxx::collection discusscoll = (*client)["XDOJ"]["Discuss"];
-    Json::Reader reader;
-    Json::Value resjson;
-    mongocxx::cursor cursor = discusscoll.find({});
-    for (auto doc : cursor)
-    {
-        Json::Value jsonvalue;
-        reader.parse(bsoncxx::to_json(doc), jsonvalue);
-        resjson.append(jsonvalue);
-    }
-    return resjson;
-}
 
-Json::Value MoDB::getAllArticle()
-{
-    auto client = pool.acquire();
-    mongocxx::collection articlecoll = (*client)["XDOJ"]["Article"];
-    Json::Reader reader;
-    Json::Value resjson;
-    mongocxx::cursor cursor = articlecoll.find({});
-    for (auto doc : cursor)
-    {
-        Json::Value jsonvalue;
-        reader.parse(bsoncxx::to_json(doc), jsonvalue);
-        resjson.append(jsonvalue);
-    }
-    return resjson;
-}
 /*
     功能：查询父评论
     传入：Json(ParentId,Skip,Limie,SonNum)
@@ -1181,7 +1151,7 @@ bool MoDB::DeleteArticleComment(Json::Value &deletejson)
 /*
     功能：删除父评论
     传入：Json(CommentId)
-    传出：Json(Result,Reason,DeleteNum,ArticleId)
+    传出：Json(Result,Reason,DeleteNum)
 */
 Json::Value MoDB::DeleteFatherComment(Json::Value &deletejson)
 {
@@ -1189,6 +1159,16 @@ Json::Value MoDB::DeleteFatherComment(Json::Value &deletejson)
 
     auto client = pool.acquire();
     mongocxx::collection commentcoll = (*client)["XDOJ"]["Comment"];
+    Json::Value resjson;
+
+    mongocxx::cursor cursor = commentcoll.find({make_document(kvp("_id", commentid))});
+    // 如果未查询到父评论
+    if (cursor.begin() == cursor.end())
+    {
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "数据库未查询到该评论！";
+        return resjson;
+    }
 
     mongocxx::pipeline pipe;
     bsoncxx::builder::stream::document document{};
@@ -1202,7 +1182,8 @@ Json::Value MoDB::DeleteFatherComment(Json::Value &deletejson)
         << close_document << close_document;
 
     pipe.append_stage(document.view());
-    mongocxx::cursor cursor = commentcoll.aggregate(pipe);
+    cursor = commentcoll.aggregate(pipe);
+
     Json::Value jsonvalue;
     Json::Reader reader;
     for (auto doc : cursor)
@@ -1210,11 +1191,9 @@ Json::Value MoDB::DeleteFatherComment(Json::Value &deletejson)
         reader.parse(bsoncxx::to_json(doc), jsonvalue);
     }
     int sonnum = stoi(jsonvalue["Child_Total"].asString());
-    string articleid = jsonvalue["ParentId"].asString();
 
     auto result = commentcoll.delete_one({make_document(kvp("_id", commentid))});
 
-    Json::Value resjson;
     if ((*result).deleted_count() < 1)
     {
         resjson["Result"] = "Fail";
@@ -1223,14 +1202,13 @@ Json::Value MoDB::DeleteFatherComment(Json::Value &deletejson)
     }
     resjson["Result"] = "Success";
     resjson["DeleteNum"] = sonnum + 1;
-    resjson["ArticleId"] = articleid;
     return resjson;
 }
 
 /*
     功能：删除子评论
     传入：Json(CommentId)
-    传出：Json(Result,Reason,ArticleId)
+    传出：Json(Result,Reason,DeleteNum)
 */
 Json::Value MoDB::DeleteSonComment(Json::Value &deletejson)
 {
@@ -1242,12 +1220,18 @@ Json::Value MoDB::DeleteSonComment(Json::Value &deletejson)
     mongocxx::cursor cursor = commentcoll.find({make_document(kvp("Child_Comments._id", commentid))});
     Json::Value jsonvalue;
     Json::Reader reader;
+    Json::Value resjson;
+    if (cursor.begin() == cursor.end())
+    {
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "数据库未查询到数据！";
+        return resjson;
+    }
     for (auto doc : cursor)
     {
         reader.parse(bsoncxx::to_json(doc), jsonvalue);
     }
     int64_t fatherid = stoll(jsonvalue["_id"].asString());
-    string articleid = jsonvalue["ParentId"].asString();
     // 删除子评论
     bsoncxx::builder::stream::document document{};
     document
@@ -1258,7 +1242,6 @@ Json::Value MoDB::DeleteSonComment(Json::Value &deletejson)
 
     auto result = commentcoll.update_one({make_document(kvp("_id", fatherid))}, document.view());
 
-    Json::Value resjson;
     if ((*result).matched_count() < 1)
     {
         resjson["Result"] = "Fail";
@@ -1266,7 +1249,7 @@ Json::Value MoDB::DeleteSonComment(Json::Value &deletejson)
         return resjson;
     }
     resjson["Result"] = "Success";
-    resjson["ArticleId"] = articleid;
+    resjson["DeleteNum"] = 1;
     return resjson;
 }
 MoDB::MoDB()

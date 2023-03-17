@@ -9,9 +9,6 @@ public:
     // 局部静态特性的方式实现单实例
     static Discuss &GetInstance();
 
-    // 获取所有讨论
-    Json::Value getAllDiscuss();
-
     // 添加讨论
     Json::Value InsertDiscuss(Json::Value &insertjson);
 

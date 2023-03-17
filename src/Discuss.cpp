@@ -6,10 +6,6 @@ Discuss &Discuss::GetInstance()
     static Discuss disscuss;
     return disscuss;
 }
-Json::Value Discuss::getAllDiscuss()
-{
-    return MoDB::GetInstance().getAllDiscuss();
-}
 
 Json::Value Discuss::InsertDiscuss(Json::Value &insertjson)
 {

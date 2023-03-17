@@ -34,21 +34,23 @@ public:
     // 返回状态记录的信息
     Json::Value SelectStatusRecordInfo(Json::Value &queryjson);
 
-    // 获取所有讨论
-    Json::Value GetAllDiscuss();
-
-    // 分页查询讨论
-    Json::Value SelectDiscuss(Json::Value &queryjson);
-
-    // 获取讨论的内容
-    Json::Value SelectDiscussContent(Json::Value &queryjson);
-
     // ---------------评论Comment-------------------
     // 获取评论 根据Id
     Json::Value GetComment(Json::Value &queryjson);
 
     // 插入评论
     Json::Value InsertComment(Json::Value &insertjson);
+
+    // 删除评论
+    Json::Value DeleteComment(Json::Value &deletejson);
+
+    // -------文章 Article （包含Solution，Discuss，Announcement）---------
+
+    // 分页查询讨论
+    Json::Value SelectArticle(Json::Value &queryjson);
+
+    // 获取讨论的内容
+    Json::Value SelectArticleContent(Json::Value &queryjson);
 
     // 插入文章（讨论，题解）
     Json::Value InsertArticle(Json::Value &insertjson);

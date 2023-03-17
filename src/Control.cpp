@@ -101,21 +101,6 @@ Json::Value Control::SelectStatusRecordInfo(Json::Value &queryjson)
 	return StatusRecord::GetInstance().SelectStatusRecordInfo(queryjson);
 }
 
-Json::Value Control::GetAllDiscuss()
-{
-	return Discuss::GetInstance().getAllDiscuss();
-}
-
-Json::Value Control::SelectDiscuss(Json::Value &queryjson)
-{
-	return Discuss::GetInstance().SelectDiscuss(queryjson);
-}
-
-Json::Value Control::SelectDiscussContent(Json::Value &queryjson)
-{
-	return Discuss::GetInstance().SelectDiscussContent(queryjson);
-}
-
 Json::Value Control::GetComment(Json::Value &queryjson)
 {
 	if (queryjson["Type"].asString() == "Father")
@@ -132,7 +117,15 @@ Json::Value Control::InsertComment(Json::Value &insertjson)
 {
 	string type = insertjson["Type"].asString();
 
-	// TODO:添加评论，需要将其讨论或者文章的评论数加一
+	Json::Value updatejson;
+	updatejson["ArticleId"] = insertjson["ArticleId"];
+	updatejson["Num"] = 1;
+	// 文章添加评论数
+	if (insertjson["ArticleType"].asString() == "Discuss")
+	{
+		Discuss::GetInstance().UpdateDiscussComments(updatejson);
+	}
+
 	if (type == "Father") // 父评论
 	{
 
@@ -143,6 +136,56 @@ Json::Value Control::InsertComment(Json::Value &insertjson)
 		return Comment::GetInstance().InsertSonComment(insertjson);
 	}
 }
+
+// Json(ArticleId,ArticleType,CommentId)
+Json::Value Control::DeleteComment(Json::Value &deletejson)
+{
+	string articleid = deletejson["ArticleId"].asString();
+	string articletype = deletejson["ArticleType"].asString();
+
+	Json::Value resjson;
+	// 删除父评论
+	Json::Value json = Comment::GetInstance().DeleteFatherComment(deletejson);
+	// 如果失败删除子评论
+	if (json["Result"] == "Fail")
+		json = Comment::GetInstance().DeleteSonComment(deletejson);
+	// 如果都失败，返回失败结果
+	if (json["Result"] == "Fail")
+	{
+		resjson["Result"] = "Fail";
+		resjson["Reason"] = "数据库未查询到数据！";
+		return resjson;
+	}
+	// 如果删除评论成功，更新文章的评论数量
+	Json::Value articlejson;
+	articlejson["Num"] = stoi(json["DeleteNum"].asString()) * -1;
+	articlejson["ArticleId"] = articleid;
+
+	if (articletype == "Discuss")
+	{
+		Discuss::GetInstance().UpdateDiscussComments(articlejson);
+	}
+
+	resjson["Result"] = "Success";
+	return resjson;
+}
+
+Json::Value Control::SelectArticle(Json::Value &queryjson)
+{
+	if (queryjson["ArticleType"].asString() == "Discuss")
+	{
+		return Discuss::GetInstance().SelectDiscuss(queryjson);
+	}
+}
+
+Json::Value Control::SelectArticleContent(Json::Value &queryjson)
+{
+	if (queryjson["ArticleType"].asString() == "Discuss")
+	{
+		return Discuss::GetInstance().SelectDiscussContent(queryjson);
+	}
+}
+
 Json::Value Control::InsertArticle(Json::Value &insertjson)
 {
 	if (insertjson["ArticleType"].asString() == "Discuss") // 插入讨论

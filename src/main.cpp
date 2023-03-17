@@ -198,9 +198,15 @@ void doGetStatusRecord(const httplib::Request &req, httplib::Response &res)
     res.set_content(resvalue.toStyledString(), "json");
 }
 
-void doGetDiscuss(const httplib::Request &req, httplib::Response &res)
+void doGetArticle(const httplib::Request &req, httplib::Response &res)
 {
-    printf("doGetDiscuss start!!!\n");
+    printf("doGetArticle start!!!\n");
+    string articletype = "Discuss";
+    if (req.has_param("ArticleType"))
+    {
+        articletype = req.get_param_value("ArticleType");
+    }
+
     string page = "1";
     if (req.has_param("Page"))
     {
@@ -219,26 +225,36 @@ void doGetDiscuss(const httplib::Request &req, httplib::Response &res)
         parentid = req.get_param_value("ParentId");
     }
     Json::Value queryjson;
+    queryjson["ArticleType"] = articletype;
     queryjson["ParentId"] = parentid;
     queryjson["Page"] = page;
     queryjson["PageSize"] = pagesize;
-    Json::Value resjson = control.SelectDiscuss(queryjson);
-    printf("doGetDiscuss end!!!\n");
+    Json::Value resjson = control.SelectArticle(queryjson);
+    printf("doGetArticle end!!!\n");
     res.set_content(resjson.toStyledString(), "json");
 }
 
-void doGetDiscussContent(const httplib::Request &req, httplib::Response &res)
+void doGetArticleContent(const httplib::Request &req, httplib::Response &res)
 {
-    printf("doGetDiscussContent start!!!\n");
-    string discussid = "0";
-    if (req.has_param("DiscussId"))
+    printf("doGetArticleContent start!!!\n");
+
+    string articletype = "Discuss";
+    if (req.has_param("ArticleType"))
     {
-        discussid = req.get_param_value("DiscussId");
+        articletype = req.get_param_value("ArticleType");
     }
+    string articleid = "0";
+    if (req.has_param("ArticleId"))
+    {
+        articleid = req.get_param_value("ArticleId");
+    }
+
     Json::Value queryjson;
-    queryjson["DiscussId"] = discussid;
-    Json::Value resjson = control.SelectDiscussContent(queryjson);
-    printf("doGetDiscussContent end!!!\n");
+    queryjson["ArticleType"] = articletype;
+    queryjson["ArticleId"] = articleid;
+
+    Json::Value resjson = control.SelectArticleContent(queryjson);
+    printf("doGetArticleContent end!!!\n");
     res.set_content(resjson.toStyledString(), "json");
 }
 void doGetComment(const httplib::Request &req, httplib::Response &res)
@@ -323,6 +339,17 @@ void doInsertComment(const httplib::Request &req, httplib::Response &res)
     printf("doInsertComment end!!!\n");
     res.set_content(resjson.toStyledString(), "json");
 }
+void doDeleteComment(const httplib::Request &req, httplib::Response &res)
+{
+    printf("doDeleteComment start!!!\n");
+    Json::Value jsonvalue;
+    Json::Reader reader;
+    // 解析传入的json
+    reader.parse(req.body, jsonvalue);
+    Json::Value resjson = control.DeleteComment(jsonvalue);
+    printf("doDeleteComment end!!!\n");
+    res.set_content(resjson.toStyledString(), "json");
+}
 
 int main()
 {
@@ -347,14 +374,15 @@ int main()
     server.Get("/statusrecord", doGetStatusRecord);
     // 提交代码
     server.Post("/problemcode", doPostCode);
-    // 获取讨论
-    server.Get("/discuss", doGetDiscuss);
-    // 获取评论内容
-    server.Get("/discuss/content", doGetDiscussContent);
     // 获取评论
     server.Get("/comment", doGetComment);
     // 获取图片资源
     server.Get(R"(/image/(\d+))", doGetImage);
+
+    // 获取文章
+    server.Get("/article", doGetArticle);
+    // 获取评论内容
+    server.Get("/article/content", doGetArticleContent);
     // 用户提交文章（讨论，题解）
     server.Post("/article/insert", doInsertArticle);
     // 用户修改文章（讨论，题解）
@@ -363,6 +391,8 @@ int main()
     server.Post("/article/delete", doDeleteArticle);
     // 提交评论
     server.Post("/comment/insert", doInsertComment);
+    // 删除评论
+    server.Post("/comment/delete", doDeleteComment);
     // 设置静态资源
     server.set_base_dir("../WWW");
 
