@@ -38,6 +38,11 @@ Json::Value Control::SelectProblemInfoByAdmin(Json::Value &queryjson)
 	return ProblemSet::GetInstance().SelectProblemInfoByAdmin(queryjson);
 }
 
+Json::Value Control::InsertProblem(Json::Value &insertjson)
+{
+	return ProblemSet::GetInstance().InsertProblem(insertjson);
+}
+
 string Control::GetProblemDescription(string problemid)
 {
 	return ProblemSet::GetInstance().getProblemDescription(problemid);

@@ -65,6 +65,59 @@ Json::Value ProblemSet::SelectProblemInfoByAdmin(Json::Value &queryjson)
     return resjson;
 }
 
+Json::Value ProblemSet::InsertProblem(Json::Value &insertjson)
+{
+    cout << insertjson.toStyledString() << endl;
+    Json::Value tmpjson = MoDB::GetInstance().InsertProblem(insertjson);
+
+    if (tmpjson["Result"] == "Fail") // 插入失败
+        return tmpjson;
+
+    // 插入信息
+    Json::Value problemjson;
+    problemjson["_id"] = tmpjson["ProblemId"];
+    problemjson["Title"] = insertjson["Title"];
+    problemjson["Description"] = insertjson["Description"];
+    problemjson["JudgeNum"] = insertjson["JudgeNum"];
+    problemjson["TimeLimit"] = insertjson["TimeLimit"];
+    problemjson["MemoryLimit"] = insertjson["MemoryLimit"];
+
+    Problem *tmp = new Problem(problemjson);
+    heap[problemjson["_id"].asString()] = tmp;
+
+    // 添加测试用例
+    string DATA_PATH = "../../problemdata/" + tmpjson["ProblemId"].asString();
+    string command = "mkdir " + DATA_PATH;
+    // 创建文件夹
+    system(command.data());
+    // 添加测试文件
+    for (int i = 1; i <= stoi(insertjson["JudgeNum"].asString()); i++)
+    {
+        string index = to_string(i);
+        ofstream outfilein, outfileout;
+        string inpath = DATA_PATH + "/" + index + ".in";
+        string outpath = DATA_PATH + "/" + index + ".out";
+
+        outfilein.open(inpath.data());
+        outfilein << insertjson["TestInfo"][i - 1]["in"].asString();
+        outfilein.close();
+
+        outfileout.open(outpath.data());
+        outfileout << insertjson["TestInfo"][i - 1]["out"].asString();
+        outfileout.close();
+    }
+    // 添加SPJ文件
+    if (insertjson["IsSPJ"].asBool())
+    {
+        ofstream outfilespj;
+        string spjpath = DATA_PATH + "/spj.cpp";
+        outfilespj.open(spjpath.data());
+        outfilespj << insertjson["SPJ"].asString();
+        outfilespj.close();
+    }
+    return tmpjson;
+}
+
 std::string ProblemSet::getProblemDescription(std::string id)
 {
     return heap[id]->getProblemDescription();

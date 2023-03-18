@@ -159,6 +159,18 @@ void doGetProblemInfo(const httplib::Request &req, httplib::Response &res)
     res.set_content(resjson.toStyledString(), "json");
 }
 
+void doInsertProblem(const httplib::Request &req, httplib::Response &res)
+{
+    printf("doInsertProblem start!!!\n");
+    Json::Value jsonvalue;
+    Json::Reader reader;
+    // 解析传入的json
+    reader.parse(req.body, jsonvalue);
+    Json::Value resjson = control.InsertProblem(jsonvalue["datainfo"]);
+    printf("doInsertProblem end!!!\n");
+    res.set_content(resjson.toStyledString(), "json");
+}
+
 // 前端提交代码进行判定并返回结果
 void doPostCode(const httplib::Request &req, httplib::Response &res)
 {
@@ -394,6 +406,8 @@ int main()
 
     // 获取单个题目详细信息
     server.Get("/problem/select", doGetProblemInfo);
+    // 插入题目
+    server.Post("/problem/insert", doInsertProblem);
 
     // 获取状态记录
     server.Get("/statusrecord", doGetStatusRecord);

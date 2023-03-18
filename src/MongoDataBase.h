@@ -63,7 +63,24 @@ public:
     Json::Value UpdateUserInfo(Json::Value &updatejson);
     // ++++++++++++++++++++++++++题目表Problem+++++++++++++++++++++++++++++
 
+    /*
+        功能：管理员查询题目信息
+        传入：Json(ProblemId)
+        传出：Json(Result,Reason,_id,Title,Description,TimeLimit,MemoryLimit,JudgeNum,Tags)
+    */
     Json::Value SelectProblemInfoByAdmin(Json::Value &queryjson);
+
+    /*
+        功能：获取题目最大的ID
+    */
+    int GetMaxProblemId();
+    /*
+        功能：插入题目
+        传入：Json(Title,Description,TimeLimit,MemoryLimit,JudgeNum,Tags,UseNickName)
+        传出：Json(Reuslt,Reason,ProblemId)
+    */
+    Json::Value InsertProblem(Json::Value &insertjson);
+
     /*
         功能：获取全部题目信息（是ProblemSet类进行初始化）
         Json(_id,Title,TimeLimit,MemoryLimit,Description,JudgeNum)

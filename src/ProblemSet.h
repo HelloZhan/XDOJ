@@ -22,8 +22,13 @@ public:
 
     void Init();
 
+    // 管理员查询题目详细信息
     Json::Value SelectProblemInfoByAdmin(Json::Value &queryjson);
 
+    // 插入题目
+    Json::Value InsertProblem(Json::Value &insertjson);
+
+    // 获取题目描述
     std::string getProblemDescription(std::string id);
 
     // 通过普通查询获取题库数据

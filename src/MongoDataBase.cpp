@@ -405,6 +405,87 @@ Json::Value MoDB::SelectProblemInfoByAdmin(Json::Value &queryjson)
     resjson["Result"] = "Success";
     return resjson;
 }
+
+/*
+    功能：获取题目最大的ID
+*/
+int MoDB::GetMaxProblemId()
+{
+    auto client = pool.acquire();
+    mongocxx::collection problemcoll = (*client)["XDOJ"]["Problem"];
+
+    bsoncxx::builder::stream::document document{};
+    mongocxx::pipeline pipe;
+    pipe.sort({make_document(kvp("_id", -1))});
+    pipe.limit(1);
+    mongocxx::cursor cursor = problemcoll.aggregate(pipe);
+    // 如果没找到，说明库中未有题目
+    if (cursor.begin() == cursor.end())
+        return 0;
+    Json::Value jsonvalue;
+    Json::Reader reader;
+    for (auto doc : cursor)
+    {
+        reader.parse(bsoncxx::to_json(doc), jsonvalue);
+    }
+
+    int maxid = jsonvalue["_id"].asInt();
+    return maxid;
+}
+/*
+    功能：插入题目
+    传入：Json(Title,Description,TimeLimit,MemoryLimit,JudgeNum,Tags,UseNickName)
+    传出：Json(Reuslt,Reason,ProblemId)
+*/
+Json::Value MoDB::InsertProblem(Json::Value &insertjson)
+{
+    int problemid = GetMaxProblemId() + 1;
+    string title = insertjson["Title"].asString();
+    string description = insertjson["Description"].asString();
+    int timelimit = stoi(insertjson["TimeLimit"].asString());
+    int memorylimit = stoi(insertjson["MemoryLimit"].asString());
+    int judgenum = stoi(insertjson["JudgeNum"].asString());
+    string usernickname = insertjson["UseNickName"].asString();
+
+    auto client = pool.acquire();
+    mongocxx::collection problemcoll = (*client)["XDOJ"]["Problem"];
+
+    bsoncxx::builder::stream::document document{};
+    auto in_array = document
+                    << "_id" << problemid
+                    << "Title" << title.data()
+                    << "Description" << description.data()
+                    << "TimeLimit" << timelimit
+                    << "MemoryLimit" << memorylimit
+                    << "JudgeNum" << judgenum
+                    << "SubmitNum" << 0
+                    << "CENum" << 0
+                    << "ACNum" << 0
+                    << "WANum" << 0
+                    << "TLENum" << 0
+                    << "MLENum" << 0
+                    << "SENum" << 0
+                    << "UserNickName" << usernickname.data()
+                    << "Tags" << open_array;
+    for (int i = 0; i < insertjson["Tags"].size(); i++)
+    {
+        string tag = insertjson["Tags"][i].asString();
+        in_array = in_array << tag.data();
+    }
+    bsoncxx::document::value doc = in_array << close_array << finalize;
+    auto result = problemcoll.insert_one(doc.view());
+
+    Json::Value resjson;
+    if ((*result).result().inserted_count() < 1)
+    {
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "数据库插入失败！";
+        return resjson;
+    }
+    resjson["Result"] = "Success";
+    resjson["ProblemId"] = problemid;
+    return resjson;
+}
 /*
     功能：获取全部题目信息（用于ProblemSet类进行初始化）
     Json(_id,Title,Description,JudgeNum)
