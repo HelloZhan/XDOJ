@@ -159,15 +159,15 @@ void doGetProblemInfo(const httplib::Request &req, httplib::Response &res)
     res.set_content(resjson.toStyledString(), "json");
 }
 
-void doInsertProblem(const httplib::Request &req, httplib::Response &res)
+void doEditProblem(const httplib::Request &req, httplib::Response &res)
 {
-    printf("doInsertProblem start!!!\n");
+    printf("doEditProblem start!!!\n");
     Json::Value jsonvalue;
     Json::Reader reader;
     // 解析传入的json
     reader.parse(req.body, jsonvalue);
-    Json::Value resjson = control.InsertProblem(jsonvalue["datainfo"]);
-    printf("doInsertProblem end!!!\n");
+    Json::Value resjson = control.EditProblem(jsonvalue["datainfo"]);
+    printf("doEditProblem end!!!\n");
     res.set_content(resjson.toStyledString(), "json");
 }
 
@@ -406,8 +406,9 @@ int main()
 
     // 获取单个题目详细信息
     server.Get("/problem/select", doGetProblemInfo);
-    // 插入题目
-    server.Post("/problem/insert", doInsertProblem);
+
+    // 编辑题目 包含添加题目，修改题目
+    server.Post("/problem/edit", doEditProblem);
 
     // 获取状态记录
     server.Get("/statusrecord", doGetStatusRecord);

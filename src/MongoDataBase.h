@@ -66,7 +66,7 @@ public:
     /*
         功能：管理员查询题目信息
         传入：Json(ProblemId)
-        传出：Json(Result,Reason,_id,Title,Description,TimeLimit,MemoryLimit,JudgeNum,Tags)
+        传出：Json(Result,Reason,_id,Title,Description,TimeLimit,MemoryLimit,UserNickName,JudgeNum,Tags)
     */
     Json::Value SelectProblemInfoByAdmin(Json::Value &queryjson);
 
@@ -80,6 +80,13 @@ public:
         传出：Json(Reuslt,Reason,ProblemId)
     */
     Json::Value InsertProblem(Json::Value &insertjson);
+
+    /*
+        功能：修改题目信息
+        传入：Json(ProblemId,Title,Description,TimeLimit,MemoryLimit,JudgeNum,Tags,UseNickName)
+        传出：Json(Result,Reason)
+    */
+    Json::Value UpdateProblem(Json::Value &updatejson);
 
     /*
         功能：获取全部题目信息（是ProblemSet类进行初始化）

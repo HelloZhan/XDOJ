@@ -28,6 +28,9 @@ public:
     // 插入题目
     Json::Value InsertProblem(Json::Value &insertjson);
 
+    // 修改题目
+    Json::Value UpdateProblem(Json::Value &updatejson);
+
     // 获取题目描述
     std::string getProblemDescription(std::string id);
 

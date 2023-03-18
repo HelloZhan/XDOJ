@@ -26,8 +26,8 @@ public:
     // 管理员查看题目数据
     Json::Value SelectProblemInfoByAdmin(Json::Value &queryjson);
 
-    // 插入题目
-    Json::Value InsertProblem(Json::Value &insertjson);
+    // 编辑题目
+    Json::Value EditProblem(Json::Value &insertjson);
 
     // 返回具体题目
     std::string GetProblemDescription(std::string problemid);

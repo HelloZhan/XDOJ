@@ -34,7 +34,7 @@ Json::Value ProblemSet::SelectProblemInfoByAdmin(Json::Value &queryjson)
     {
         Json::Value jsoninfo;
         string infilepath = DATA_PATH + to_string(i) + ".in";
-        string outfilepath = DATA_PATH + to_string(1) + ".out";
+        string outfilepath = DATA_PATH + to_string(i) + ".out";
 
         infilein.open(infilepath.data());
         string infile((istreambuf_iterator<char>(infilein)),
@@ -52,6 +52,7 @@ Json::Value ProblemSet::SelectProblemInfoByAdmin(Json::Value &queryjson)
         resjson["TestInfo"].append(jsoninfo);
     }
     // 获取SPJ文件
+    resjson["IsSPJ"] = false;
     string spjpath = DATA_PATH + "spj.cpp";
     if (access(spjpath.data(), F_OK) == 0)
     {
@@ -60,38 +61,20 @@ Json::Value ProblemSet::SelectProblemInfoByAdmin(Json::Value &queryjson)
         string spjfile((istreambuf_iterator<char>(infilespj)),
                        (istreambuf_iterator<char>()));
         resjson["SPJ"] = spjfile;
+        resjson["IsSPJ"] = true;
         infilespj.close();
     }
     return resjson;
 }
-
-Json::Value ProblemSet::InsertProblem(Json::Value &insertjson)
+bool InsertProblemDataInfo(Json::Value &insertjson)
 {
-    cout << insertjson.toStyledString() << endl;
-    Json::Value tmpjson = MoDB::GetInstance().InsertProblem(insertjson);
-
-    if (tmpjson["Result"] == "Fail") // 插入失败
-        return tmpjson;
-
-    // 插入信息
-    Json::Value problemjson;
-    problemjson["_id"] = tmpjson["ProblemId"];
-    problemjson["Title"] = insertjson["Title"];
-    problemjson["Description"] = insertjson["Description"];
-    problemjson["JudgeNum"] = insertjson["JudgeNum"];
-    problemjson["TimeLimit"] = insertjson["TimeLimit"];
-    problemjson["MemoryLimit"] = insertjson["MemoryLimit"];
-
-    Problem *tmp = new Problem(problemjson);
-    heap[problemjson["_id"].asString()] = tmp;
-
     // 添加测试用例
-    string DATA_PATH = "../../problemdata/" + tmpjson["ProblemId"].asString();
+    string DATA_PATH = "../../problemdata/" + insertjson["ProblemId"].asString();
     string command = "mkdir " + DATA_PATH;
     // 创建文件夹
     system(command.data());
     // 添加测试文件
-    for (int i = 1; i <= stoi(insertjson["JudgeNum"].asString()); i++)
+    for (int i = 1; i <= insertjson["TestInfo"].size(); i++)
     {
         string index = to_string(i);
         ofstream outfilein, outfileout;
@@ -115,6 +98,48 @@ Json::Value ProblemSet::InsertProblem(Json::Value &insertjson)
         outfilespj << insertjson["SPJ"].asString();
         outfilespj.close();
     }
+    return true;
+}
+Json::Value ProblemSet::InsertProblem(Json::Value &insertjson)
+{
+    cout << insertjson.toStyledString() << endl;
+    Json::Value tmpjson = MoDB::GetInstance().InsertProblem(insertjson);
+
+    if (tmpjson["Result"] == "Fail") // 插入失败
+        return tmpjson;
+
+    // 插入信息
+    Json::Value problemjson;
+    problemjson["_id"] = tmpjson["ProblemId"];
+    problemjson["Title"] = insertjson["Title"];
+    problemjson["Description"] = insertjson["Description"];
+    problemjson["JudgeNum"] = insertjson["JudgeNum"];
+    problemjson["TimeLimit"] = insertjson["TimeLimit"];
+    problemjson["MemoryLimit"] = insertjson["MemoryLimit"];
+
+    Problem *tmp = new Problem(problemjson);
+    heap[problemjson["_id"].asString()] = tmp;
+
+    insertjson["ProblemId"] = tmpjson["ProblemId"];
+
+    InsertProblemDataInfo(insertjson);
+    return tmpjson;
+}
+
+Json::Value ProblemSet::UpdateProblem(Json::Value &updatejson)
+{
+    cout << "UpdateProblem" << endl;
+    Json::Value tmpjson = MoDB::GetInstance().UpdateProblem(updatejson);
+    if (tmpjson["Result"].asString() == "Fail")
+        return tmpjson;
+
+    string problemid = updatejson["ProblemId"].asString();
+    string DATA_PATH = "../../problemdata/" + problemid;
+    // 删除文件夹
+    string command = "rm -rf " + DATA_PATH;
+    system(command.data());
+    // 创建文件夹
+    InsertProblemDataInfo(updatejson);
     return tmpjson;
 }
 

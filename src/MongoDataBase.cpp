@@ -364,7 +364,7 @@ Json::Value MoDB::UpdateUserInfo(Json::Value &updatejson)
 /*
     功能：管理员查询题目信息
     传入：Json(ProblemId)
-    传出：Json(Result,Reason,_id,Title,Description,TimeLimit,MemoryLimit,JudgeNum,Tags)
+    传出：Json(Result,Reason,_id,Title,Description,TimeLimit,MemoryLimit,JudgeNum,UserNickName,Tags)
 */
 Json::Value MoDB::SelectProblemInfoByAdmin(Json::Value &queryjson)
 {
@@ -383,6 +383,7 @@ Json::Value MoDB::SelectProblemInfoByAdmin(Json::Value &queryjson)
         << "TimeLimit" << 1
         << "MemoryLimit" << 1
         << "JudgeNum" << 1
+        << "UserNickName" << 1
         << "Tags" << 1;
     pipe.project(document.view());
 
@@ -429,7 +430,7 @@ int MoDB::GetMaxProblemId()
         reader.parse(bsoncxx::to_json(doc), jsonvalue);
     }
 
-    int maxid = jsonvalue["_id"].asInt();
+    int maxid = stoi(jsonvalue["_id"].asString());
     return maxid;
 }
 /*
@@ -445,7 +446,7 @@ Json::Value MoDB::InsertProblem(Json::Value &insertjson)
     int timelimit = stoi(insertjson["TimeLimit"].asString());
     int memorylimit = stoi(insertjson["MemoryLimit"].asString());
     int judgenum = stoi(insertjson["JudgeNum"].asString());
-    string usernickname = insertjson["UseNickName"].asString();
+    string usernickname = insertjson["UserNickName"].asString();
 
     auto client = pool.acquire();
     mongocxx::collection problemcoll = (*client)["XDOJ"]["Problem"];
@@ -486,6 +487,55 @@ Json::Value MoDB::InsertProblem(Json::Value &insertjson)
     resjson["ProblemId"] = problemid;
     return resjson;
 }
+
+/*
+    功能：修改题目信息
+    传入：Json(ProblemId,Title,Description,TimeLimit,MemoryLimit,JudgeNum,Tags,UseNickName)
+    传出：Json(Result,Reason)
+*/
+Json::Value MoDB::UpdateProblem(Json::Value &updatejson)
+{
+    cout << updatejson.toStyledString() << endl;
+    int problemid = stoi(updatejson["ProblemId"].asString());
+    string title = updatejson["Title"].asString();
+    string description = updatejson["Description"].asString();
+    int timelimit = stoi(updatejson["TimeLimit"].asString());
+    int memorylimit = stoi(updatejson["MemoryLimit"].asString());
+    int judgenum = stoi(updatejson["JudgeNum"].asString());
+    string usernickname = updatejson["UserNickName"].asString();
+
+    auto client = pool.acquire();
+    mongocxx::collection problemcoll = (*client)["XDOJ"]["Problem"];
+
+    bsoncxx::builder::stream::document document{};
+    auto in_array = document
+                    << "$set" << open_document
+                    << "Title" << title.data()
+                    << "Description" << description.data()
+                    << "TimeLimit" << timelimit
+                    << "MemoryLimit" << memorylimit
+                    << "JudgeNum" << judgenum
+                    << "UserNickName" << usernickname.data()
+                    << "Tags" << open_array;
+    for (int i = 0; i < updatejson["Tags"].size(); i++)
+    {
+        string tag = updatejson["Tags"][i].asString();
+        in_array = in_array << tag.data();
+    }
+    bsoncxx::document::value doc = in_array << close_array << close_document << finalize;
+
+    auto result = problemcoll.update_one({make_document(kvp("_id", problemid))}, doc.view());
+    Json::Value resjson;
+    if ((*result).modified_count() < 1)
+    {
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "数据库插入失败！";
+        return resjson;
+    }
+    resjson["Result"] = "Success";
+    return resjson;
+}
+
 /*
     功能：获取全部题目信息（用于ProblemSet类进行初始化）
     Json(_id,Title,Description,JudgeNum)

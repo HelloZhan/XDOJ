@@ -38,9 +38,16 @@ Json::Value Control::SelectProblemInfoByAdmin(Json::Value &queryjson)
 	return ProblemSet::GetInstance().SelectProblemInfoByAdmin(queryjson);
 }
 
-Json::Value Control::InsertProblem(Json::Value &insertjson)
+Json::Value Control::EditProblem(Json::Value &insertjson)
 {
-	return ProblemSet::GetInstance().InsertProblem(insertjson);
+	if (insertjson["EditType"].asString() == "Insert")
+	{
+		return ProblemSet::GetInstance().InsertProblem(insertjson);
+	}
+	else if (insertjson["EditType"].asString() == "Update")
+	{
+		return ProblemSet::GetInstance().UpdateProblem(insertjson);
+	}
 }
 
 string Control::GetProblemDescription(string problemid)
