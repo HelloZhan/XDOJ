@@ -29,6 +29,9 @@ public:
     // 编辑题目
     Json::Value EditProblem(Json::Value &insertjson);
 
+    // 删除题目
+    Json::Value DeleteProblem(Json::Value &deletejson);
+
     // 返回具体题目
     std::string GetProblemDescription(std::string problemid);
 

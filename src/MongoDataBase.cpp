@@ -537,6 +537,30 @@ Json::Value MoDB::UpdateProblem(Json::Value &updatejson)
 }
 
 /*
+    功能：删除题目
+    传入：Json(ProblemId)
+    传出：Json(Result,Reason)
+*/
+Json::Value MoDB::DeleteProblem(Json::Value &deletejson)
+{
+    int64_t problemid = stoll(deletejson["ProblemId"].asString());
+
+    auto client = pool.acquire();
+    mongocxx::collection problemcoll = (*client)["XDOJ"]["Problem"];
+
+    auto result = problemcoll.delete_one({make_document(kvp("_id", problemid))});
+
+    Json::Value resjson;
+    if ((*result).deleted_count() < 1)
+    {
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "数据库未查询到该数据！";
+        return resjson;
+    }
+    resjson["Result"] = "Success";
+    return resjson;
+}
+/*
     功能：获取全部题目信息（用于ProblemSet类进行初始化）
     Json(_id,Title,Description,JudgeNum)
 */

@@ -89,6 +89,12 @@ public:
     Json::Value UpdateProblem(Json::Value &updatejson);
 
     /*
+        功能：删除题目
+        传入：Json(ProblemId)
+        传出：Json(Result,Reason)
+    */
+    Json::Value DeleteProblem(Json::Value &deletejson);
+    /*
         功能：获取全部题目信息（是ProblemSet类进行初始化）
         Json(_id,Title,TimeLimit,MemoryLimit,Description,JudgeNum)
     */

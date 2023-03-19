@@ -143,6 +143,26 @@ Json::Value ProblemSet::UpdateProblem(Json::Value &updatejson)
     return tmpjson;
 }
 
+Json::Value ProblemSet::DeleteProblem(Json::Value &deletejson)
+{
+    Json::Value tmpjson = MoDB::GetInstance().DeleteProblem(deletejson);
+
+    if (tmpjson["Result"] == "Fail")
+        return tmpjson;
+
+    string DATA_PATH = "../../problemdata/" + deletejson["ProblemId"].asString();
+    string command = "rm -rf " + DATA_PATH;
+
+    system(command.data());
+
+    // 删除指针
+    delete heap[deletejson["ProblemId"].asString()];
+    // 删除容器的值
+    heap.erase(deletejson["ProblemId"].asString());
+
+    return tmpjson;
+}
+
 std::string ProblemSet::getProblemDescription(std::string id)
 {
     return heap[id]->getProblemDescription();

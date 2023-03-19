@@ -171,6 +171,17 @@ void doEditProblem(const httplib::Request &req, httplib::Response &res)
     res.set_content(resjson.toStyledString(), "json");
 }
 
+void doDeleteProblem(const httplib::Request &req, httplib::Response &res)
+{
+    printf("doDeleteProblem start!!!\n");
+    Json::Value jsonvalue;
+    Json::Reader reader;
+    // 解析传入的json
+    reader.parse(req.body, jsonvalue);
+    Json::Value resjson = control.DeleteProblem(jsonvalue);
+    printf("doDeleteProblem end!!!\n");
+    res.set_content(resjson.toStyledString(), "json");
+}
 // 前端提交代码进行判定并返回结果
 void doPostCode(const httplib::Request &req, httplib::Response &res)
 {
@@ -406,9 +417,10 @@ int main()
 
     // 获取单个题目详细信息
     server.Get("/problem/select", doGetProblemInfo);
-
     // 编辑题目 包含添加题目，修改题目
     server.Post("/problem/edit", doEditProblem);
+    // 删除题目
+    server.Post("/problem/delete", doDeleteProblem);
 
     // 获取状态记录
     server.Get("/statusrecord", doGetStatusRecord);

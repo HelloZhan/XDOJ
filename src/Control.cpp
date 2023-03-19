@@ -49,7 +49,10 @@ Json::Value Control::EditProblem(Json::Value &insertjson)
 		return ProblemSet::GetInstance().UpdateProblem(insertjson);
 	}
 }
-
+Json::Value Control::DeleteProblem(Json::Value &deletejson)
+{
+	return ProblemSet::GetInstance().DeleteProblem(deletejson);
+}
 string Control::GetProblemDescription(string problemid)
 {
 	return ProblemSet::GetInstance().getProblemDescription(problemid);
