@@ -80,6 +80,8 @@ public:
 
     // 删除文章
     Json::Value DeleteArticle(Json::Value &deletejson);
+
+    Json::Value GetTags(Json::Value &queryjson);
     Control();
 
     ~Control();

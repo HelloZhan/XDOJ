@@ -12,9 +12,6 @@ public:
     // 局部静态特性的方式实现单实例
     static MoDB &GetInstance();
 
-    // 初始化
-    bool InitDB();
-
     // +++++++++++++++++++++++用户表User+++++++++++++++++++++++++++++
     /*
         功能：注册用户
@@ -137,6 +134,12 @@ public:
     */
     bool UpdateProblemStatusNum(Json::Value &updatejson);
 
+    /*
+        功能：获取题目的所有标签
+        传入：void
+        传出：Json(tags)
+    */
+    Json::Value getProblemTags();
     // ++++++++++++++++++++++++评测表StatusRecord+++++++++++++++++++++++++
 
     /*

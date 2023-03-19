@@ -43,9 +43,6 @@ MoDB &MoDB::GetInstance()
     return modb;
 }
 
-bool MoDB::InitDB()
-{
-}
 /*
     功能：注册用户
     前端传入
@@ -797,6 +794,25 @@ bool MoDB::UpdateProblemStatusNum(Json::Value &updatejson)
 
     problemcoll.update_one({make_document(kvp("_id", problemid))}, document.view());
     return true;
+}
+
+/*
+    功能：获取题目的所有标签
+    传入：void
+    传出：Json(tags)
+*/
+Json::Value MoDB::getProblemTags()
+{
+    auto client = pool.acquire();
+    mongocxx::collection problemcoll = (*client)["XDOJ"]["Problem"];
+    mongocxx::cursor cursor = problemcoll.distinct({"Tags"}, {});
+    Json::Reader reader;
+    Json::Value resjson;
+    for (auto doc : cursor)
+    {
+        reader.parse(bsoncxx::to_json(doc), resjson);
+    }
+    return resjson;
 }
 /*
     功能：向测评表插入一条待测评记录

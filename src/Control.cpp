@@ -5,6 +5,7 @@
 #include "StatusRecord.h"
 #include "Discuss.h"
 #include "Comment.h"
+#include "Tag.h"
 #include <iostream>
 using namespace std;
 
@@ -261,13 +262,22 @@ Json::Value Control::DeleteArticle(Json::Value &deletejson)
 		return Discuss::GetInstance().DeleteDiscuss(deletejson);
 	}
 }
+
+Json::Value Control::GetTags(Json::Value &queryjson)
+{
+	if (queryjson["TagType"].asString() == "Problem")
+	{
+		return Tag::GetInstance().getProblemTags();
+	}
+}
+
 Control::Control()
 {
-	// 初始化MongoDB数据库
-	MoDB::GetInstance().InitDB();
-
 	// 初始化题库
 	ProblemSet::GetInstance().Init();
+
+	// 初始化题目标签
+	Tag::GetInstance().InitProblemTags();
 }
 
 Control::~Control()

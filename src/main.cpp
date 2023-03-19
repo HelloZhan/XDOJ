@@ -468,6 +468,18 @@ void doDeleteComment(const httplib::Request &req, httplib::Response &res)
     res.set_content(resjson.toStyledString(), "json");
 }
 
+void doGetTags(const httplib::Request &req, httplib::Response &res)
+{
+    printf("doGetTags start!!!\n");
+    Json::Value queryjson;
+    string tagtype = req.get_param_value("TagType");
+    queryjson["TagType"] = tagtype;
+
+    Json::Value resjson = control.GetTags(queryjson);
+    printf("doGetTags end!!!\n");
+    res.set_content(resjson.toStyledString(), "json");
+}
+
 int main()
 {
     using namespace httplib;
@@ -527,6 +539,9 @@ int main()
     server.Post("/comment/insert", doInsertComment);
     // 删除评论
     server.Post("/comment/delete", doDeleteComment);
+
+    // 获取评论
+    server.Get("/tags", doGetTags);
     // 设置静态资源
     server.set_base_dir("../WWW");
 
