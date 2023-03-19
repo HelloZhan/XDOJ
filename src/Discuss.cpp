@@ -17,6 +17,11 @@ Json::Value Discuss::SelectDiscuss(Json::Value &queryjson)
     return MoDB::GetInstance().SelectDiscuss(queryjson);
 }
 
+Json::Value Discuss::SelectDiscussByEdit(Json::Value &queryjson)
+{
+    return MoDB::GetInstance().SelectDiscussByEdit(queryjson);
+}
+
 Json::Value Discuss::SelectDiscussContent(Json::Value &queryjson)
 {
     return MoDB::GetInstance().SelectDiscussContent(queryjson);

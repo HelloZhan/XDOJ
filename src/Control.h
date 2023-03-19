@@ -21,6 +21,15 @@ public:
 
     // 更新用户信息
     Json::Value UpdateUserInfo(Json::Value &updatejson);
+
+    // 获取用户信息，以供修改
+    Json::Value SelectUserUpdateInfo(Json::Value &queryjson);
+
+    // 分页获取用户信息
+    Json::Value SelectUserSetInfo(Json::Value &queryjson);
+
+    // 删除用户
+    Json::Value DeleteUser(Json::Value &deletejson);
     // ---------------题目 Problem -------------------
 
     // 管理员查看题目数据
@@ -59,6 +68,7 @@ public:
     // 分页查询讨论
     Json::Value SelectArticle(Json::Value &queryjson);
 
+    Json::Value SelectArticleByEdit(Json::Value &queryjson);
     // 获取讨论的内容
     Json::Value SelectArticleContent(Json::Value &queryjson);
 

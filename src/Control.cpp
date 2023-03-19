@@ -33,6 +33,21 @@ Json::Value Control::UpdateUserInfo(Json::Value &updatejson)
 	return UserSet::GetInstance().UpdateUserInfo(updatejson);
 }
 
+Json::Value Control::SelectUserUpdateInfo(Json::Value &queryjson)
+{
+	return UserSet::GetInstance().SelectUserUpdateInfo(queryjson);
+}
+
+Json::Value Control::SelectUserSetInfo(Json::Value &queryjson)
+{
+	return UserSet::GetInstance().SelectUserSetInfo(queryjson);
+}
+
+Json::Value Control::DeleteUser(Json::Value &deletejson)
+{
+	return UserSet::GetInstance().DeleteUser(deletejson);
+}
+
 Json::Value Control::SelectProblemInfoByAdmin(Json::Value &queryjson)
 {
 	return ProblemSet::GetInstance().SelectProblemInfoByAdmin(queryjson);
@@ -195,6 +210,14 @@ Json::Value Control::SelectArticle(Json::Value &queryjson)
 	if (queryjson["ArticleType"].asString() == "Discuss")
 	{
 		return Discuss::GetInstance().SelectDiscuss(queryjson);
+	}
+}
+
+Json::Value Control::SelectArticleByEdit(Json::Value &queryjson)
+{
+	if (queryjson["ArticleType"].asString() == "Discuss")
+	{
+		return Discuss::GetInstance().SelectDiscussByEdit(queryjson);
 	}
 }
 

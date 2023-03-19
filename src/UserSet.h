@@ -27,6 +27,19 @@ public:
     // 更新用户信息
     Json::Value UpdateUserInfo(Json::Value &updatejson);
 
+    // 获取用户信息以供修改
+    Json::Value SelectUserUpdateInfo(Json::Value &queryjson);
+
+    /*
+        功能：分页查询用户列表
+        传入：Json(Page,PageSize)
+        传出：Json(_id,NickName,PersonalProfile,School,Major,JoinTime,Authority)
+    */
+    Json::Value SelectUserSetInfo(Json::Value &queryjson);
+
+    // 删除用户
+    Json::Value DeleteUser(Json::Value &deletejson);
+
 private:
     UserSet();
     ~UserSet();

@@ -38,6 +38,21 @@ Json::Value UserSet::UpdateUserInfo(Json::Value &updatejson)
     return MoDB::GetInstance().UpdateUserInfo(updatejson);
 }
 
+Json::Value UserSet::SelectUserUpdateInfo(Json::Value &queryjson)
+{
+    return MoDB::GetInstance().SelectUserUpdateInfo(queryjson);
+}
+
+Json::Value UserSet::SelectUserSetInfo(Json::Value &queryjson)
+{
+    return MoDB::GetInstance().SelectUserSetInfo(queryjson);
+}
+
+Json::Value UserSet::DeleteUser(Json::Value &deletejson)
+{
+    return MoDB::GetInstance().DeleteUser(deletejson);
+}
+
 UserSet::UserSet()
 {
 }

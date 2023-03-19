@@ -15,6 +15,9 @@ public:
     // 分页查询讨论
     Json::Value SelectDiscuss(Json::Value &queryjson);
 
+    // 查询
+    Json::Value SelectDiscussByEdit(Json::Value &queryjson);
+
     // 查询讨论的内容
     Json::Value SelectDiscussContent(Json::Value &queryjson);
 

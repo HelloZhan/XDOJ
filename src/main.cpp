@@ -86,6 +86,57 @@ void doUpdateUserInfo(const httplib::Request &req, httplib::Response &res)
     res.set_content(resjson.toStyledString(), "json");
 }
 
+void doGetUserUpdateInfo(const httplib::Request &req, httplib::Response &res)
+{
+    printf("doGetUserUpdateInfo start!!!\n");
+    string userid = "1";
+    if (req.has_param("UserId"))
+    {
+        userid = req.get_param_value("UserId");
+    }
+
+    Json::Value queryjson;
+    queryjson["UserId"] = userid;
+    Json::Value resjson = control.SelectUserUpdateInfo(queryjson);
+    printf("doGetUserUpdateInfo end!!!\n");
+    res.set_content(resjson.toStyledString(), "json");
+}
+void doGetUserSetInfo(const httplib::Request &req, httplib::Response &res)
+{
+    printf("doGetUserSetInfo start!!!\n");
+
+    string page = "1";
+    if (req.has_param("Page"))
+    {
+        page = req.get_param_value("Page");
+    }
+
+    string pagesize = "25";
+    if (req.has_param("PageSize"))
+    {
+        pagesize = req.get_param_value("PageSize");
+    }
+    Json::Value queryjson;
+    queryjson["Page"] = page;
+    queryjson["PageSize"] = pagesize;
+
+    Json::Value resjson = control.SelectUserSetInfo(queryjson);
+    printf("doGetUserSetInfo end!!!\n");
+    res.set_content(resjson.toStyledString(), "json");
+}
+
+void doDeleteUser(const httplib::Request &req, httplib::Response &res)
+{
+    printf("doDeleteUser start!!!\n");
+    Json::Value jsonvalue;
+    Json::Reader reader;
+    // 解析传入的json
+    reader.parse(req.body, jsonvalue);
+    Json::Value resjson = control.DeleteUser(jsonvalue);
+    printf("doDeleteUser end!!!\n");
+    res.set_content(resjson.toStyledString(), "json");
+}
+
 // 返回网页请求的题目描述
 void doGetProblem(const httplib::Request &req, httplib::Response &res)
 {
@@ -299,6 +350,28 @@ void doGetArticleContent(const httplib::Request &req, httplib::Response &res)
     res.set_content(resjson.toStyledString(), "json");
 }
 
+void doSelectArticle(const httplib::Request &req, httplib::Response &res)
+{
+    printf("doSelectArticle start!!!\n");
+
+    string articletype = "Discuss";
+    if (req.has_param("ArticleType"))
+    {
+        articletype = req.get_param_value("ArticleType");
+    }
+    string articleid = "0";
+    if (req.has_param("ArticleId"))
+    {
+        articleid = req.get_param_value("ArticleId");
+    }
+    Json::Value queryjson;
+    queryjson["ArticleType"] = articletype;
+    queryjson["ArticleId"] = articleid;
+
+    Json::Value resjson = control.SelectArticleByEdit(queryjson);
+    printf("doSelectArticle end!!!\n");
+    res.set_content(resjson.toStyledString(), "json");
+}
 void doGetImage(const httplib::Request &req, httplib::Response &res)
 {
     printf("doGetImage start!!!\n");
@@ -409,6 +482,12 @@ int main()
     server.Get("/user/userhome", doGetUserInfo);
     // 更新用户信息
     server.Post("/user/usersetting", doUpdateUserInfo);
+    // 返回用户信息，用于编辑修改
+    server.Get("/user/updateinfo", doGetUserUpdateInfo);
+    // 分页获取用户信息
+    server.Get("/userset", doGetUserSetInfo);
+    // 更新用户信息
+    server.Post("/user/delete", doDeleteUser);
 
     // 获取单个题目
     server.Get("/problem", doGetProblem);
@@ -433,6 +512,8 @@ int main()
     server.Get("/article", doGetArticle);
     // 获取评论内容
     server.Get("/article/content", doGetArticleContent);
+    // 获取文章信息
+    server.Get("/article/select", doSelectArticle);
     // 用户提交文章（讨论，题解）
     server.Post("/article/insert", doInsertArticle);
     // 用户修改文章（讨论，题解）

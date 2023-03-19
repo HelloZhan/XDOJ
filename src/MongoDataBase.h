@@ -57,10 +57,31 @@ public:
 
     /*
         功能：更改用户信息
-        传入：Json(UserId,Avatar,PersonalProfile,School,Major)
+        传入：Json(UserId,Avatar,PersonalProfile,School,Major,Authority)
         传出：Json(Result,Reason)
     */
     Json::Value UpdateUserInfo(Json::Value &updatejson);
+
+    /*
+        功能：查询用户表，用于修改用户
+        传入：Json(UserId)
+        传出：Json(_id,Avatar,NickName,PersonalProfile,School,Major,Authority)
+    */
+    Json::Value SelectUserUpdateInfo(Json::Value &queryjson);
+
+    /*
+        功能：分页查询用户列表
+        传入：Json(Page,PageSize)
+        传出：Json(_id,NickName,PersonalProfile,School,Major,JoinTime,Authority)
+    */
+    Json::Value SelectUserSetInfo(Json::Value &queryjson);
+
+    /*
+        功能：删除用户
+        传入：Json(UserId)
+        传出：Json(Result,Reason)
+    */
+    Json::Value DeleteUser(Json::Value &deletejson);
     // ++++++++++++++++++++++++++题目表Problem+++++++++++++++++++++++++++++
 
     /*
@@ -156,6 +177,13 @@ public:
         传出：Json(_id,Title,Views,Comments,CreateTime,User.Avatar,User.NickName)
     */
     Json::Value SelectDiscuss(Json::Value &queryjson);
+
+    /*
+        功能：查询讨论的详细信息，主要是编辑时的查询
+        传入：Json(ArticleId)
+        传出：Json(Result,Reason,Title,Content)
+    */
+    Json::Value SelectDiscussByEdit(Json::Value &queryjson);
 
     /*
         功能：查询讨论的详细内容，并且将其浏览量加一
