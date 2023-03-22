@@ -157,12 +157,14 @@ void doGetProblem(const httplib::Request &req, httplib::Response &res)
 void doGetProblemSet(const httplib::Request &req, httplib::Response &res)
 {
     printf("doGetProblemSet start!!!\n");
-    string querytype = "common";
-    if (req.has_param("QueryType"))
+    Json::Value serachinfo;
+    if (req.has_param("SearchInfo"))
     {
-        querytype = req.get_param_value("QueryType");
+        string info = req.get_param_value("SearchInfo");
+        Json::Reader reader;
+        // 解析传入的json
+        reader.parse(info, serachinfo);
     }
-
     string page = "1";
     if (req.has_param("Page"))
     {
@@ -174,23 +176,14 @@ void doGetProblemSet(const httplib::Request &req, httplib::Response &res)
     {
         pagesize = req.get_param_value("PageSize");
     }
-
-    string matchstring = "";
-    if (req.has_param("MatchString"))
-    {
-        pagesize = req.get_param_value("MatchString");
-    }
-
     Json::Value queryjson;
-    queryjson["QueryType"] = querytype;
+    queryjson["SearchInfo"] = serachinfo;
     queryjson["Page"] = page;
     queryjson["PageSize"] = pagesize;
-    queryjson["MatchString"] = matchstring;
 
-    Json::Value resvalue = control.SelectProblemSetInfo(queryjson);
-
+    Json::Value resjson = control.SelectProblemSetInfo(queryjson);
     printf("doGetProblemSet end!!!\n");
-    res.set_content(resvalue.toStyledString(), "json");
+    res.set_content(resjson.toStyledString(), "json");
 }
 
 // 返回网页请求的题目描述

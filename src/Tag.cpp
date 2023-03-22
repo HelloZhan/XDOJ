@@ -15,7 +15,6 @@ void Tag::InitProblemTags()
 }
 Json::Value Tag::getProblemTags()
 {
-    cout << problemtags.toStyledString() << endl;
     return problemtags;
 }
 Tag::Tag()

@@ -121,9 +121,9 @@ public:
     /*
         功能：分页获取题目列表（包含查询条件，暂时未添加）
         前端传入
-        Json(QueryType,Page,PageSize,MatchString)
+        Json(SearchInfo,Page,PageSize,MatchString)
         后端传出
-        Json(ProblemId,Title,SubmitNum,CENum,ACNum,WANum,TLENum,MLENum,SENum),TotalNum
+        Json(ProblemId,Title,SubmitNum,CENum,ACNum,WANum,TLENum,MLENum,SENum,Tags),TotalNum
     */
     Json::Value getProblemSet(Json::Value &queryjson);
 

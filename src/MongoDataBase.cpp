@@ -699,15 +699,34 @@ Json::Value MoDB::getAllProblem()
     return resjson;
 }
 /*
+    功能：将字符串变为数字
+    主要为查询ID服务，限制：ID长度不能大于4，只关注数字
+*/
+int mystoi(string num)
+{
+    int resnum = 0;
+    if (num.size() >= 4 || num.size() == 0)
+        return resnum;
+    for (auto n : num)
+    {
+        if (isdigit(n))
+        {
+            resnum = resnum * 10 + n - '0';
+        }
+    }
+    return resnum;
+}
+/*
     功能：分页获取题目列表（包含查询条件，暂时未添加）
     前端传入
-    Json(QueryType,Page,PageSize)
+    Json(SearchInfo,Page,PageSize)
     后端传出
-    Json(([ProblemId,Title,SubmitNum,CENum,ACNum,WANum,TLENum,MLENum,SENum]),TotalNum)
+    Json(([ProblemId,Title,SubmitNum,CENum,ACNum,WANum,TLENum,MLENum,SENum,Tags]),TotalNum)
 */
 Json::Value MoDB::getProblemSet(Json::Value &queryjson)
 {
-    string querytype = queryjson["QueryType"].asString();
+    cout << queryjson.toStyledString() << endl;
+    Json::Value searchinfo = queryjson["SearchInfo"];
     int page = stoi(queryjson["Page"].asString());
     int pagesize = stoi(queryjson["PageSize"].asString());
     int skip = (page - 1) * pagesize;
@@ -718,7 +737,39 @@ Json::Value MoDB::getProblemSet(Json::Value &queryjson)
     Json::Reader reader;
     mongocxx::pipeline pipe, pipetot;
     bsoncxx::builder::stream::document document{};
+    // 查询ID
+    if (searchinfo["Id"].asString().size() > 0)
+    {
+        int id = mystoi(searchinfo["Id"].asString());
+        pipe.match({make_document(kvp("_id", id))});
+        pipetot.match({make_document(kvp("_id", id))});
+    }
 
+    // 查询标题
+    document
+        << "Title" << open_document
+        << "$regex" << searchinfo["Title"].asString()
+        << close_document;
+    pipe.match(document.view());
+    pipetot.match(document.view());
+    document.clear();
+
+    // 查询标签
+    if (searchinfo["Tags"].size() > 0)
+    {
+        auto in_array = document
+                        << "Tags" << open_document
+                        << "$in" << open_array;
+        for (int i = 0; i < searchinfo["Tags"].size(); i++)
+        {
+            in_array = in_array
+                       << searchinfo["Tags"][i].asString();
+        }
+        bsoncxx::document::value doc = in_array << close_array << close_document << finalize;
+        pipe.match(doc.view());
+        pipetot.match(doc.view());
+        document.clear();
+    }
     // 获取总条数
     pipetot.count("TotalNum");
     mongocxx::cursor cursor = problemcoll.aggregate(pipetot);
@@ -726,7 +777,6 @@ Json::Value MoDB::getProblemSet(Json::Value &queryjson)
     {
         reader.parse(bsoncxx::to_json(doc), resjson);
     }
-    // TODO:查询条件
 
     // 排序
     pipe.sort({make_document(kvp("_id", 1))});
@@ -744,7 +794,8 @@ Json::Value MoDB::getProblemSet(Json::Value &queryjson)
         << "ACNum" << 1
         << "WANum" << 1
         << "TLENum" << 1
-        << "MLENum" << 1;
+        << "MLENum" << 1
+        << "Tags" << 1;
     pipe.project(document.view());
 
     Json::Value arryjson;
