@@ -282,6 +282,21 @@ void doGetStatusRecord(const httplib::Request &req, httplib::Response &res)
     printf("doGetProblemSet end!!!\n");
     res.set_content(resvalue.toStyledString(), "json");
 }
+void doGetStatusRecordInfo(const httplib::Request &req, httplib::Response &res)
+{
+    printf("doGetStatusRecordInfo start!!!\n");
+    // 默认为 1
+    string submitid = "1";
+    if (req.has_param("SubmitId"))
+    {
+        submitid = req.get_param_value("SubmitId");
+    }
+    Json::Value queryjson;
+    queryjson["SubmitId"] = submitid;
+    Json::Value resjson = control.SelectOneStatusRecord(queryjson);
+    printf("doGetStatusRecordInfo end!!!\n");
+    res.set_content(resjson.toStyledString(), "json");
+}
 
 void doGetArticle(const httplib::Request &req, httplib::Response &res)
 {
@@ -508,6 +523,9 @@ int main()
 
     // 获取状态记录
     server.Get("/statusrecord", doGetStatusRecord);
+    // 获取一条测评记录
+    server.Get("/statusrecord/info", doGetStatusRecordInfo);
+
     // 提交代码
     server.Post("/problemcode", doPostCode);
     // 获取图片资源

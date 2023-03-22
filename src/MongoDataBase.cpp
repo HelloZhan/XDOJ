@@ -961,7 +961,6 @@ Json::Value MoDB::UpdateStatusRecord(Json::Value &updatejson)
     {
         reader.parse(bsoncxx::to_json(doc), resjson);
     }
-    cout << resjson.toStyledString() << endl;
     return resjson;
 }
 /*
@@ -998,6 +997,18 @@ Json::Value MoDB::SelectStatusRecord(Json::Value &queryjson)
     // 限制
     pipe.limit(pagesize);
 
+    document
+        << "ProbleId" << 1
+        << "UserId" << 1
+        << "UserNickName" << 1
+        << "ProblemTitle" << 1
+        << "Status" << 1
+        << "RunTime" << 1
+        << "RunMemory" << 1
+        << "Length" << 1
+        << "Language" << 1
+        << "SubmitTime" << 1;
+    pipe.project(document.view());
     Json::Value arryjson;
     cursor = statusrecordcoll.aggregate(pipe);
     for (auto doc : cursor)
@@ -1010,6 +1021,27 @@ Json::Value MoDB::SelectStatusRecord(Json::Value &queryjson)
     return resjson;
 }
 
+/*
+    功能：查询一条详细测评记录
+    传入：Json(SubmitId)
+    传出：全部记录，详情请看MongoDB集合表
+*/
+Json::Value MoDB::SelectOneStatusRecord(Json::Value &queryjson)
+{
+    int64_t submitid = stoll(queryjson["SubmitId"].asString());
+    auto client = pool.acquire();
+    mongocxx::collection statusrecordcoll = (*client)["XDOJ"]["StatusRecord"];
+
+    // 查询测评记录
+    Json::Reader reader;
+    Json::Value resjson;
+    mongocxx::cursor cursor = statusrecordcoll.find({{make_document(kvp("_id", submitid))}});
+    for (auto doc : cursor)
+    {
+        reader.parse(bsoncxx::to_json(doc), resjson);
+    }
+    return resjson;
+}
 /*
     功能：添加讨论
     传入：Json(Title,Content,ParentId,UserId) 如果是父讨论ParentId=0

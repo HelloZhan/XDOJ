@@ -18,6 +18,9 @@ public:
     // 更新测评信息返回测评结果
     Json::Value UpdateStatusRecord(Json::Value &updatejson);
 
+    // 查询一条详细测评记录
+    Json::Value SelectOneStatusRecord(Json::Value &queryjson);
+
 private:
     StatusRecord();
     ~StatusRecord();

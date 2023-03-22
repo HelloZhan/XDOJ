@@ -165,6 +165,13 @@ public:
     */
     Json::Value SelectStatusRecord(Json::Value &queryjson);
 
+    /*
+        功能：查询一条详细测评记录
+        传入：Json(SubmitId)
+        传出：全部记录，详情请看MongoDB集合表
+    */
+    Json::Value SelectOneStatusRecord(Json::Value &queryjson);
+
     // +++++++++++++++++++++++++Disscuss 讨论表++++++++++++++++++++++++++++
 
     /*

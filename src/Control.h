@@ -50,8 +50,12 @@ public:
     // 返回判题信息
     Json::Value GetJudgeCode(Json::Value judgejson);
 
+    // ---------------测评表-------------------------
     // 返回状态记录的信息
     Json::Value SelectStatusRecordInfo(Json::Value &queryjson);
+
+    // 查询一条详细测评记录
+    Json::Value SelectOneStatusRecord(Json::Value &queryjson);
 
     // ---------------评论Comment-------------------
     // 获取评论 根据Id

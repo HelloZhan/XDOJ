@@ -25,6 +25,11 @@ Json::Value StatusRecord::UpdateStatusRecord(Json::Value &updatejson)
     return MoDB::GetInstance().UpdateStatusRecord(updatejson);
 }
 
+Json::Value StatusRecord::SelectOneStatusRecord(Json::Value &queryjson)
+{
+    return MoDB::GetInstance().SelectOneStatusRecord(queryjson);
+}
+
 StatusRecord::StatusRecord()
 {
 }

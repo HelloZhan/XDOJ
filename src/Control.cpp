@@ -136,6 +136,11 @@ Json::Value Control::SelectStatusRecordInfo(Json::Value &queryjson)
 	return StatusRecord::GetInstance().SelectStatusRecordInfo(queryjson);
 }
 
+Json::Value Control::SelectOneStatusRecord(Json::Value &queryjson)
+{
+	return StatusRecord::GetInstance().SelectOneStatusRecord(queryjson);
+}
+
 Json::Value Control::GetComment(Json::Value &queryjson)
 {
 	if (queryjson["Type"].asString() == "Father")
