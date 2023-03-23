@@ -4,6 +4,7 @@
 #include "StatusRecord.h"
 #include "Discuss.h"
 #include "Comment.h"
+#include "Solution.h"
 #include "Tag.h"
 #include <iostream>
 using namespace std;
@@ -165,6 +166,10 @@ Json::Value Control::InsertComment(Json::Value &insertjson)
 	{
 		Discuss::GetInstance().UpdateDiscussComments(updatejson);
 	}
+	else if (insertjson["ArticleType"].asString() == "Solution")
+	{
+		Solution::GetInstance().UpdateSolutionComments(updatejson);
+	}
 
 	if (type == "Father") // 父评论
 	{
@@ -216,6 +221,10 @@ Json::Value Control::SelectArticle(Json::Value &queryjson)
 	{
 		return Discuss::GetInstance().SelectDiscuss(queryjson);
 	}
+	else if (queryjson["ArticleType"].asString() == "Solution")
+	{
+		return Solution::GetInstance().SelectSolution(queryjson);
+	}
 }
 
 Json::Value Control::SelectArticleByEdit(Json::Value &queryjson)
@@ -223,6 +232,10 @@ Json::Value Control::SelectArticleByEdit(Json::Value &queryjson)
 	if (queryjson["ArticleType"].asString() == "Discuss")
 	{
 		return Discuss::GetInstance().SelectDiscussByEdit(queryjson);
+	}
+	else if (queryjson["ArticleType"].asString() == "Solution")
+	{
+		return Solution::GetInstance().SelectSolutionByEdit(queryjson);
 	}
 }
 
@@ -232,6 +245,10 @@ Json::Value Control::SelectArticleContent(Json::Value &queryjson)
 	{
 		return Discuss::GetInstance().SelectDiscussContent(queryjson);
 	}
+	else if (queryjson["ArticleType"].asString() == "Solution")
+	{
+		return Solution::GetInstance().SelectSolutionContent(queryjson);
+	}
 }
 
 Json::Value Control::InsertArticle(Json::Value &insertjson)
@@ -240,8 +257,9 @@ Json::Value Control::InsertArticle(Json::Value &insertjson)
 	{
 		return Discuss::GetInstance().InsertDiscuss(insertjson);
 	}
-	else // TODO:插入题解
+	else if (insertjson["ArticleType"].asString() == "Solution")
 	{
+		return Solution::GetInstance().InsertSolution(insertjson);
 	}
 }
 
@@ -251,8 +269,9 @@ Json::Value Control::UpdateArticle(Json::Value &updatejson)
 	{
 		return Discuss::GetInstance().UpdateDiscuss(updatejson);
 	}
-	else // TODO：更新题解
+	else if (updatejson["ArticleType"].asString() == "Solution")
 	{
+		return Solution::GetInstance().UpdateSolution(updatejson);
 	}
 }
 
@@ -264,6 +283,10 @@ Json::Value Control::DeleteArticle(Json::Value &deletejson)
 	if (deletejson["ArticleType"].asString() == "Discuss")
 	{
 		return Discuss::GetInstance().DeleteDiscuss(deletejson);
+	}
+	else if (deletejson["ArticleType"].asString() == "Solution")
+	{
+		return Solution::GetInstance().DeleteSolution(deletejson);
 	}
 }
 
