@@ -85,6 +85,18 @@
             "UpdateTime": "time"
         }
     ],
+    "Announcement": [
+        {
+            "_id": "int64_t",
+            "Title": "string",
+            "Content": "string",
+            "UserId": "int64_t",
+            "Views": "int",
+            "Comments": "int",
+            "CreatTime": "time",
+            "UpdateTime": "time"
+        }
+    ],
     "Comment": [
         {
             "_id": "int64_t",
