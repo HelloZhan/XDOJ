@@ -965,21 +965,40 @@ Json::Value MoDB::UpdateStatusRecord(Json::Value &updatejson)
 }
 /*
     功能：分页查询测评记录
-    传入：Json(QueryType,PageSize,Page)
+    传入：Json(SearchInfo,PageSize,Page)
     传出：测评全部信息，详情请见MongoDB集合表
 */
 Json::Value MoDB::SelectStatusRecord(Json::Value &queryjson)
 {
-    string querytype = queryjson["QueryType"].asString();
+    cout << queryjson.toStyledString() << endl;
+    Json::Value searchinfo = queryjson["SearchInfo"];
     int page = stoi(queryjson["Page"].asString());
     int pagesize = stoi(queryjson["PageSize"].asString());
     int skip = (page - 1) * pagesize;
+
     Json::Value resjson;
     Json::Reader reader;
     mongocxx::pipeline pipe, pipetot;
     bsoncxx::builder::stream::document document{};
     auto client = pool.acquire();
     mongocxx::collection statusrecordcoll = (*client)["XDOJ"]["StatusRecord"];
+
+    int problemid = stoi(searchinfo["ProblemId"].asString());
+    int64_t userid = stoll(searchinfo["UserId"].asString());
+
+    // 查询题目
+    if (problemid > 0)
+    {
+        pipe.match({{make_document(kvp("ProblmId", problemid))}});
+        pipetot.match({{make_document(kvp("ProblmId", problemid))}});
+    }
+    // 查询用户ID
+    if (userid > 0)
+    {
+        pipe.match({{make_document(kvp("UserId", userid))}});
+        pipetot.match({{make_document(kvp("UserId", userid))}});
+        cout << userid << endl;
+    }
 
     // 获取总条数
     pipetot.count("TotalNum");
@@ -988,7 +1007,6 @@ Json::Value MoDB::SelectStatusRecord(Json::Value &queryjson)
     {
         reader.parse(bsoncxx::to_json(doc), resjson);
     }
-    // TODO:查询条件
 
     // 排序
     pipe.sort({make_document(kvp("SubmitTime", -1))});

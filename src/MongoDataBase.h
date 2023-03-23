@@ -160,7 +160,7 @@ public:
 
     /*
         功能：分页查询测评记录
-        传入：Json(QueryType,PageSize,Page)
+        传入：Json(SearchInfo,PageSize,Page)
         传出：测评全部信息，详情请见MongoDB集合表
     */
     Json::Value SelectStatusRecord(Json::Value &queryjson);
@@ -203,8 +203,8 @@ public:
     Json::Value SelectDiscussContent(Json::Value &queryjson);
 
     /*
-        功能：修改讨论的评论数（加一或减一）
-        传入：Json(DiscussId,Num(1,-1))
+        功能：修改讨论的评论数
+        传入：Json(DiscussId,Num)
         传出：bool
     */
     bool UpdateDiscussComments(Json::Value &updatejson);

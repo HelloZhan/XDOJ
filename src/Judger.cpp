@@ -385,6 +385,7 @@ bool Judger::JudgmentResult(struct result *res, string &index)
             if (strcmp(standardanswer.data(), calculateanswer.data()) != 0)
             {
                 testinfo["Status"] = WA;
+                m_result = WA;
                 m_reason = "standardanswer = " + standardanswer + ",calculateanswer = " + calculateanswer + ";";
             }
         }

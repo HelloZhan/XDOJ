@@ -242,11 +242,13 @@ void doPostCode(const httplib::Request &req, httplib::Response &res)
 void doGetStatusRecord(const httplib::Request &req, httplib::Response &res)
 {
     printf("doGetStatusRecord start!!!\n");
-    string querytype = "all";
+    Json::Value searchinfo;
 
-    if (req.has_param("QueryType"))
+    if (req.has_param("SearchInfo"))
     {
-        querytype = req.get_param_value("QueryType");
+        Json::Reader reader;
+        // 解析传入的json
+        reader.parse(req.get_param_value("SearchInfo"), searchinfo);
     }
 
     string page = "1";
@@ -261,23 +263,10 @@ void doGetStatusRecord(const httplib::Request &req, httplib::Response &res)
         pagesize = req.get_param_value("PageSize");
     }
 
-    string userid = "0";
-    if (req.has_param("UserId"))
-    {
-        pagesize = req.get_param_value("UserId");
-    }
-
-    string problemid = "0";
-    if (req.has_param("ProblemId"))
-    {
-        pagesize = req.get_param_value("ProblemId");
-    }
     Json::Value queryjson;
-    queryjson["QueryType"] = querytype;
+    queryjson["SearchInfo"] = searchinfo;
     queryjson["Page"] = page;
     queryjson["PageSize"] = pagesize;
-    queryjson["UserId"] = userid;
-    queryjson["ProblemId"] = problemid;
     Json::Value resvalue = control.SelectStatusRecordInfo(queryjson);
     printf("doGetProblemSet end!!!\n");
     res.set_content(resvalue.toStyledString(), "json");
