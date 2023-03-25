@@ -625,7 +625,6 @@ Json::Value MoDB::InsertProblem(Json::Value &insertjson)
 */
 Json::Value MoDB::UpdateProblem(Json::Value &updatejson)
 {
-    cout << updatejson.toStyledString() << endl;
     int problemid = stoi(updatejson["ProblemId"].asString());
     string title = updatejson["Title"].asString();
     string description = updatejson["Description"].asString();
@@ -736,7 +735,6 @@ int mystoi(string num)
 */
 Json::Value MoDB::getProblemSet(Json::Value &queryjson)
 {
-    cout << queryjson.toStyledString() << endl;
     Json::Value searchinfo = queryjson["SearchInfo"];
     int page = stoi(queryjson["Page"].asString());
     int pagesize = stoi(queryjson["PageSize"].asString());
@@ -981,7 +979,6 @@ Json::Value MoDB::UpdateStatusRecord(Json::Value &updatejson)
 */
 Json::Value MoDB::SelectStatusRecord(Json::Value &queryjson)
 {
-    cout << queryjson.toStyledString() << endl;
     Json::Value searchinfo = queryjson["SearchInfo"];
     int page = stoi(queryjson["Page"].asString());
     int pagesize = stoi(queryjson["PageSize"].asString());
@@ -1008,7 +1005,6 @@ Json::Value MoDB::SelectStatusRecord(Json::Value &queryjson)
     {
         pipe.match({{make_document(kvp("UserId", userid))}});
         pipetot.match({{make_document(kvp("UserId", userid))}});
-        cout << userid << endl;
     }
 
     // 获取总条数
@@ -1078,6 +1074,8 @@ Json::Value MoDB::SelectOneStatusRecord(Json::Value &queryjson)
 */
 Json::Value MoDB::InsertDiscuss(Json::Value &insertjson)
 {
+    Json::Value resjson;
+
     uuid.init(1, 1);
     auto id = uuid.nextid();
     string title = insertjson["Title"].asString();
@@ -1100,7 +1098,7 @@ Json::Value MoDB::InsertDiscuss(Json::Value &insertjson)
         << "UpdateTime" << GetTime().data();
 
     auto result = discusscoll.insert_one(document.view());
-    Json::Value resjson;
+
     if ((*result).result().inserted_count() < 1)
     {
         resjson["Result"] = "Fail";
@@ -1117,12 +1115,13 @@ Json::Value MoDB::InsertDiscuss(Json::Value &insertjson)
 */
 Json::Value MoDB::SelectDiscuss(Json::Value &queryjson)
 {
+    Json::Value resjson;
+
     int64_t parentid = stoll(queryjson["ParentId"].asString());
     int page = stoi(queryjson["Page"].asString());
     int pagesize = stoi(queryjson["PageSize"].asString());
     int skip = (page - 1) * pagesize;
 
-    Json::Value resjson;
     Json::Reader reader;
     bsoncxx::builder::stream::document document{};
     mongocxx::pipeline pipe, pipetot;
@@ -1174,13 +1173,75 @@ Json::Value MoDB::SelectDiscuss(Json::Value &queryjson)
 }
 
 /*
+    功能：管理员分页查询讨论
+    传入：Json(Page,PageSize)
+    传出：Json(_id,Title,Views,Comments,CreateTime,User.Avatar,User.NickName)
+*/
+Json::Value MoDB::SelectDiscussByAdmin(Json::Value &queryjson)
+{
+    Json::Value resjson;
+
+    int page = stoi(queryjson["Page"].asString());
+    int pagesize = stoi(queryjson["PageSize"].asString());
+    int skip = (page - 1) * pagesize;
+
+    Json::Reader reader;
+    bsoncxx::builder::stream::document document{};
+    mongocxx::pipeline pipe, pipetot;
+
+    auto client = pool.acquire();
+    mongocxx::collection discusscoll = (*client)["XDOJ"]["Discuss"];
+    // 获取总条数
+    pipetot.count("TotalNum");
+    mongocxx::cursor cursor = discusscoll.aggregate(pipetot);
+    for (auto doc : cursor)
+    {
+        reader.parse(bsoncxx::to_json(doc), resjson);
+    }
+
+    pipe.sort({make_document(kvp("CreateTime", -1))});
+    pipe.skip(skip);
+    pipe.limit(pagesize);
+    document
+        << "from"
+        << "User"
+        << "localField"
+        << "UserId"
+        << "foreignField"
+        << "_id"
+        << "as"
+        << "User";
+    pipe.lookup(document.view());
+
+    document.clear();
+    document
+        << "Title" << 1
+        << "Views" << 1
+        << "Comments" << 1
+        << "CreateTime" << 1
+        << "User.Avatar" << 1
+        << "User.NickName" << 1;
+    pipe.project(document.view());
+
+    cursor = discusscoll.aggregate(pipe);
+    for (auto doc : cursor)
+    {
+        Json::Value jsonvalue;
+        reader.parse(bsoncxx::to_json(doc), jsonvalue);
+        resjson["ArrayInfo"].append(jsonvalue);
+    }
+    return resjson;
+}
+/*
     功能：查询讨论的详细信息，主要是编辑时的查询
-    传入：Json(ArticleId)
+    传入：Json(DiscussId)
     传出：Json(Result,Reason,Title,Content)
 */
 Json::Value MoDB::SelectDiscussByEdit(Json::Value &queryjson)
 {
-    int64_t discussid = stoll(queryjson["ArticleId"].asString());
+    Json::Value resjson;
+
+    int64_t discussid = stoll(queryjson["DiscussId"].asString());
 
     auto client = pool.acquire();
     mongocxx::collection discusscoll = (*client)["XDOJ"]["Discuss"];
@@ -1195,7 +1256,7 @@ Json::Value MoDB::SelectDiscussByEdit(Json::Value &queryjson)
     mongocxx::cursor cursor = discusscoll.aggregate(pipe);
 
     Json::Reader reader;
-    Json::Value resjson;
+
     if (cursor.begin() == cursor.end())
     {
         resjson["Result"] = "Fail";
@@ -1211,12 +1272,14 @@ Json::Value MoDB::SelectDiscussByEdit(Json::Value &queryjson)
 }
 /*
     功能：查询讨论的详细内容，并且将其浏览量加一
-    传入：Json(ArticleId)
-    传出：Json(Content)
+    传入：Json(DiscussId)
+    传出：Json(Resutl,Reason,Content,Views,Comments,CreateTime,UpdateTime,User.NickName,User.Avatar)
 */
 Json::Value MoDB::SelectDiscussContent(Json::Value &queryjson)
 {
-    int64_t discussid = stoll(queryjson["ArticleId"].asString());
+    Json::Value resjson;
+
+    int64_t discussid = stoll(queryjson["DiscussId"].asString());
 
     auto client = pool.acquire();
     mongocxx::collection discusscoll = (*client)["XDOJ"]["Discuss"];
@@ -1232,17 +1295,42 @@ Json::Value MoDB::SelectDiscussContent(Json::Value &queryjson)
     pipe.match({make_document(kvp("_id", discussid))});
     document.clear();
     document
-        << "Content" << 1;
+        << "from"
+        << "User"
+        << "localField"
+        << "UserId"
+        << "foreignField"
+        << "_id"
+        << "as"
+        << "User";
+    pipe.lookup(document.view());
+
+    document.clear();
+    document
+        << "Title" << 1
+        << "Content" << 1
+        << "Views" << 1
+        << "Comments" << 1
+        << "CreateTime" << 1
+        << "UpdateTime" << 1
+        << "User.Avatar" << 1
+        << "User.NickName" << 1;
     pipe.project(document.view());
     mongocxx::cursor cursor = discusscoll.aggregate(pipe);
 
+    if (cursor.begin() == cursor.end())
+    {
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "数据库未查询到数据，可能是请求参数错误！";
+        return resjson;
+    }
+
     Json::Reader reader;
-    Json::Value resjson;
     for (auto doc : cursor)
     {
         reader.parse(bsoncxx::to_json(doc), resjson);
     }
-
+    resjson["Result"] = "Success";
     return resjson;
 }
 
@@ -1268,12 +1356,12 @@ bool MoDB::UpdateDiscussComments(Json::Value &updatejson)
 
 /*
     功能：更新讨论
-    传入：Json(ArticleId,Title,Content)
+    传入：Json(DiscussId,Title,Content)
     传出；Json(Result,Reason)
 */
 Json::Value MoDB::UpdateDiscuss(Json::Value &updatejson)
 {
-    int64_t articleid = stoll(updatejson["ArticleId"].asString());
+    int64_t discussid = stoll(updatejson["DiscussId"].asString());
     string title = updatejson["Title"].asString();
     string content = updatejson["Content"].asString();
 
@@ -1288,7 +1376,7 @@ Json::Value MoDB::UpdateDiscuss(Json::Value &updatejson)
         << "UpdateTime" << GetTime().data()
         << close_document;
 
-    auto result = discusscoll.update_one({make_document(kvp("_id", articleid))}, document.view());
+    auto result = discusscoll.update_one({make_document(kvp("_id", discussid))}, document.view());
     Json::Value resjson;
     if ((*result).modified_count() < 1)
     {
@@ -1302,17 +1390,17 @@ Json::Value MoDB::UpdateDiscuss(Json::Value &updatejson)
 
 /*
     功能：删除讨论
-    传入：Json(ArticleId)
+    传入：Json(DiscussId)
     传出：Json(Result,Reason)
 */
 Json::Value MoDB::DeleteDiscuss(Json::Value &deletejson)
 {
-    int64_t articleid = stoll(deletejson["ArticleId"].asString());
+    int64_t discussid = stoll(deletejson["DiscussId"].asString());
 
     auto client = pool.acquire();
     mongocxx::collection discusscoll = (*client)["XDOJ"]["Discuss"];
 
-    auto result = discusscoll.delete_one({make_document(kvp("_id", articleid))});
+    auto result = discusscoll.delete_one({make_document(kvp("_id", discussid))});
     Json::Value resjson;
     if ((*result).deleted_count() < 1)
     {
@@ -1629,7 +1717,6 @@ bool MoDB::UpdateSolutionComments(Json::Value &updatejson)
 */
 Json::Value MoDB::UpdateSolution(Json::Value &updatejson)
 {
-    cout << updatejson.toStyledString() << endl;
     Json::Value resjson;
 
     int64_t solutionid = stoll(updatejson["SolutionId"].asString());
@@ -2242,7 +2329,6 @@ Json::Value MoDB::InsertSonComment(Json::Value &insertjson)
         << createtime.data()
         << close_document
         << close_document;
-    std::cout << "the document:" << bsoncxx::to_json(document) << std::endl;
 
     commentcoll.update_one({make_document(kvp("_id", parentid))}, document.view());
 

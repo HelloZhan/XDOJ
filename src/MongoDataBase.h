@@ -189,16 +189,23 @@ public:
     Json::Value SelectDiscuss(Json::Value &queryjson);
 
     /*
+        功能：管理员分页查询讨论
+        传入：Json(Page,PageSize)
+        传出：Json(_id,Title,Views,Comments,CreateTime,User.Avatar,User.NickName)
+    */
+    Json::Value SelectDiscussByAdmin(Json::Value &queryjson);
+
+    /*
         功能：查询讨论的详细信息，主要是编辑时的查询
-        传入：Json(ArticleId)
+        传入：Json(DiscussId)
         传出：Json(Result,Reason,Title,Content)
     */
     Json::Value SelectDiscussByEdit(Json::Value &queryjson);
 
     /*
         功能：查询讨论的详细内容，并且将其浏览量加一
-        传入：Json(ArticleId)
-        传出：Json(Content)
+        传入：Json(DiscussId)
+        传出：Json(Resutl,Reason,Content,Views,Comments,CreateTime,UpdateTime,User.NickName,User.Avatar)
     */
     Json::Value SelectDiscussContent(Json::Value &queryjson);
 
@@ -211,14 +218,14 @@ public:
 
     /*
         功能：更新讨论
-        传入：Json(ArticleId,Title,Content)
+        传入：Json(DiscussId,Title,Content)
         传出；Json(Result,Reason)
     */
     Json::Value UpdateDiscuss(Json::Value &updatejson);
 
     /*
         功能：删除讨论
-        传入：Json(ArticleId)
+        传入：Json(DiscussId)
         传出：Json(Result,Reason)
     */
     Json::Value DeleteDiscuss(Json::Value &deletejson);

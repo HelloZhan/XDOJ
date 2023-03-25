@@ -107,6 +107,28 @@ public:
 
     // 删除题解
     Json::Value DeleteSolution(Json::Value &deletejson);
+
+    // ----------------------讨论-----------------------
+    // 查询题解列表
+    Json::Value SelectDiscuss(Json::Value &queryjson);
+
+    // 管理员查询
+    Json::Value SelectDiscussByAdmin(Json::Value &queryjson);
+
+    // 查询题解
+    Json::Value SelectDiscussContent(Json::Value &queryjson);
+
+    // 查询题解进行编辑
+    Json::Value SelectDiscussByEdit(Json::Value &queryjson);
+
+    // 插入题解
+    Json::Value InsertDiscuss(Json::Value &insertjson);
+
+    // 更新题解
+    Json::Value UpdateDiscuss(Json::Value &updatejson);
+
+    // 删除题解
+    Json::Value DeleteDiscuss(Json::Value &deletejson);
     // -------文章 Article （包含Solution，Discuss，Announcement）---------
 
     // 分页查询讨论

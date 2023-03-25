@@ -514,6 +514,134 @@ void doDeleteSolution(const httplib::Request &req, httplib::Response &res)
     res.set_content(resjson.toStyledString(), "json");
 }
 
+// ------------------讨论------------------------------
+void doGetDiscuss(const httplib::Request &req, httplib::Response &res)
+{
+    printf("doGetDiscuss start!!!\n");
+    string parentid = "1";
+    if (req.has_param("ParentId"))
+    {
+        parentid = req.get_param_value("ParentId");
+    }
+    string page = "1";
+    if (req.has_param("Page"))
+    {
+        page = req.get_param_value("Page");
+    }
+
+    string pagesize = "10";
+    if (req.has_param("PageSize"))
+    {
+        pagesize = req.get_param_value("PageSize");
+    }
+    Json::Value queryjson;
+    queryjson["ParentId"] = parentid;
+    queryjson["Page"] = page;
+    queryjson["PageSize"] = pagesize;
+    Json::Value resjson = control.SelectDiscuss(queryjson);
+
+    printf("doGetDiscuss end!!!\n");
+    res.set_content(resjson.toStyledString(), "json");
+}
+
+void doGetDiscussByAdmin(const httplib::Request &req, httplib::Response &res)
+{
+    printf("doGetDiscussByAdmin start!!!\n");
+    string page = "1";
+    if (req.has_param("Page"))
+    {
+        page = req.get_param_value("Page");
+    }
+
+    string pagesize = "10";
+    if (req.has_param("PageSize"))
+    {
+        pagesize = req.get_param_value("PageSize");
+    }
+    Json::Value queryjson;
+    queryjson["Page"] = page;
+    queryjson["PageSize"] = pagesize;
+    Json::Value resjson = control.SelectDiscussByAdmin(queryjson);
+
+    printf("doGetDiscussByAdmin end!!!\n");
+    res.set_content(resjson.toStyledString(), "json");
+}
+void doGetDiscussContent(const httplib::Request &req, httplib::Response &res)
+{
+    printf("doGetDiscussContent start!!!\n");
+
+    string discussid = "0";
+    if (req.has_param("DiscussId"))
+    {
+        discussid = req.get_param_value("DiscussId");
+    }
+
+    Json::Value queryjson;
+    queryjson["DiscussId"] = discussid;
+
+    Json::Value resjson = control.SelectDiscussContent(queryjson);
+    printf("doGetDiscussContent end!!!\n");
+    res.set_content(resjson.toStyledString(), "json");
+}
+
+void doSelectDiscuss(const httplib::Request &req, httplib::Response &res)
+{
+    printf("doSelectDiscuss start!!!\n");
+
+    string discussid = "0";
+    if (req.has_param("DiscussId"))
+    {
+        discussid = req.get_param_value("DiscussId");
+    }
+    Json::Value queryjson;
+    queryjson["DiscussId"] = discussid;
+
+    Json::Value resjson = control.SelectDiscussByEdit(queryjson);
+    printf("doSelectDiscuss end!!!\n");
+    res.set_content(resjson.toStyledString(), "json");
+}
+
+void doInsertDiscuss(const httplib::Request &req, httplib::Response &res)
+{
+    printf("doInsertSolution start!!!\n");
+    Json::Value jsonvalue;
+    Json::Reader reader;
+    // 解析传入的json
+    reader.parse(req.body, jsonvalue);
+    Json::Value resjson = control.InsertDiscuss(jsonvalue);
+    printf("doInsertSolution end!!!\n");
+    res.set_content(resjson.toStyledString(), "json");
+}
+
+void doUpdateDiscuss(const httplib::Request &req, httplib::Response &res)
+{
+    printf("doUpdateSolution start!!!\n");
+    Json::Value jsonvalue;
+    Json::Reader reader;
+    // 解析传入的json
+    reader.parse(req.body, jsonvalue);
+    Json::Value resjson = control.UpdateDiscuss(jsonvalue);
+    printf("doUpdateSolution end!!!\n");
+    res.set_content(resjson.toStyledString(), "json");
+}
+
+void doDeleteDiscuss(const httplib::Request &req, httplib::Response &res)
+{
+    printf("doDeleteDiscuss start!!!\n");
+
+    string discussid = "0";
+    if (req.has_param("DiscussId"))
+    {
+        discussid = req.get_param_value("DiscussId");
+    }
+    Json::Value deletejson;
+    deletejson["DiscussId"] = discussid;
+
+    Json::Value resjson = control.DeleteDiscuss(deletejson);
+    printf("doDeleteDiscuss end!!!\n");
+    res.set_content(resjson.toStyledString(), "json");
+}
+
 // ------------------------文章-----------------
 void doGetArticle(const httplib::Request &req, httplib::Response &res)
 {
@@ -788,6 +916,28 @@ int main()
 
     // 用户删除题解
     server.Delete("/solution", doDeleteSolution);
+
+    // -------------讨论------------------------
+    // 获取讨论列表
+    server.Get("/discuss", doGetDiscuss);
+
+    // 管理员获取讨论列表
+    server.Get("/discuss/admin", doGetDiscussByAdmin);
+
+    // 获取讨论内容
+    server.Get("/discuss/content", doGetDiscussContent);
+
+    // 获取讨论信息用于编辑
+    server.Get("/discuss/select", doSelectDiscuss);
+
+    // 用户提交讨论
+    server.Post("/discuss/insert", doInsertDiscuss);
+
+    // 用户修改讨论
+    server.Post("/discuss/update", doUpdateDiscuss);
+
+    // 用户删除讨论
+    server.Delete("/discuss", doDeleteDiscuss);
     // -------------文章--------------------------
 
     // 获取文章

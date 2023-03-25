@@ -284,6 +284,41 @@ Json::Value Control::DeleteSolution(Json::Value &deletejson)
 	return Solution::GetInstance().DeleteSolution(deletejson);
 }
 
+// ----------------------讨论----------------------------
+Json::Value Control::SelectDiscuss(Json::Value &queryjson)
+{
+	return Discuss::GetInstance().SelectDiscuss(queryjson);
+}
+
+Json::Value Control::SelectDiscussByAdmin(Json::Value &queryjson)
+{
+	return Discuss::GetInstance().SelectDiscussByAdmin(queryjson);
+}
+
+Json::Value Control::SelectDiscussContent(Json::Value &queryjson)
+{
+	return Discuss::GetInstance().SelectDiscussContent(queryjson);
+}
+
+Json::Value Control::SelectDiscussByEdit(Json::Value &queryjson)
+{
+	return Discuss::GetInstance().SelectDiscussByEdit(queryjson);
+}
+
+Json::Value Control::InsertDiscuss(Json::Value &insertjson)
+{
+	return Discuss::GetInstance().InsertDiscuss(insertjson);
+}
+
+Json::Value Control::UpdateDiscuss(Json::Value &updatejson)
+{
+	return Discuss::GetInstance().UpdateDiscuss(updatejson);
+}
+Json::Value Control::DeleteDiscuss(Json::Value &deletejson)
+{
+	return Discuss::GetInstance().DeleteDiscuss(deletejson);
+}
+
 Json::Value Control::SelectArticle(Json::Value &queryjson)
 {
 	if (queryjson["ArticleType"].asString() == "Discuss")
