@@ -220,6 +220,36 @@ Json::Value Control::DeleteComment(Json::Value &deletejson)
 	return resjson;
 }
 
+Json::Value Control::SelectAnnouncement(Json::Value &queryjson)
+{
+	return Announcement::GetInstance().SelectAnnouncement(queryjson);
+}
+
+Json::Value Control::SelectAnnouncementContent(Json::Value &queryjson)
+{
+	return Announcement::GetInstance().SelectAnnouncementContent(queryjson);
+}
+
+Json::Value Control::SelectAnnouncementByEdit(Json::Value &queryjson)
+{
+	return Announcement::GetInstance().SelectAnnouncementByEdit(queryjson);
+}
+
+Json::Value Control::InsertAnnouncement(Json::Value &insertjson)
+{
+	return Announcement::GetInstance().InsertAnnouncement(insertjson);
+}
+
+Json::Value Control::UpdateAnnouncement(Json::Value &updatejson)
+{
+	return Announcement::GetInstance().UpdateAnnouncement(updatejson);
+}
+
+Json::Value Control::DeleteAnnouncement(Json::Value &deletejson)
+{
+	return Announcement::GetInstance().DeleteAnnouncement(deletejson);
+}
+
 Json::Value Control::SelectArticle(Json::Value &queryjson)
 {
 	if (queryjson["ArticleType"].asString() == "Discuss")

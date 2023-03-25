@@ -287,6 +287,105 @@ void doGetStatusRecordInfo(const httplib::Request &req, httplib::Response &res)
     res.set_content(resjson.toStyledString(), "json");
 }
 
+void doGetAnnouncement(const httplib::Request &req, httplib::Response &res)
+{
+    printf("doGetAnnouncement start!!!\n");
+    string page = "1";
+    if (req.has_param("Page"))
+    {
+        page = req.get_param_value("Page");
+    }
+
+    string pagesize = "10";
+    if (req.has_param("PageSize"))
+    {
+        pagesize = req.get_param_value("PageSize");
+    }
+    Json::Value queryjson;
+    queryjson["Page"] = page;
+    queryjson["PageSize"] = pagesize;
+    Json::Value resjson = control.SelectAnnouncement(queryjson);
+
+    printf("doGetAnnouncement end!!!\n");
+    res.set_content(resjson.toStyledString(), "json");
+}
+
+void doGetAnnouncementContent(const httplib::Request &req, httplib::Response &res)
+{
+    printf("doGetAnnouncementContent start!!!\n");
+
+    string announcementid = "0";
+    if (req.has_param("AnnouncementId"))
+    {
+        announcementid = req.get_param_value("AnnouncementId");
+    }
+
+    Json::Value queryjson;
+    queryjson["AnnouncementId"] = announcementid;
+
+    Json::Value resjson = control.SelectAnnouncementContent(queryjson);
+    printf("doGetAnnouncementContent end!!!\n");
+    res.set_content(resjson.toStyledString(), "json");
+}
+
+void doSelectAnnouncement(const httplib::Request &req, httplib::Response &res)
+{
+    printf("doSelectAnnouncement start!!!\n");
+
+    string announcementid = "0";
+    if (req.has_param("AnnouncementId"))
+    {
+        announcementid = req.get_param_value("AnnouncementId");
+    }
+    Json::Value queryjson;
+    queryjson["AnnouncementId"] = announcementid;
+
+    Json::Value resjson = control.SelectAnnouncementByEdit(queryjson);
+    printf("doSelectAnnouncement end!!!\n");
+    res.set_content(resjson.toStyledString(), "json");
+}
+
+void doInsertAnnouncement(const httplib::Request &req, httplib::Response &res)
+{
+    printf("doInsertAnnouncement start!!!\n");
+    Json::Value jsonvalue;
+    Json::Reader reader;
+    // 解析传入的json
+    reader.parse(req.body, jsonvalue);
+    Json::Value resjson = control.InsertAnnouncement(jsonvalue);
+    printf("doInsertAnnouncement end!!!\n");
+    res.set_content(resjson.toStyledString(), "json");
+}
+
+void doUpdateAnnouncement(const httplib::Request &req, httplib::Response &res)
+{
+    printf("doUpdateAnnouncement start!!!\n");
+    Json::Value jsonvalue;
+    Json::Reader reader;
+    // 解析传入的json
+    reader.parse(req.body, jsonvalue);
+    Json::Value resjson = control.UpdateAnnouncement(jsonvalue);
+    printf("doUpdateAnnouncement end!!!\n");
+    res.set_content(resjson.toStyledString(), "json");
+}
+
+void doDeleteAnnouncement(const httplib::Request &req, httplib::Response &res)
+{
+    printf("doDeleteAnnouncement start!!!\n");
+
+    string announcementid = "0";
+    if (req.has_param("AnnouncementId"))
+    {
+        announcementid = req.get_param_value("AnnouncementId");
+    }
+    Json::Value deletejson;
+    deletejson["AnnouncementId"] = announcementid;
+
+    Json::Value resjson = control.DeleteAnnouncement(deletejson);
+    printf("doDeleteAnnouncement end!!!\n");
+    res.set_content(resjson.toStyledString(), "json");
+}
+
 void doGetArticle(const httplib::Request &req, httplib::Response &res)
 {
     printf("doGetArticle start!!!\n");
@@ -520,6 +619,26 @@ int main()
     // 获取图片资源
     server.Get(R"(/image/(\d+))", doGetImage);
 
+    // --------------公告--------------------
+    // 获取公告列表
+    server.Get("/announcement", doGetAnnouncement);
+
+    // 获取公告内容
+    server.Get("/announcement/content", doGetAnnouncementContent);
+
+    // 获取公告信息用于编辑
+    server.Get("/announcement/select", doSelectAnnouncement);
+
+    // 用户提交公告
+    server.Post("/announcement/insert", doInsertAnnouncement);
+
+    // 用户修改文章（讨论，题解）
+    server.Post("/announcement/update", doUpdateAnnouncement);
+
+    // 用户删除公告
+    server.Delete("/announcement", doDeleteAnnouncement);
+    // -------------文章--------------------------
+
     // 获取文章
     server.Get("/article", doGetArticle);
     // 获取评论内容
@@ -533,6 +652,7 @@ int main()
     // 用户删除文章（讨论，题解）
     server.Post("/article/delete", doDeleteArticle);
 
+    // ---------------评论--------------------
     // 获取评论
     server.Get("/comment", doGetComment);
     // 提交评论
@@ -540,7 +660,7 @@ int main()
     // 删除评论
     server.Post("/comment/delete", doDeleteComment);
 
-    // 获取评论
+    // 获取标签
     server.Get("/tags", doGetTags);
     // 设置静态资源
     server.set_base_dir("../WWW");

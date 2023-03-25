@@ -67,6 +67,24 @@ public:
     // 删除评论
     Json::Value DeleteComment(Json::Value &deletejson);
 
+    // ----------------------公告---------------------------
+    // 查询公告列表
+    Json::Value SelectAnnouncement(Json::Value &queryjson);
+
+    // 查询公告
+    Json::Value SelectAnnouncementContent(Json::Value &queryjson);
+
+    // 查询公告 进行编辑
+    Json::Value SelectAnnouncementByEdit(Json::Value &queryjson);
+
+    // 插入公告
+    Json::Value InsertAnnouncement(Json::Value &insertjson);
+
+    // 更新公告
+    Json::Value UpdateAnnouncement(Json::Value &updatejson);
+
+    // 删除公告
+    Json::Value DeleteAnnouncement(Json::Value &deletejson);
     // -------文章 Article （包含Solution，Discuss，Announcement）---------
 
     // 分页查询讨论

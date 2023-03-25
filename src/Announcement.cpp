@@ -24,7 +24,7 @@ Json::Value Announcement::SelectAnnouncementByEdit(Json::Value &queryjson)
 
 Json::Value Announcement::SelectAnnouncementContent(Json::Value &queryjson)
 {
-    return MoDB::GetInstance().SelectDiscussContent(queryjson);
+    return MoDB::GetInstance().SelectAnnouncementContent(queryjson);
 }
 
 bool Announcement::UpdateAnnouncementComments(Json::Value &updatejson)

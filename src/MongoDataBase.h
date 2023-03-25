@@ -278,29 +278,29 @@ public:
 
     /*
         功能：添加公告
-        传入：Json(Title,Content,ParentId,UserId)
-        传出：Json(Result)
+        传入：Json(Title,Content,UserId,Level)
+        传出：Json(Result,Reason)
     */
     Json::Value InsertAnnouncement(Json::Value &insertjson);
 
     /*
         功能：分页查询公告
         传入：Json(Page,PageSize)
-        传出：Json(_id,Title,Views,Comments,CreateTime,User.Avatar,User.NickName)
+        传出：Json([Result,Reason,_id,Title,Views,Comments,CreateTime],TotalNum)
     */
     Json::Value SelectAnnouncement(Json::Value &queryjson);
 
     /*
         功能：查询公告的详细信息，主要是编辑时的查询
-        传入：Json(ArticleId)
-        传出：Json(Result,Reason,Title,Content)
+        传入：Json(AnnouncementId)
+        传出：Json(Result,Reason,Title,Content,Level)
     */
     Json::Value SelectAnnouncementByEdit(Json::Value &queryjson);
 
     /*
         功能：查询公告的详细内容，并且将其浏览量加一
-        传入：Json(ArticleId)
-        传出：Json(Content)
+        传入：Json(AnnouncementId)
+        传出：Json(Title,Content,Views,Comments,CreateTime,UpdateTime)
     */
     Json::Value SelectAnnouncementContent(Json::Value &queryjson);
 
@@ -313,14 +313,14 @@ public:
 
     /*
         功能：更新公告
-        传入：Json(ArticleId,Title,Content)
+        传入：Json(AnnouncementId,Title,Content,Level)
         传出；Json(Result,Reason)
     */
     Json::Value UpdateAnnouncement(Json::Value &updatejson);
 
     /*
         功能：删除公告
-        传入：Json(ArticleId)
+        传入：Json(AnnouncementId)
         传出：Json(Result,Reason)
     */
     Json::Value DeleteAnnouncement(Json::Value &deletejson);

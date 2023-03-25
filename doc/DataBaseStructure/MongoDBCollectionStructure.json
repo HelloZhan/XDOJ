@@ -93,6 +93,7 @@
             "UserId": "int64_t",
             "Views": "int",
             "Comments": "int",
+            "level": "int",
             "CreatTime": "time",
             "UpdateTime": "time"
         }
