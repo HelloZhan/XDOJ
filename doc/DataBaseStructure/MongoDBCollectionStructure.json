@@ -67,7 +67,7 @@
             "UserId": "int64_t",
             "Views": "int",
             "Comments": "int",
-            "CreatTime": "time",
+            "CreateTime": "time",
             "Public": "int",
             "UpdateTime": "time"
         }
@@ -81,7 +81,7 @@
             "UserId": "int64_t",
             "Views": "int",
             "Comments": "int",
-            "CreatTime": "time",
+            "CreateTime": "time",
             "UpdateTime": "time"
         }
     ],
@@ -94,7 +94,7 @@
             "Views": "int",
             "Comments": "int",
             "level": "int",
-            "CreatTime": "time",
+            "CreateTime": "time",
             "UpdateTime": "time"
         }
     ],

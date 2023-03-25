@@ -15,6 +15,9 @@ public:
     // 分页查询题解
     Json::Value SelectSolution(Json::Value &queryjson);
 
+    // 管理员查询
+    Json::Value SelectSolutionByAdmin(Json::Value &queryjson);
+
     // 查询
     Json::Value SelectSolutionByEdit(Json::Value &queryjson);
 

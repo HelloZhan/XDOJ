@@ -219,7 +219,7 @@ Json::Value Control::DeleteComment(Json::Value &deletejson)
 	resjson["Result"] = "Success";
 	return resjson;
 }
-
+// --------------------公告------------------------
 Json::Value Control::SelectAnnouncement(Json::Value &queryjson)
 {
 	return Announcement::GetInstance().SelectAnnouncement(queryjson);
@@ -244,10 +244,44 @@ Json::Value Control::UpdateAnnouncement(Json::Value &updatejson)
 {
 	return Announcement::GetInstance().UpdateAnnouncement(updatejson);
 }
-
 Json::Value Control::DeleteAnnouncement(Json::Value &deletejson)
 {
 	return Announcement::GetInstance().DeleteAnnouncement(deletejson);
+}
+
+// ----------------------题解----------------------------
+Json::Value Control::SelectSolution(Json::Value &queryjson)
+{
+	return Solution::GetInstance().SelectSolution(queryjson);
+}
+
+Json::Value Control::SelectSolutionByAdmin(Json::Value &queryjson)
+{
+	return Solution::GetInstance().SelectSolutionByAdmin(queryjson);
+}
+
+Json::Value Control::SelectSolutionContent(Json::Value &queryjson)
+{
+	return Solution::GetInstance().SelectSolutionContent(queryjson);
+}
+
+Json::Value Control::SelectSolutionByEdit(Json::Value &queryjson)
+{
+	return Solution::GetInstance().SelectSolutionByEdit(queryjson);
+}
+
+Json::Value Control::InsertSolution(Json::Value &insertjson)
+{
+	return Solution::GetInstance().InsertSolution(insertjson);
+}
+
+Json::Value Control::UpdateSolution(Json::Value &updatejson)
+{
+	return Solution::GetInstance().UpdateSolution(updatejson);
+}
+Json::Value Control::DeleteSolution(Json::Value &deletejson)
+{
+	return Solution::GetInstance().DeleteSolution(deletejson);
 }
 
 Json::Value Control::SelectArticle(Json::Value &queryjson)

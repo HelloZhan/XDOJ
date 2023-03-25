@@ -85,6 +85,28 @@ public:
 
     // 删除公告
     Json::Value DeleteAnnouncement(Json::Value &deletejson);
+
+    // ----------------------题解-----------------------
+    // 查询题解列表
+    Json::Value SelectSolution(Json::Value &queryjson);
+
+    // 管理员查询
+    Json::Value SelectSolutionByAdmin(Json::Value &queryjson);
+
+    // 查询题解
+    Json::Value SelectSolutionContent(Json::Value &queryjson);
+
+    // 查询题解进行编辑
+    Json::Value SelectSolutionByEdit(Json::Value &queryjson);
+
+    // 插入题解
+    Json::Value InsertSolution(Json::Value &insertjson);
+
+    // 更新题解
+    Json::Value UpdateSolution(Json::Value &updatejson);
+
+    // 删除题解
+    Json::Value DeleteSolution(Json::Value &deletejson);
     // -------文章 Article （包含Solution，Discuss，Announcement）---------
 
     // 分页查询讨论

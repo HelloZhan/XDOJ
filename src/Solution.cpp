@@ -17,6 +17,11 @@ Json::Value Solution::SelectSolution(Json::Value &queryjson)
     return MoDB::GetInstance().SelectSolution(queryjson);
 }
 
+Json::Value Solution::SelectSolutionByAdmin(Json::Value &queryjson)
+{
+    return MoDB::GetInstance().SelectSolutionByAdmin(queryjson);
+}
+
 Json::Value Solution::SelectSolutionByEdit(Json::Value &queryjson)
 {
     return MoDB::GetInstance().SelectSolutionByEdit(queryjson);
@@ -24,7 +29,7 @@ Json::Value Solution::SelectSolutionByEdit(Json::Value &queryjson)
 
 Json::Value Solution::SelectSolutionContent(Json::Value &queryjson)
 {
-    return MoDB::GetInstance().SelectDiscussContent(queryjson);
+    return MoDB::GetInstance().SelectSolutionContent(queryjson);
 }
 
 bool Solution::UpdateSolutionComments(Json::Value &updatejson)

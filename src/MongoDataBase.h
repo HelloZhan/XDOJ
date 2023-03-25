@@ -228,7 +228,7 @@ public:
     /*
         功能：添加题解
         传入：Json(Title,Content,ParentId,UserId,Public)
-        传出：Json(Result)
+        传出：Json(Result,Reason)
     */
     Json::Value InsertSolution(Json::Value &insertjson);
 
@@ -240,16 +240,23 @@ public:
     Json::Value SelectSolution(Json::Value &queryjson);
 
     /*
+        功能：管理员分页查询题解
+        传入：Json(Page,PageSize)
+        传出：Json(_id,Title,Views,Comments,CreateTime,User.Avatar,User.NickName)
+    */
+    Json::Value SelectSolutionByAdmin(Json::Value &queryjson);
+
+    /*
         功能：查询题解的详细信息，主要是编辑时的查询
-        传入：Json(ArticleId)
-        传出：Json(Result,Reason,Title,Content)
+        传入：Json(SolutionId)
+        传出：Json(Result,Reason,Title,Content,Public)
     */
     Json::Value SelectSolutionByEdit(Json::Value &queryjson);
 
     /*
         功能：查询题解的详细内容，并且将其浏览量加一
-        传入：Json(ArticleId)
-        传出：Json(Content)
+        传入：Json(SolutionId)
+        传出：Json(Result,Reason,Title,Content,Views,Comments,CreateTime,UpdateTime,User.NicaName,User.Avatar)
     */
     Json::Value SelectSolutionContent(Json::Value &queryjson);
 
@@ -262,7 +269,7 @@ public:
 
     /*
         功能：更新题解
-        传入：Json(ArticleId,Title,Content,Public)
+        传入：Json(SolutionId,Title,Content,Public)
         传出；Json(Result,Reason)
     */
     Json::Value UpdateSolution(Json::Value &updatejson);
