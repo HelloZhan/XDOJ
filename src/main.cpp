@@ -3,9 +3,7 @@
 #include <string>
 #include <fstream>
 #include <typeinfo>
-#include <map>
 #include "Control.h"
-#include <vector>
 
 using namespace std;
 Control control;
@@ -390,10 +388,12 @@ void doDeleteAnnouncement(const httplib::Request &req, httplib::Response &res)
 void doGetSolution(const httplib::Request &req, httplib::Response &res)
 {
     printf("doGetSolution start!!!\n");
-    string parentid = "1";
-    if (req.has_param("ParentId"))
+    Json::Value searchinfo;
+    if (req.has_param("SearchInfo"))
     {
-        parentid = req.get_param_value("ParentId");
+        Json::Reader reader;
+        // 解析传入的json
+        reader.parse(req.get_param_value("SearchInfo"), searchinfo);
     }
     string page = "1";
     if (req.has_param("Page"))
@@ -407,7 +407,7 @@ void doGetSolution(const httplib::Request &req, httplib::Response &res)
         pagesize = req.get_param_value("PageSize");
     }
     Json::Value queryjson;
-    queryjson["ParentId"] = parentid;
+    queryjson["SearchInfo"] = searchinfo;
     queryjson["Page"] = page;
     queryjson["PageSize"] = pagesize;
     Json::Value resjson = control.SelectSolution(queryjson);
@@ -518,10 +518,12 @@ void doDeleteSolution(const httplib::Request &req, httplib::Response &res)
 void doGetDiscuss(const httplib::Request &req, httplib::Response &res)
 {
     printf("doGetDiscuss start!!!\n");
-    string parentid = "1";
-    if (req.has_param("ParentId"))
+    Json::Value searchinfo;
+    if (req.has_param("SearchInfo"))
     {
-        parentid = req.get_param_value("ParentId");
+        Json::Reader reader;
+        // 解析传入的json
+        reader.parse(req.get_param_value("SearchInfo"), searchinfo);
     }
     string page = "1";
     if (req.has_param("Page"))
@@ -535,7 +537,7 @@ void doGetDiscuss(const httplib::Request &req, httplib::Response &res)
         pagesize = req.get_param_value("PageSize");
     }
     Json::Value queryjson;
-    queryjson["ParentId"] = parentid;
+    queryjson["SearchInfo"] = searchinfo;
     queryjson["Page"] = page;
     queryjson["PageSize"] = pagesize;
     Json::Value resjson = control.SelectDiscuss(queryjson);

@@ -1110,14 +1110,15 @@ Json::Value MoDB::InsertDiscuss(Json::Value &insertjson)
 }
 /*
     功能：分页查询讨论
-    传入：Json(ParentId,Page,PageSize)
+    传入：Json(SearchInfo,Page,PageSize)
     传出：Json(_id,Title,Views,Comments,CreateTime,User.Avatar,User.NickName)
 */
 Json::Value MoDB::SelectDiscuss(Json::Value &queryjson)
 {
     Json::Value resjson;
 
-    int64_t parentid = stoll(queryjson["ParentId"].asString());
+    int64_t parentid = stoll(queryjson["SearchInfo"]["ParentId"].asString());
+    int64_t userid = stoll(queryjson["SearchInfo"]["UserId"].asString());
     int page = stoi(queryjson["Page"].asString());
     int pagesize = stoi(queryjson["PageSize"].asString());
     int skip = (page - 1) * pagesize;
@@ -1128,8 +1129,25 @@ Json::Value MoDB::SelectDiscuss(Json::Value &queryjson)
 
     auto client = pool.acquire();
     mongocxx::collection discusscoll = (*client)["XDOJ"]["Discuss"];
+
+    if (parentid > 0)
+    {
+        pipe.match({make_document(kvp("ParentId", parentid))});
+        pipetot.match({make_document(kvp("ParentId", parentid))});
+    }
+
+    if (userid > 0)
+    {
+        pipe.match({make_document(kvp("UserId", userid))});
+        pipetot.match({make_document(kvp("UserId", userid))});
+    }
+
+    if (parentid == 0 && userid == 0)
+    {
+        pipe.match({make_document(kvp("ParentId", 0))});
+        pipetot.match({make_document(kvp("ParentId", 0))});
+    }
     // 获取总条数
-    pipetot.match({make_document(kvp("ParentId", parentid))});
     pipetot.count("TotalNum");
     mongocxx::cursor cursor = discusscoll.aggregate(pipetot);
     for (auto doc : cursor)
@@ -1137,7 +1155,6 @@ Json::Value MoDB::SelectDiscuss(Json::Value &queryjson)
         reader.parse(bsoncxx::to_json(doc), resjson);
     }
 
-    pipe.match({make_document(kvp("ParentId", parentid))});
     pipe.sort({make_document(kvp("CreateTime", -1))});
     pipe.skip(skip);
     pipe.limit(pagesize);
@@ -1457,14 +1474,15 @@ Json::Value MoDB::InsertSolution(Json::Value &insertjson)
 }
 /*
     功能：分页查询题解（公开题解）
-    传入：Json(ParentId,Page,PageSize)
+    传入：Json(SearchInfo,Page,PageSize)
     传出：Json(_id,Title,Views,Comments,CreateTime,User.Avatar,User.NickName)
 */
 Json::Value MoDB::SelectSolution(Json::Value &queryjson)
 {
     Json::Value resjson;
 
-    int64_t parentid = stoll(queryjson["ParentId"].asString());
+    int64_t parentid = stoll(queryjson["SearchInfo"]["ParentId"].asString());
+    int64_t userid = stoll(queryjson["SearchInfo"]["UserId"].asString());
     int page = stoi(queryjson["Page"].asString());
     int pagesize = stoi(queryjson["PageSize"].asString());
     int skip = (page - 1) * pagesize;
@@ -1476,13 +1494,22 @@ Json::Value MoDB::SelectSolution(Json::Value &queryjson)
     auto client = pool.acquire();
     mongocxx::collection solutioncoll = (*client)["XDOJ"]["Solution"];
 
-    // 匹配ID
-    pipetot.match({make_document(kvp("ParentId", parentid))});
-    pipe.match({make_document(kvp("ParentId", parentid))});
+    if (parentid > 0)
+    {
+        // 匹配ID
+        pipetot.match({make_document(kvp("ParentId", parentid))});
+        pipe.match({make_document(kvp("ParentId", parentid))});
 
-    // 匹配公开
-    pipetot.match({make_document(kvp("Public", true))});
-    pipe.match({make_document(kvp("Public", true))});
+        // 匹配公开
+        pipetot.match({make_document(kvp("Public", true))});
+        pipe.match({make_document(kvp("Public", true))});
+    }
+    if (userid > 0)
+    {
+        // 匹配ID
+        pipetot.match({make_document(kvp("UserId", userid))});
+        pipe.match({make_document(kvp("UserId", userid))});
+    }
     // 获取总条数
 
     pipetot.count("TotalNum");

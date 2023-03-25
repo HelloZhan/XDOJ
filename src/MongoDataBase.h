@@ -183,7 +183,7 @@ public:
 
     /*
         功能：分页查询讨论
-        传入：Json(ParentId,Page,PageSize)
+        传入：Json(SearchInfo,Page,PageSize)
         传出：Json(_id,Title,Views,Comments,CreateTime,User.Avatar,User.NickName)
     */
     Json::Value SelectDiscuss(Json::Value &queryjson);
@@ -241,7 +241,7 @@ public:
 
     /*
         功能：分页查询题解（公开题解）
-        传入：Json(ParentId,Page,PageSize)
+        传入：Json(SearchInfo,Page,PageSize)
         传出：Json(_id,Title,Views,Comments,CreateTime,User.Avatar,User.NickName)
     */
     Json::Value SelectSolution(Json::Value &queryjson);
