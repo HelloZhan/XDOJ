@@ -5,6 +5,7 @@
 #include <mongocxx/instance.hpp>
 #include <mongocxx/uri.hpp>
 #include <jsoncpp/json/json.h>
+#include <atomic>
 
 class MoDB
 {
@@ -88,10 +89,6 @@ public:
     */
     Json::Value SelectProblemInfoByAdmin(Json::Value &queryjson);
 
-    /*
-        功能：获取题目最大的ID
-    */
-    int GetMaxProblemId();
     /*
         功能：插入题目
         传入：Json(Title,Description,TimeLimit,MemoryLimit,JudgeNum,Tags,UseNickName)
@@ -393,12 +390,25 @@ public:
     Json::Value DeleteSonComment(Json::Value &deletejson);
 
 private:
+    /*
+        功能：获取某一个集合中最大的ID
+    */
+    int64_t GetMaxId(std::string name);
+    MoDB();
+
+    ~MoDB();
+
+private:
     mongocxx::instance instance{}; // This should be done only once.
     mongocxx::uri uri{};           // 连接配置
     mongocxx::pool pool{uri};      // 连接池
 
-    MoDB();
-    ~MoDB();
+    std::atomic_int64_t m_problemid;      // 题目ID
+    std::atomic_int64_t m_statusrecordid; // 测评ID
+    std::atomic_int64_t m_announcementid; // 公告ID
+    std::atomic_int64_t m_commentid;      // 评论ID
+    std::atomic_int64_t m_solutionid;     // 题解ID
+    std::atomic_int64_t m_discussid;      // 评论ID
 };
 
 #endif

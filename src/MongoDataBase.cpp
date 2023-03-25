@@ -79,6 +79,7 @@ Json::Value MoDB::RegisterUser(Json::Value &registerjson)
     string personalprofile = registerjson["PersonalProfile"].asString();
     string school = registerjson["School"].asString();
     string major = registerjson["Major"].asString();
+    uuid.init(1, 1);
     int64_t id = uuid.nextid();
     string jointime = GetTime();
     // 默认头像
@@ -538,39 +539,13 @@ Json::Value MoDB::SelectProblemInfoByAdmin(Json::Value &queryjson)
 }
 
 /*
-    功能：获取题目最大的ID
-*/
-int MoDB::GetMaxProblemId()
-{
-    auto client = pool.acquire();
-    mongocxx::collection problemcoll = (*client)["XDOJ"]["Problem"];
-
-    bsoncxx::builder::stream::document document{};
-    mongocxx::pipeline pipe;
-    pipe.sort({make_document(kvp("_id", -1))});
-    pipe.limit(1);
-    mongocxx::cursor cursor = problemcoll.aggregate(pipe);
-    // 如果没找到，说明库中未有题目
-    if (cursor.begin() == cursor.end())
-        return 0;
-    Json::Value jsonvalue;
-    Json::Reader reader;
-    for (auto doc : cursor)
-    {
-        reader.parse(bsoncxx::to_json(doc), jsonvalue);
-    }
-
-    int maxid = stoi(jsonvalue["_id"].asString());
-    return maxid;
-}
-/*
     功能：插入题目
     传入：Json(Title,Description,TimeLimit,MemoryLimit,JudgeNum,Tags,UseNickName)
     传出：Json(Reuslt,Reason,ProblemId)
 */
 Json::Value MoDB::InsertProblem(Json::Value &insertjson)
 {
-    int problemid = GetMaxProblemId() + 1;
+    int problemid = ++m_problemid;
     string title = insertjson["Title"].asString();
     string description = insertjson["Description"].asString();
     int timelimit = stoi(insertjson["TimeLimit"].asString());
@@ -881,7 +856,7 @@ Json::Value MoDB::getProblemTags()
 */
 string MoDB::InsertStatusRecord(Json::Value &insertjson)
 {
-    int64_t id = uuid.nextid();
+    int64_t id = ++m_statusrecordid;
     int64_t problemid = stoll(insertjson["ProblemId"].asString());
     int64_t userid = stoll(insertjson["UserId"].asString());
     string usernickname = insertjson["UserNickName"].asString();
@@ -1076,8 +1051,7 @@ Json::Value MoDB::InsertDiscuss(Json::Value &insertjson)
 {
     Json::Value resjson;
 
-    uuid.init(1, 1);
-    auto id = uuid.nextid();
+    int64_t id = ++m_discussid;
     string title = insertjson["Title"].asString();
     string content = insertjson["Content"].asString();
     int64_t parentid = atoll(insertjson["ParentId"].asString().data());
@@ -1438,8 +1412,7 @@ Json::Value MoDB::InsertSolution(Json::Value &insertjson)
 {
     Json::Value resjson;
 
-    uuid.init(1, 1);
-    auto id = uuid.nextid();
+    int64_t id = ++m_solutionid;
     string title = insertjson["Title"].asString();
     string content = insertjson["Content"].asString();
     int64_t parentid = stoll(insertjson["ParentId"].asString());
@@ -1810,8 +1783,7 @@ Json::Value MoDB::InsertAnnouncement(Json::Value &insertjson)
 {
     Json::Value resjson;
 
-    uuid.init(1, 1);
-    auto id = uuid.nextid();
+    int64_t id = ++m_announcementid;
     string title = insertjson["Title"].asString();
     string content = insertjson["Content"].asString();
     int64_t userid = stoll(insertjson["UserId"].asString());
@@ -2300,8 +2272,7 @@ Json::Value MoDB::getSonComment(Json::Value &queryjson)
 */
 Json::Value MoDB::InsertFatherComment(Json::Value &insertjson)
 {
-    uuid.init(1, 1);
-    int64_t id = uuid.nextid();
+    int64_t id = ++m_commentid;
     int64_t parentid = atoll(insertjson["ParentId"].asString().data());
     string content = insertjson["Content"].asString();
     int64_t userid = atoll(insertjson["UserId"].asString().data());
@@ -2335,7 +2306,7 @@ Json::Value MoDB::InsertFatherComment(Json::Value &insertjson)
 Json::Value MoDB::InsertSonComment(Json::Value &insertjson)
 {
     int64_t parentid = stoll(insertjson["ParentId"].asString().data());
-    int64_t id = uuid.nextid();
+    int64_t id = ++m_commentid;
     string content = insertjson["Content"].asString();
     int64_t userid = stoll(insertjson["UserId"].asString().data());
     string createtime = GetTime();
@@ -2485,8 +2456,45 @@ Json::Value MoDB::DeleteSonComment(Json::Value &deletejson)
     resjson["DeleteNum"] = 1;
     return resjson;
 }
+
+/*
+    功能：获取某一个集合中最大的ID
+*/
+int64_t MoDB::GetMaxId(std::string name)
+{
+    auto client = pool.acquire();
+    mongocxx::collection coll = (*client)["XDOJ"][name.data()];
+
+    bsoncxx::builder::stream::document document{};
+    mongocxx::pipeline pipe;
+    pipe.sort({make_document(kvp("_id", -1))});
+    pipe.limit(1);
+    mongocxx::cursor cursor = coll.aggregate(pipe);
+
+    // 如果没找到，说明集合中没有数据
+    if (cursor.begin() == cursor.end())
+        return 1;
+
+    Json::Value jsonvalue;
+    Json::Reader reader;
+    for (auto doc : cursor)
+    {
+        reader.parse(bsoncxx::to_json(doc), jsonvalue);
+    }
+
+    int64_t id = stoll(jsonvalue["_id"].asString());
+    return id;
+}
+
 MoDB::MoDB()
 {
+    // 初始化ID
+    m_problemid = GetMaxId("Problem");
+    m_statusrecordid = GetMaxId("StatusRecord");
+    m_announcementid = GetMaxId("Announcement");
+    m_commentid = GetMaxId("Comment");
+    m_solutionid = GetMaxId("Solution");
+    m_discussid = GetMaxId("Discuss");
 }
 MoDB::~MoDB()
 {
