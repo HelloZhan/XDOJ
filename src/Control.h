@@ -129,23 +129,6 @@ public:
 
     // 删除题解
     Json::Value DeleteDiscuss(Json::Value &deletejson);
-    // -------文章 Article （包含Solution，Discuss，Announcement）---------
-
-    // 分页查询讨论
-    Json::Value SelectArticle(Json::Value &queryjson);
-
-    Json::Value SelectArticleByEdit(Json::Value &queryjson);
-    // 获取讨论的内容
-    Json::Value SelectArticleContent(Json::Value &queryjson);
-
-    // 插入文章（讨论，题解）
-    Json::Value InsertArticle(Json::Value &insertjson);
-
-    // 更新文章
-    Json::Value UpdateArticle(Json::Value &updatejson);
-
-    // 删除文章
-    Json::Value DeleteArticle(Json::Value &deletejson);
 
     Json::Value GetTags(Json::Value &queryjson);
     Control();
