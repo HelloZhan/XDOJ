@@ -11,7 +11,8 @@
             "Major": "string",
             "JoinTime": "string",
             "CommentLikes": "['string']",
-            "ACProblems": "['int']",
+            "Solves": "['int']",
+            "ACNum": "int",
             "SubmitNum": "int",
             "Authority": "int"
         }

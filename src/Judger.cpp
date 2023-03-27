@@ -340,15 +340,15 @@ bool Judger::JudgmentResult(struct result *res, string &index)
         ifstream infile1;
         string datapath = DATA_PATH + index + ".out";
         infile1.open(datapath.data());
-        string standardanswer;
-        infile1 >> standardanswer;
+        string standardanswer((istreambuf_iterator<char>(infile1)),
+                              (istreambuf_iterator<char>()));
         infile1.close();
         // 获取计算答案
         ifstream infile2;
         string runpath = RUN_PATH + index + ".out";
         infile2.open(runpath.data());
-        string calculateanswer;
-        infile2 >> calculateanswer;
+        string calculateanswer((istreambuf_iterator<char>(infile2)),
+                               (istreambuf_iterator<char>()));
         infile2.close();
         printf("standardanswer = %s\n", standardanswer.data());
         printf("calculateanswer = %s\n", calculateanswer.data());

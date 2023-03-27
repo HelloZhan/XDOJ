@@ -37,22 +37,23 @@ void doLoginUser(const httplib::Request &req, httplib::Response &res)
 void doGetUserRank(const httplib::Request &req, httplib::Response &res)
 {
     printf("doGetUserRank start!!!\n");
-    string page = "1";
-    if (req.has_param("Page"))
-    {
-        page = req.get_param_value("Page");
-    }
+    Json::Value resjson;
 
-    string pagesize = "10";
-    if (req.has_param("PageSize"))
+    if (!req.has_param("Page") || !req.has_param("PageSize"))
     {
-        pagesize = req.get_param_value("PageSize");
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "缺少请求参数！";
     }
+    else
+    {
+        string page = req.get_param_value("Page");
+        string pagesize = req.get_param_value("PageSize");
 
-    Json::Value queryjson;
-    queryjson["Page"] = page;
-    queryjson["PageSize"] = pagesize;
-    Json::Value resjson = control.SelectUserRank(queryjson);
+        Json::Value queryjson;
+        queryjson["Page"] = page;
+        queryjson["PageSize"] = pagesize;
+        resjson = control.SelectUserRank(queryjson);
+    }
     printf("doGetUserRank end!!!\n");
     res.set_content(resjson.toStyledString(), "json");
 }
@@ -60,15 +61,21 @@ void doGetUserRank(const httplib::Request &req, httplib::Response &res)
 void doGetUserInfo(const httplib::Request &req, httplib::Response &res)
 {
     printf("doGetUserInfo start!!!\n");
-    string userid = "1";
-    if (req.has_param("UserId"))
+    Json::Value resjson;
+
+    if (!req.has_param("UserId"))
     {
-        userid = req.get_param_value("UserId");
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "缺少请求参数！";
+    }
+    else
+    {
+        string userid = req.get_param_value("UserId");
+        Json::Value queryjson;
+        queryjson["UserId"] = userid;
+        resjson = control.SelectUserInfo(queryjson);
     }
 
-    Json::Value queryjson;
-    queryjson["UserId"] = userid;
-    Json::Value resjson = control.SelectUserInfo(queryjson);
     printf("doGetUserInfo end!!!\n");
     res.set_content(resjson.toStyledString(), "json");
 }
@@ -87,15 +94,21 @@ void doUpdateUserInfo(const httplib::Request &req, httplib::Response &res)
 void doGetUserUpdateInfo(const httplib::Request &req, httplib::Response &res)
 {
     printf("doGetUserUpdateInfo start!!!\n");
-    string userid = "1";
-    if (req.has_param("UserId"))
-    {
-        userid = req.get_param_value("UserId");
-    }
 
-    Json::Value queryjson;
-    queryjson["UserId"] = userid;
-    Json::Value resjson = control.SelectUserUpdateInfo(queryjson);
+    Json::Value resjson;
+
+    if (!req.has_param("UserId"))
+    {
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "缺少请求参数！";
+    }
+    else
+    {
+        string userid = req.get_param_value("UserId");
+        Json::Value queryjson;
+        queryjson["UserId"] = userid;
+        resjson = control.SelectUserUpdateInfo(queryjson);
+    }
     printf("doGetUserUpdateInfo end!!!\n");
     res.set_content(resjson.toStyledString(), "json");
 }
@@ -103,22 +116,23 @@ void doGetUserSetInfo(const httplib::Request &req, httplib::Response &res)
 {
     printf("doGetUserSetInfo start!!!\n");
 
-    string page = "1";
-    if (req.has_param("Page"))
-    {
-        page = req.get_param_value("Page");
-    }
+    Json::Value resjson;
 
-    string pagesize = "25";
-    if (req.has_param("PageSize"))
+    if (!req.has_param("Page") || !req.has_param("PageSize"))
     {
-        pagesize = req.get_param_value("PageSize");
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "缺少请求参数！";
     }
-    Json::Value queryjson;
-    queryjson["Page"] = page;
-    queryjson["PageSize"] = pagesize;
+    else
+    {
+        string page = req.get_param_value("Page");
+        string pagesize = req.get_param_value("PageSize");
 
-    Json::Value resjson = control.SelectUserSetInfo(queryjson);
+        Json::Value queryjson;
+        queryjson["Page"] = page;
+        queryjson["PageSize"] = pagesize;
+        resjson = control.SelectUserSetInfo(queryjson);
+    }
     printf("doGetUserSetInfo end!!!\n");
     res.set_content(resjson.toStyledString(), "json");
 }
@@ -126,11 +140,21 @@ void doGetUserSetInfo(const httplib::Request &req, httplib::Response &res)
 void doDeleteUser(const httplib::Request &req, httplib::Response &res)
 {
     printf("doDeleteUser start!!!\n");
-    Json::Value jsonvalue;
-    Json::Reader reader;
-    // 解析传入的json
-    reader.parse(req.body, jsonvalue);
-    Json::Value resjson = control.DeleteUser(jsonvalue);
+
+    Json::Value resjson;
+    if (!req.has_param("UserId"))
+    {
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "缺少请求参数！";
+    }
+    else
+    {
+        string userid = req.get_param_value("UserId");
+        Json::Value jsonvalue;
+        jsonvalue["UserId"] = userid;
+        resjson = control.DeleteUser(jsonvalue);
+    }
+
     printf("doDeleteUser end!!!\n");
     res.set_content(resjson.toStyledString(), "json");
 }
@@ -722,21 +746,21 @@ int main()
     using namespace httplib;
     Server server;
     // 注册用户
-    server.Post("/register", doRegisterUser);
+    server.Post("/user/register", doRegisterUser);
     // 登录用户
-    server.Post("/login", doLoginUser);
+    server.Post("/user/login", doLoginUser);
     // 返回用户排名
-    server.Get("/userrank", doGetUserRank);
+    server.Get("/user/rank", doGetUserRank);
     // 返回用户信息，用于主页展示
-    server.Get("/user/userhome", doGetUserInfo);
+    server.Get("/user/home", doGetUserInfo);
     // 更新用户信息
-    server.Post("/user/usersetting", doUpdateUserInfo);
+    server.Post("/user/update", doUpdateUserInfo);
     // 返回用户信息，用于编辑修改
     server.Get("/user/updateinfo", doGetUserUpdateInfo);
     // 分页获取用户信息
     server.Get("/userset", doGetUserSetInfo);
     // 更新用户信息
-    server.Post("/user/delete", doDeleteUser);
+    server.Delete("/user", doDeleteUser);
 
     // 获取单个题目
     server.Get("/problem", doGetProblem);

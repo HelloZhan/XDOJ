@@ -45,116 +45,139 @@ MoDB &MoDB::GetInstance()
 
 /*
     功能：注册用户
-    前端传入
-    Json(NickName,Account,PassWord,PersonalProfile,School,Major)
-    后端传出
-    Json(Result,Reason)
+    传入：Json(NickName,Account,PassWord,PersonalProfile,School,Major)
+    传出：Json(Result,Reason)
 */
 Json::Value MoDB::RegisterUser(Json::Value &registerjson)
 {
     Json::Value resjson;
-    string account = registerjson["Account"].asString();
-
-    auto client = pool.acquire();
-    mongocxx::collection usercoll = (*client)["XDOJ"]["User"];
-
-    mongocxx::cursor cursor = usercoll.find({make_document(kvp("Account", account.data()))});
-    // 判断账户是否存在
-    if (cursor.begin() != cursor.end())
+    try
     {
-        resjson["Result"] = "Fail";
-        resjson["Reason"] = "账户已存在，请重新填写！";
+        string account = registerjson["Account"].asString();
+        string nickname = registerjson["NickName"].asString();
+        string password = registerjson["PassWord"].asString();
+        string personalprofile = registerjson["PersonalProfile"].asString();
+        string school = registerjson["School"].asString();
+        string major = registerjson["Major"].asString();
+        auto client = pool.acquire();
+        mongocxx::collection usercoll = (*client)["XDOJ"]["User"];
+
+        mongocxx::cursor cursor = usercoll.find({make_document(kvp("Account", account.data()))});
+        // 判断账户是否存在
+        if (cursor.begin() != cursor.end())
+        {
+            resjson["Result"] = "Fail";
+            resjson["Reason"] = "账户已存在，请重新填写！";
+            return resjson;
+        }
+
+        // 检查昵称是否存在
+        cursor = usercoll.find({make_document(kvp("NickName", nickname.data()))});
+        if (cursor.begin() != cursor.end())
+        {
+            resjson["Result"] = "Fail";
+            resjson["Reason"] = "昵称已存在，请重新填写！";
+            return resjson;
+        }
+
+        uuid.init(1, 1);
+        int64_t id = uuid.nextid();
+        string jointime = GetTime();
+        // 默认头像
+        string avatar = "http://192.168.49.132:8081/image/1";
+        // 插入
+        bsoncxx::builder::stream::document document{};
+        document
+            << "_id" << id
+            << "Avatar" << avatar.data()
+            << "NickName" << nickname.data()
+            << "Account" << account.data()
+            << "PassWord" << password.data()
+            << "PersonalProfile" << personalprofile.data()
+            << "School" << school.data()
+            << "Major" << major.data()
+            << "JoinTime" << jointime.data()
+            << "CommentLikes" << open_array << close_array
+            << "Solves" << open_array << close_array
+            << "SubmitNum" << 0
+            << "ACNum" << 0
+            << "Authority" << 3;
+
+        auto result = usercoll.insert_one(document.view());
+        if ((*result).result().inserted_count() < 1)
+        {
+            resjson["Result"] = "Fail";
+            resjson["Reason"] = "数据库插入失败！";
+            return resjson;
+        }
+        resjson["Result"] = "Success";
+        resjson["Reason"] = "注册成功！";
         return resjson;
     }
-    string nickname = registerjson["NickName"].asString();
-    // 检查昵称是否存在
-    cursor = usercoll.find({make_document(kvp("NickName", nickname.data()))});
-    if (cursor.begin() != cursor.end())
+    catch (const std::exception &e)
     {
         resjson["Result"] = "Fail";
-        resjson["Reason"] = "昵称已存在，请重新填写！";
+        resjson["Reason"] = "数据库出错啦！！！";
         return resjson;
     }
-    string password = registerjson["PassWord"].asString();
-    string personalprofile = registerjson["PersonalProfile"].asString();
-    string school = registerjson["School"].asString();
-    string major = registerjson["Major"].asString();
-    uuid.init(1, 1);
-    int64_t id = uuid.nextid();
-    string jointime = GetTime();
-    // 默认头像
-    string avatar = "http://192.168.49.132:8081/image/1";
-    // 插入
-    bsoncxx::builder::stream::document document{};
-    document
-        << "_id" << id
-        << "Avatar" << avatar.data()
-        << "NickName" << nickname.data()
-        << "Account" << account.data()
-        << "PassWord" << password.data()
-        << "PersonalProfile" << personalprofile.data()
-        << "School" << school.data()
-        << "Major" << major.data()
-        << "JoinTime" << jointime.data()
-        << "CommentLikes" << open_array << close_array
-        << "ACProblems" << open_array << close_array
-        << "SubmitNum" << 0
-        << "Authority" << 3;
-
-    auto result = usercoll.insert_one(document.view());
-    if ((*result).result().inserted_count() < 1)
-    {
-        resjson["Result"] = "Fail";
-        resjson["Reason"] = "数据库插入失败！";
-        return resjson;
-    }
-    resjson["Result"] = "Success";
-    resjson["Reason"] = "注册成功！";
-    return resjson;
 }
 /*
     功能：登录用户
-    前端传入
-    Json(Account,PassWord)
-    后端传出
-    Json(Result,Reason,Info(_id,NickName,Avatar...))用户的全部信息，详情请见MongoDB集合表
+    传入：Json(Account,PassWord)
+    传出：Json(Result,Reason,Info(_id,NickName,Avatar,CommentLikes,Solves,Authority))
 */
 Json::Value MoDB::LoginUser(Json::Value &loginjson)
 {
     Json::Value resjson;
-    string account = loginjson["Account"].asString();
-    string password = loginjson["PassWord"].asString();
 
-    auto client = pool.acquire();
-    mongocxx::collection usercoll = (*client)["XDOJ"]["User"];
-
-    mongocxx::pipeline pipe;
-    bsoncxx::builder::stream::document document{};
-    document
-        << "Account" << account.data()
-        << "PassWord" << password.data();
-    pipe.match(document.view());
-
-    // 匹配账号和密码
-    mongocxx::cursor cursor = usercoll.aggregate(pipe);
-    if (cursor.begin() == cursor.end())
+    try
     {
-        resjson["Result"] = "Fail";
-        resjson["Reason"] = "账户或密码错误！";
+        string account = loginjson["Account"].asString();
+        string password = loginjson["PassWord"].asString();
+        auto client = pool.acquire();
+        mongocxx::collection usercoll = (*client)["XDOJ"]["User"];
+
+        mongocxx::pipeline pipe;
+        bsoncxx::builder::stream::document document{};
+        document
+            << "Account" << account.data()
+            << "PassWord" << password.data();
+        pipe.match(document.view());
+
+        document.clear();
+        document
+            << "Avatar" << 1
+            << "NickName" << 1
+            << "CommentLikes" << 1
+            << "Solves" << 1
+            << "Authority" << 1;
+
+        pipe.project(document.view());
+        // 匹配账号和密码
+        mongocxx::cursor cursor = usercoll.aggregate(pipe);
+        if (cursor.begin() == cursor.end())
+        {
+            resjson["Result"] = "Fail";
+            resjson["Reason"] = "账户或密码错误！";
+            return resjson;
+        }
+        // 匹配成功
+        Json::Reader reader;
+        for (auto doc : cursor)
+        {
+            Json::Value jsonvalue;
+            reader.parse(bsoncxx::to_json(doc), jsonvalue);
+            resjson["Info"] = jsonvalue;
+        }
+        resjson["Result"] = "Success";
         return resjson;
     }
-    // 匹配成功
-    Json::Reader reader;
-    for (auto doc : cursor)
+    catch (const std::exception &e)
     {
-        Json::Value jsonvalue;
-        reader.parse(bsoncxx::to_json(doc), jsonvalue);
-        resjson["Info"] = jsonvalue;
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "数据库出错啦！！！";
+        return resjson;
     }
-    resjson["Result"] = "Success";
-    resjson["Reason"] = "登录成功！";
-
-    return resjson;
 }
 /*
     功能：更新用户的题目信息，当用户提交代码时
@@ -181,13 +204,13 @@ bool MoDB::UpdateUserProblemInfo(Json::Value &updatejson)
     // 如果AC了
     if (status == 2)
     {
-        // 查询AC题目是否已经添加至ACProblems的数组中
+        // 查询AC题目是否已经添加至Solves的数组中
         mongocxx::pipeline pipe;
         pipe.match({make_document(kvp("_id", userid))});
         document.clear();
         document
             << "IsHasAc" << open_document
-            << "$in" << open_array << problemid << "$ACProblems" << close_array
+            << "$in" << open_array << problemid << "$Solves" << close_array
             << close_document;
         pipe.project(document.view());
         Json::Reader reader;
@@ -204,7 +227,7 @@ bool MoDB::UpdateUserProblemInfo(Json::Value &updatejson)
             document.clear();
             document
                 << "$push" << open_document
-                << "ACProblems" << problemid
+                << "Solves" << problemid
                 << close_document;
             usercoll.update_one({make_document(kvp("_id", userid))}, document.view());
             return true;
@@ -217,255 +240,271 @@ bool MoDB::UpdateUserProblemInfo(Json::Value &updatejson)
 /*
     功能：获取用户的Rank排名
     传入：Json(Page,PageSize)
-    传出：Json(_id,Rank,Avatar,NickName,PersonalProfile,SubmitNum,ACNum),TotalNum
+    传出：Json(ArrayInfo[_id,Rank,Avatar,NickName,PersonalProfile,SubmitNum,ACNum],TotalNum)
 */
 Json::Value MoDB::SelectUserRank(Json::Value &queryjson)
 {
-    int page = stoi(queryjson["Page"].asString());
-    int pagesize = stoi(queryjson["PageSize"].asString());
-    int skip = (page - 1) * pagesize;
-
-    auto client = pool.acquire();
-    mongocxx::collection usercoll = (*client)["XDOJ"]["User"];
-    bsoncxx::builder::stream::document document{};
-    mongocxx::pipeline pipe, pipetot;
-    Json::Reader reader;
     Json::Value resjson;
-
-    // 获取总条数
-    pipetot.count("TotalNum");
-    mongocxx::cursor cursor = usercoll.aggregate(pipetot);
-    for (auto doc : cursor)
+    try
     {
-        reader.parse(bsoncxx::to_json(doc), resjson);
-    }
+        int page = stoi(queryjson["Page"].asString());
+        int pagesize = stoi(queryjson["PageSize"].asString());
+        int skip = (page - 1) * pagesize;
+        auto client = pool.acquire();
+        mongocxx::collection usercoll = (*client)["XDOJ"]["User"];
+        bsoncxx::builder::stream::document document{};
+        mongocxx::pipeline pipe, pipetot;
+        Json::Reader reader;
 
-    document
-        << "$set" << open_document
-        << "ACNum" << open_document
-        << "$size"
-        << "$ACProblems"
-        << close_document << close_document;
-    pipe.append_stage(document.view());
-    pipe.sort({make_document(kvp("ACNum", -1))});
-    pipe.skip(skip);
-    pipe.limit(pagesize);
-    document.clear();
-    document
-        << "Avatar" << 1
-        << "NickName" << 1
-        << "PersonalProfile" << 1
-        << "SubmitNum" << 1
-        << "ACNum" << 1;
-    pipe.project(document.view());
+        // 获取总条数
+        pipetot.count("TotalNum");
+        mongocxx::cursor cursor = usercoll.aggregate(pipetot);
+        for (auto doc : cursor)
+        {
+            reader.parse(bsoncxx::to_json(doc), resjson);
+        }
 
-    cursor = usercoll.aggregate(pipe);
-    for (auto doc : cursor)
-    {
-        Json::Value jsonvalue;
-        reader.parse(bsoncxx::to_json(doc), jsonvalue);
-        resjson["ArrayInfo"].append(jsonvalue);
+        pipe.sort({make_document(kvp("ACNum", -1))});
+        pipe.skip(skip);
+        pipe.limit(pagesize);
+        document.clear();
+        document
+            << "Avatar" << 1
+            << "NickName" << 1
+            << "PersonalProfile" << 1
+            << "SubmitNum" << 1
+            << "ACNum" << 1;
+        pipe.project(document.view());
+
+        cursor = usercoll.aggregate(pipe);
+        for (auto doc : cursor)
+        {
+            Json::Value jsonvalue;
+            reader.parse(bsoncxx::to_json(doc), jsonvalue);
+            resjson["ArrayInfo"].append(jsonvalue);
+        }
+        // 添加Rank排名
+        int currank = (page - 1) * pagesize + 1;
+        for (int i = 0; i < resjson["ArrayInfo"].size(); i++)
+        {
+            resjson["ArrayInfo"][i]["Rank"] = currank++;
+        }
+
+        return resjson;
     }
-    // 添加Rank排名
-    int currank = (page - 1) * pagesize + 1;
-    for (int i = 0; i < resjson["ArrayInfo"].size(); i++)
+    catch (const std::exception &e)
     {
-        resjson["ArrayInfo"][i]["Rank"] = currank++;
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "数据库出错啦！！！";
+        return resjson;
     }
-    return resjson;
 }
 
 /*
     功能：获取用户大部分信息，主要用于用户主页的展示
     传入：Json(UserId)
-    传出：Json(Result,Reason,_id,Avatar,NickName,PersonalProfile,School,Major,JoinTime,ACProblems,ACNum,SubmitNum)
+    传出：Json(Result,Reason,_id,Avatar,NickName,PersonalProfile,School,Major,JoinTime,Solves,ACNum,SubmitNum)
 */
 Json::Value MoDB::SelectUserInfo(Json::Value &queryjson)
 {
-    int64_t userid = stoll(queryjson["UserId"].asString());
-
-    auto client = pool.acquire();
-    mongocxx::collection usercoll = (*client)["XDOJ"]["User"];
-
-    bsoncxx::builder::stream::document document{};
-    mongocxx::pipeline pipe;
-
-    pipe.match({make_document(kvp("_id", userid))});
-
-    document
-        << "$set" << open_document
-        << "ACNum" << open_document
-        << "$size"
-        << "$ACProblems"
-        << close_document << close_document;
-    pipe.append_stage(document.view());
-    document.clear();
-    document
-        << "Avatar" << 1
-        << "NickName" << 1
-        << "PersonalProfile" << 1
-        << "School" << 1
-        << "Major" << 1
-        << "JoinTime" << 1
-        << "ACProblems" << 1
-        << "ACNum" << 1
-        << "SubmitNum" << 1;
-    pipe.project(document.view());
-
-    Json::Reader reader;
     Json::Value resjson;
-
-    mongocxx::cursor cursor = usercoll.aggregate(pipe);
-
-    if (cursor.begin() == cursor.end())
+    try
     {
-        resjson["Result"] = "Fail";
-        resjson["Reason"] = "数据库未查询到该信息！";
+        int64_t userid = stoll(queryjson["UserId"].asString());
+        auto client = pool.acquire();
+        mongocxx::collection usercoll = (*client)["XDOJ"]["User"];
+
+        bsoncxx::builder::stream::document document{};
+        mongocxx::pipeline pipe;
+
+        pipe.match({make_document(kvp("_id", userid))});
+
+        document
+            << "Avatar" << 1
+            << "NickName" << 1
+            << "PersonalProfile" << 1
+            << "School" << 1
+            << "Major" << 1
+            << "JoinTime" << 1
+            << "Solves" << 1
+            << "ACNum" << 1
+            << "SubmitNum" << 1;
+        pipe.project(document.view());
+
+        Json::Reader reader;
+
+        mongocxx::cursor cursor = usercoll.aggregate(pipe);
+
+        if (cursor.begin() == cursor.end())
+        {
+            resjson["Result"] = "Fail";
+            resjson["Reason"] = "数据库未查询到该信息！";
+            return resjson;
+        }
+
+        for (auto doc : cursor)
+        {
+            reader.parse(bsoncxx::to_json(doc), resjson);
+        }
+        resjson["Result"] = "Success";
         return resjson;
     }
-
-    for (auto doc : cursor)
+    catch (const std::exception &e)
     {
-        reader.parse(bsoncxx::to_json(doc), resjson);
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "数据库出错啦！！！";
+        return resjson;
     }
-    resjson["Result"] = "Success";
-    return resjson;
 }
 
 /*
     功能：更改用户信息
-    传入：Json(UserId,Avatar,PersonalProfile,School,Major,Authority)
+    传入：Json(UserId,Avatar,PersonalProfile,School,Major)
     传出：Json(Result,Reason)
 */
 Json::Value MoDB::UpdateUserInfo(Json::Value &updatejson)
 {
-    int64_t userid = stoll(updatejson["UserId"].asString());
-    string avatar = updatejson["Avatar"].asString();
-    string personalprofile = updatejson["PersonalProfile"].asString();
-    string school = updatejson["School"].asString();
-    string major = updatejson["Major"].asString();
-    int authority = stoi(updatejson["Authority"].asString());
-
-    auto client = pool.acquire();
-    mongocxx::collection usercoll = (*client)["XDOJ"]["User"];
-
-    bsoncxx::builder::stream::document document{};
-    document
-        << "$set" << open_document
-        << "Avatar" << avatar.data()
-        << "PersonalProfile" << personalprofile.data()
-        << "School" << school.data()
-        << "Major" << major.data()
-        << "Authority" << authority
-        << close_document;
-
-    auto result = usercoll.update_one({make_document(kvp("_id", userid))}, document.view());
-
     Json::Value resjson;
-    if ((*result).modified_count() < 1)
+    try
     {
-        resjson["Result"] = "Fail";
-        resjson["Reason"] = "数据库插入失败！";
+        int64_t userid = stoll(updatejson["UserId"].asString());
+        string avatar = updatejson["Avatar"].asString();
+        string personalprofile = updatejson["PersonalProfile"].asString();
+        string school = updatejson["School"].asString();
+        string major = updatejson["Major"].asString();
+        auto client = pool.acquire();
+        mongocxx::collection usercoll = (*client)["XDOJ"]["User"];
+
+        bsoncxx::builder::stream::document document{};
+        document
+            << "$set" << open_document
+            << "Avatar" << avatar.data()
+            << "PersonalProfile" << personalprofile.data()
+            << "School" << school.data()
+            << "Major" << major.data()
+            << close_document;
+
+        auto result = usercoll.update_one({make_document(kvp("_id", userid))}, document.view());
+
+        if ((*result).modified_count() < 1)
+        {
+            resjson["Result"] = "Fail";
+            resjson["Reason"] = "数据库插入失败！";
+            return resjson;
+        }
+        resjson["Result"] = "Success";
         return resjson;
     }
-    resjson["Result"] = "Success";
-    return resjson;
+    catch (const std::exception &e)
+    {
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "数据库出错啦！！！";
+        return resjson;
+    }
 }
 
 /*
     功能：查询用户表，用于修改用户
     传入：Json(UserId)
-    传出：Json(_id,Avatar,NickName,PersonalProfile,School,Major,Authority)
+    传出：Json(_id,Avatar,NickName,PersonalProfile,School,Major)
 */
 Json::Value MoDB::SelectUserUpdateInfo(Json::Value &queryjson)
 {
-    int64_t userid = stoll(queryjson["UserId"].asString());
-
-    auto client = pool.acquire();
-    mongocxx::collection usercoll = (*client)["XDOJ"]["User"];
-
-    bsoncxx::builder::stream::document document{};
-    mongocxx::pipeline pipe;
-
-    pipe.match({make_document(kvp("_id", userid))});
-    document
-        << "Avatar" << 1
-        << "NickName" << 1
-        << "PersonalProfile" << 1
-        << "School" << 1
-        << "Major" << 1
-        << "Authority" << 1;
-
-    pipe.project(document.view());
-
-    Json::Reader reader;
     Json::Value resjson;
-
-    mongocxx::cursor cursor = usercoll.aggregate(pipe);
-
-    if (cursor.begin() == cursor.end())
+    try
     {
-        resjson["Result"] = "Fail";
-        resjson["Reason"] = "数据库未查询到该信息！";
+        int64_t userid = stoll(queryjson["UserId"].asString());
+        auto client = pool.acquire();
+        mongocxx::collection usercoll = (*client)["XDOJ"]["User"];
+
+        bsoncxx::builder::stream::document document{};
+        mongocxx::pipeline pipe;
+
+        pipe.match({make_document(kvp("_id", userid))});
+        document
+            << "Avatar" << 1
+            << "NickName" << 1
+            << "PersonalProfile" << 1
+            << "School" << 1
+            << "Major" << 1;
+        pipe.project(document.view());
+
+        Json::Reader reader;
+
+        mongocxx::cursor cursor = usercoll.aggregate(pipe);
+
+        if (cursor.begin() == cursor.end())
+        {
+            resjson["Result"] = "Fail";
+            resjson["Reason"] = "数据库未查询到该信息！";
+            return resjson;
+        }
+
+        for (auto doc : cursor)
+        {
+            reader.parse(bsoncxx::to_json(doc), resjson);
+        }
+        resjson["Result"] = "Success";
         return resjson;
     }
-
-    for (auto doc : cursor)
+    catch (const std::exception &e)
     {
-        reader.parse(bsoncxx::to_json(doc), resjson);
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "数据库出错啦！！！";
+        return resjson;
     }
-    resjson["Result"] = "Success";
-    return resjson;
 }
 
 /*
     功能：分页查询用户列表
     传入：Json(Page,PageSize)
-    传出：Json(_id,NickName,PersonalProfile,School,Major,JoinTime,Authority)
+    传出：Json(_id,NickName,PersonalProfile,School,Major,JoinTime,TotalNum)
 */
 Json::Value MoDB::SelectUserSetInfo(Json::Value &queryjson)
 {
-    int page = stoi(queryjson["Page"].asString());
-    int pagesize = stoi(queryjson["PageSize"].asString());
-    int skip = (page - 1) * pagesize;
-    auto client = pool.acquire();
-    mongocxx::collection usercoll = (*client)["XDOJ"]["User"];
-
-    bsoncxx::builder::stream::document document{};
-    mongocxx::pipeline pipe;
-    pipe.skip(skip);
-    pipe.limit(pagesize);
-
-    document
-        << "NickName" << 1
-        << "PersonalProfile" << 1
-        << "School" << 1
-        << "Major" << 1
-        << "JoinTime" << 1
-        << "Authority" << 1;
-
-    pipe.project(document.view());
-    Json::Reader reader;
     Json::Value resjson;
 
-    mongocxx::cursor cursor = usercoll.aggregate(pipe);
-
-    if (cursor.begin() == cursor.end())
+    try
     {
-        resjson["Result"] = "Fail";
-        resjson["Reason"] = "数据库未查询到该信息！";
+        int page = stoi(queryjson["Page"].asString());
+        int pagesize = stoi(queryjson["PageSize"].asString());
+        int skip = (page - 1) * pagesize;
+        auto client = pool.acquire();
+        mongocxx::collection usercoll = (*client)["XDOJ"]["User"];
+
+        bsoncxx::builder::stream::document document{};
+        mongocxx::pipeline pipe;
+        pipe.skip(skip);
+        pipe.limit(pagesize);
+
+        document
+            << "NickName" << 1
+            << "PersonalProfile" << 1
+            << "School" << 1
+            << "Major" << 1
+            << "JoinTime" << 1;
+
+        pipe.project(document.view());
+        Json::Reader reader;
+
+        mongocxx::cursor cursor = usercoll.aggregate(pipe);
+
+        for (auto doc : cursor)
+        {
+            Json::Value jsonvalue;
+            reader.parse(bsoncxx::to_json(doc), jsonvalue);
+            resjson["ArrayInfo"].append(jsonvalue);
+        }
+        resjson["Result"] = "Success";
+        resjson["TotalNum"] = to_string(usercoll.count_documents({}));
         return resjson;
     }
-
-    for (auto doc : cursor)
+    catch (const std::exception &e)
     {
-        Json::Value jsonvalue;
-        reader.parse(bsoncxx::to_json(doc), jsonvalue);
-        resjson["ArrayInfo"].append(jsonvalue);
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "数据库出错啦！！！";
+        return resjson;
     }
-    resjson["Result"] = "Success";
-    resjson["TotalNum"] = to_string(usercoll.count_documents({}));
-    return resjson;
 }
 
 /*
@@ -475,22 +514,30 @@ Json::Value MoDB::SelectUserSetInfo(Json::Value &queryjson)
 */
 Json::Value MoDB::DeleteUser(Json::Value &deletejson)
 {
-    int64_t userid = stoll(deletejson["UserId"].asString());
-
-    auto client = pool.acquire();
-    mongocxx::collection usercoll = (*client)["XDOJ"]["User"];
-
-    auto result = usercoll.delete_one({make_document(kvp("_id", userid))});
-
     Json::Value resjson;
-    if ((*result).deleted_count() < 1)
+    try
     {
-        resjson["Result"] = "Fail";
-        resjson["Reason"] = "数据库未查询到该数据！";
+        int64_t userid = stoll(deletejson["UserId"].asString());
+        auto client = pool.acquire();
+        mongocxx::collection usercoll = (*client)["XDOJ"]["User"];
+
+        auto result = usercoll.delete_one({make_document(kvp("_id", userid))});
+
+        if ((*result).deleted_count() < 1)
+        {
+            resjson["Result"] = "Fail";
+            resjson["Reason"] = "数据库未查询到该数据！";
+            return resjson;
+        }
+        resjson["Result"] = "Success";
         return resjson;
     }
-    resjson["Result"] = "Success";
-    return resjson;
+    catch (const std::exception &e)
+    {
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "数据库出错啦！！！";
+        return resjson;
+    }
 }
 /*
     功能：管理员查询题目信息
@@ -972,8 +1019,8 @@ Json::Value MoDB::SelectStatusRecord(Json::Value &queryjson)
     // 查询题目
     if (problemid > 0)
     {
-        pipe.match({{make_document(kvp("ProblmId", problemid))}});
-        pipetot.match({{make_document(kvp("ProblmId", problemid))}});
+        pipe.match({{make_document(kvp("ProblemId", problemid))}});
+        pipetot.match({{make_document(kvp("ProblemId", problemid))}});
     }
     // 查询用户ID
     if (userid > 0)

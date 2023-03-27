@@ -16,19 +16,15 @@ public:
     // +++++++++++++++++++++++用户表User+++++++++++++++++++++++++++++
     /*
         功能：注册用户
-        前端传入
-        Json(NickName,Account,PassWord,PersonalProfile,School,Major)
-        后端传出
-        Json(Result,Reason)
+        传入：Json(NickName,Account,PassWord,PersonalProfile,School,Major)
+        传出：Json(Result,Reason)
     */
     Json::Value RegisterUser(Json::Value &registerjson);
 
     /*
         功能：登录用户
-        前端传入
-        Json(Account,PassWord)
-        后端传出
-        Json(Result,Reason,Info(_id,NickName,Avatar...))用户的全部信息，详情请见MongoDB集合表
+        传入：Json(Account,PassWord)
+        传出：Json(Result,Reason,Info(_id,NickName,Avatar,CommentLikes,Solves,Authority))
     */
     Json::Value LoginUser(Json::Value &loginjson);
 
@@ -42,20 +38,20 @@ public:
     /*
         功能：获取用户的Rank排名
         传入：Json(Page,PageSize)
-        传出：Json(_id,Rank,Avatar,NickName,PersonalProfile,SubmitNum,ACNum),TotalNum
+        传出：Json(ArrayInfo[_id,Rank,Avatar,NickName,PersonalProfile,SubmitNum,ACNum],TotalNum)
     */
     Json::Value SelectUserRank(Json::Value &queryjson);
 
     /*
         功能：获取用户大部分信息，主要用于用户主页的展示
         传入：Json(UserId)
-        传出：Json(_id,Avatar,NickName,PersonalProfile,School,Major,JoinTime,ACProblems,ACNum,SubmitNum)
+        传出：Json(Result,Reason,_id,Avatar,NickName,PersonalProfile,School,Major,JoinTime,Solves,ACNum,SubmitNum)
     */
     Json::Value SelectUserInfo(Json::Value &queryjson);
 
     /*
         功能：更改用户信息
-        传入：Json(UserId,Avatar,PersonalProfile,School,Major,Authority)
+        传入：Json(UserId,Avatar,PersonalProfile,School,Major)
         传出：Json(Result,Reason)
     */
     Json::Value UpdateUserInfo(Json::Value &updatejson);
@@ -63,14 +59,14 @@ public:
     /*
         功能：查询用户表，用于修改用户
         传入：Json(UserId)
-        传出：Json(_id,Avatar,NickName,PersonalProfile,School,Major,Authority)
+        传出：Json(_id,Avatar,NickName,PersonalProfile,School,Major)
     */
     Json::Value SelectUserUpdateInfo(Json::Value &queryjson);
 
     /*
         功能：分页查询用户列表
         传入：Json(Page,PageSize)
-        传出：Json(_id,NickName,PersonalProfile,School,Major,JoinTime,Authority)
+        传出：Json(_id,NickName,PersonalProfile,School,Major,JoinTime,TotalNum)
     */
     Json::Value SelectUserSetInfo(Json::Value &queryjson);
 
