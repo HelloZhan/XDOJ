@@ -25,6 +25,8 @@ public:
     // 管理员查询题目详细信息
     Json::Value SelectProblemInfoByAdmin(Json::Value &queryjson);
 
+    // 用户查询题目详细信息
+    Json::Value SelectProblem(Json::Value &queryjson);
     // 插入题目
     Json::Value InsertProblem(Json::Value &insertjson);
 

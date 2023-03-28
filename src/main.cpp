@@ -169,10 +169,11 @@ void doGetProblem(const httplib::Request &req, httplib::Response &res)
     {
         ProblemId = req.get_param_value("ProblemId");
     }
-    cout << "请求的ID：" << ProblemId << endl;
-    string buf = control.GetProblemDescription(ProblemId);
+    Json::Value queryjson;
+    queryjson["ProblemId"] = ProblemId;
+    Json::Value resjson = control.SelectProblem(queryjson);
     printf("doGetProblem end!!!\n");
-    res.set_content(buf, "text");
+    res.set_content(resjson.toStyledString(), "json");
 }
 
 // 返回题库

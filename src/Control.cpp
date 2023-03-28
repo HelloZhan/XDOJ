@@ -55,6 +55,11 @@ Json::Value Control::SelectProblemInfoByAdmin(Json::Value &queryjson)
 	return ProblemSet::GetInstance().SelectProblemInfoByAdmin(queryjson);
 }
 
+Json::Value Control::SelectProblem(Json::Value &queryjson)
+{
+	return ProblemSet::GetInstance().SelectProblem(queryjson);
+}
+
 Json::Value Control::EditProblem(Json::Value &insertjson)
 {
 	if (insertjson["EditType"].asString() == "Insert")

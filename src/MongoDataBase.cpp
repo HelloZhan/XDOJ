@@ -586,6 +586,61 @@ Json::Value MoDB::SelectProblemInfoByAdmin(Json::Value &queryjson)
 }
 
 /*
+    功能：获取题目信息，用于向用户展示题目
+    传入：Json(ProblemId)
+    传出：Json(Result,Reason,_id,Title,Description,TimeLimit,MemoryLimit,SubmitNum,ACNum,UserNickName,Tags)
+*/
+Json::Value MoDB::SelectProblem(Json::Value &queryjson)
+{
+    Json::Value resjson;
+    try
+    {
+        int64_t problemid = stoll(queryjson["ProblemId"].asString());
+
+        auto client = pool.acquire();
+        mongocxx::collection problemcoll = (*client)["XDOJ"]["Problem"];
+
+        bsoncxx::builder::stream::document document{};
+        mongocxx::pipeline pipe;
+        pipe.match({make_document(kvp("_id", problemid))});
+
+        document
+            << "Title" << 1
+            << "Description" << 1
+            << "TimeLimit" << 1
+            << "MemoryLimit" << 1
+            << "SubmitNum" << 1
+            << "ACNum" << 1
+            << "UserNickName" << 1
+            << "Tags" << 1;
+        pipe.project(document.view());
+
+        Json::Reader reader;
+
+        mongocxx::cursor cursor = problemcoll.aggregate(pipe);
+
+        if (cursor.begin() == cursor.end())
+        {
+            resjson["Result"] = "Fail";
+            resjson["Reason"] = "数据库未查询到该信息！";
+            return resjson;
+        }
+
+        for (auto doc : cursor)
+        {
+            reader.parse(bsoncxx::to_json(doc), resjson);
+        }
+        resjson["Result"] = "Success";
+        return resjson;
+    }
+    catch (const std::exception &e)
+    {
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "数据库出错啦！";
+        return resjson;
+    }
+}
+/*
     功能：插入题目
     传入：Json(Title,Description,TimeLimit,MemoryLimit,JudgeNum,Tags,UseNickName)
     传出：Json(Reuslt,Reason,ProblemId)

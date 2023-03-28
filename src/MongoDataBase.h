@@ -86,6 +86,12 @@ public:
     Json::Value SelectProblemInfoByAdmin(Json::Value &queryjson);
 
     /*
+        功能：获取题目信息，用于向用户展示题目
+        传入：Json(ProblemId)
+        传出：Json(Result,Reason,_id,Title,Description,TimeLimit,MemoryLimit,SubmitNum,ACNum,UserNickName,Tags)
+    */
+    Json::Value SelectProblem(Json::Value &queryjson);
+    /*
         功能：插入题目
         传入：Json(Title,Description,TimeLimit,MemoryLimit,JudgeNum,Tags,UseNickName)
         传出：Json(Reuslt,Reason,ProblemId)

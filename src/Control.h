@@ -35,6 +35,9 @@ public:
     // 管理员查看题目数据
     Json::Value SelectProblemInfoByAdmin(Json::Value &queryjson);
 
+    // 用户查询题目信息
+    Json::Value SelectProblem(Json::Value &queryjson);
+
     // 编辑题目
     Json::Value EditProblem(Json::Value &insertjson);
 

@@ -66,6 +66,12 @@ Json::Value ProblemSet::SelectProblemInfoByAdmin(Json::Value &queryjson)
     }
     return resjson;
 }
+
+Json::Value ProblemSet::SelectProblem(Json::Value &queryjson)
+{
+    return MoDB::GetInstance().SelectProblem(queryjson);
+}
+
 bool InsertProblemDataInfo(Json::Value &insertjson)
 {
     // 添加测试用例
