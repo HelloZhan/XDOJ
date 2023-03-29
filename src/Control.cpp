@@ -1,6 +1,6 @@
 #include "Control.h"
 #include "ProblemList.h"
-#include "UserSet.h"
+#include "UserList.h"
 #include "StatusRecordList.h"
 #include "DiscussList.h"
 #include "Comment.h"
@@ -13,42 +13,42 @@ using namespace std;
 
 Json::Value Control::RegisterUser(Json::Value &registerjson)
 {
-	return UserSet::GetInstance().RegisterUser(registerjson);
+	return UserList::GetInstance().RegisterUser(registerjson);
 }
 
 Json::Value Control::LoginUser(Json::Value &loginjson)
 {
-	return UserSet::GetInstance().LoginUser(loginjson);
+	return UserList::GetInstance().LoginUser(loginjson);
 }
 
 Json::Value Control::SelectUserRank(Json::Value &queryjson)
 {
-	return UserSet::GetInstance().SelectUserRank(queryjson);
+	return UserList::GetInstance().SelectUserRank(queryjson);
 }
 
 Json::Value Control::SelectUserInfo(Json::Value &queryjson)
 {
-	return UserSet::GetInstance().SelectUserInfo(queryjson);
+	return UserList::GetInstance().SelectUserInfo(queryjson);
 }
 
 Json::Value Control::UpdateUserInfo(Json::Value &updatejson)
 {
-	return UserSet::GetInstance().UpdateUserInfo(updatejson);
+	return UserList::GetInstance().UpdateUserInfo(updatejson);
 }
 
 Json::Value Control::SelectUserUpdateInfo(Json::Value &queryjson)
 {
-	return UserSet::GetInstance().SelectUserUpdateInfo(queryjson);
+	return UserList::GetInstance().SelectUserUpdateInfo(queryjson);
 }
 
 Json::Value Control::SelectUserSetInfo(Json::Value &queryjson)
 {
-	return UserSet::GetInstance().SelectUserSetInfo(queryjson);
+	return UserList::GetInstance().SelectUserSetInfo(queryjson);
 }
 
 Json::Value Control::DeleteUser(Json::Value &deletejson)
 {
-	return UserSet::GetInstance().DeleteUser(deletejson);
+	return UserList::GetInstance().DeleteUser(deletejson);
 }
 
 Json::Value Control::SelectProblemInfoByAdmin(Json::Value &queryjson)
@@ -129,7 +129,7 @@ Json::Value Control::GetJudgeCode(Json::Value judgejson)
 	updatejson["UserId"] = judgejson["UserId"];
 
 	// 更新用户的状态
-	if (UserSet::GetInstance().UpdateUserProblemInfo(updatejson))
+	if (UserList::GetInstance().UpdateUserProblemInfo(updatejson))
 		statusjson["IsFirstAC"] = true;
 	else
 		statusjson["IsFirstAC"] = false;
