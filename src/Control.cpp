@@ -4,7 +4,7 @@
 #include "StatusRecordList.h"
 #include "DiscussList.h"
 #include "Comment.h"
-#include "Solution.h"
+#include "SolutionList.h"
 #include "AnnouncementList.h"
 #include "Tag.h"
 #include "Judger.h"
@@ -173,7 +173,7 @@ Json::Value Control::InsertComment(Json::Value &insertjson)
 	}
 	else if (insertjson["ArticleType"].asString() == "Solution")
 	{
-		Solution::GetInstance().UpdateSolutionComments(updatejson);
+		SolutionList::GetInstance().UpdateSolutionComments(updatejson);
 	}
 	else if (insertjson["ArticleType"].asString() == "Announcement")
 	{
@@ -254,38 +254,38 @@ Json::Value Control::DeleteAnnouncement(Json::Value &deletejson)
 }
 
 // ----------------------题解----------------------------
+Json::Value Control::SelectSolutionList(Json::Value &queryjson)
+{
+	return SolutionList::GetInstance().SelectSolutionList(queryjson);
+}
+
+Json::Value Control::SelectSolutionListByAdmin(Json::Value &queryjson)
+{
+	return SolutionList::GetInstance().SelectSolutionListByAdmin(queryjson);
+}
+
 Json::Value Control::SelectSolution(Json::Value &queryjson)
 {
-	return Solution::GetInstance().SelectSolution(queryjson);
-}
-
-Json::Value Control::SelectSolutionByAdmin(Json::Value &queryjson)
-{
-	return Solution::GetInstance().SelectSolutionByAdmin(queryjson);
-}
-
-Json::Value Control::SelectSolutionContent(Json::Value &queryjson)
-{
-	return Solution::GetInstance().SelectSolutionContent(queryjson);
+	return SolutionList::GetInstance().SelectSolution(queryjson);
 }
 
 Json::Value Control::SelectSolutionByEdit(Json::Value &queryjson)
 {
-	return Solution::GetInstance().SelectSolutionByEdit(queryjson);
+	return SolutionList::GetInstance().SelectSolutionByEdit(queryjson);
 }
 
 Json::Value Control::InsertSolution(Json::Value &insertjson)
 {
-	return Solution::GetInstance().InsertSolution(insertjson);
+	return SolutionList::GetInstance().InsertSolution(insertjson);
 }
 
 Json::Value Control::UpdateSolution(Json::Value &updatejson)
 {
-	return Solution::GetInstance().UpdateSolution(updatejson);
+	return SolutionList::GetInstance().UpdateSolution(updatejson);
 }
 Json::Value Control::DeleteSolution(Json::Value &deletejson)
 {
-	return Solution::GetInstance().DeleteSolution(deletejson);
+	return SolutionList::GetInstance().DeleteSolution(deletejson);
 }
 
 // ----------------------讨论----------------------------

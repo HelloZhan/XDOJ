@@ -238,14 +238,14 @@ public:
         传入：Json(SearchInfo,Page,PageSize)
         传出：Json(_id,Title,Views,Comments,CreateTime,User.Avatar,User.NickName)
     */
-    Json::Value SelectSolution(Json::Value &queryjson);
+    Json::Value SelectSolutionList(Json::Value &queryjson);
 
     /*
         功能：管理员分页查询题解
         传入：Json(Page,PageSize)
         传出：Json(_id,Title,Views,Comments,CreateTime,User.Avatar,User.NickName)
     */
-    Json::Value SelectSolutionByAdmin(Json::Value &queryjson);
+    Json::Value SelectSolutionListByAdmin(Json::Value &queryjson);
 
     /*
         功能：查询题解的详细信息，主要是编辑时的查询
@@ -259,7 +259,7 @@ public:
         传入：Json(SolutionId)
         传出：Json(Result,Reason,Title,Content,Views,Comments,CreateTime,UpdateTime,User.NicaName,User.Avatar)
     */
-    Json::Value SelectSolutionContent(Json::Value &queryjson);
+    Json::Value SelectSolution(Json::Value &queryjson);
 
     /*
         功能：修改题解的评论数

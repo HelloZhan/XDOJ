@@ -1,28 +1,28 @@
-#ifndef SOLUTION_H
-#define SOLUTION_H
+#ifndef SOLUTIONLIST_H
+#define SOLUTIONLIST_H
 #include <jsoncpp/json/json.h>
 #include <string>
 // 讨论类
-class Solution
+class SolutionList
 {
 public:
     // 局部静态特性的方式实现单实例
-    static Solution &GetInstance();
+    static SolutionList &GetInstance();
 
     // 添加题解
     Json::Value InsertSolution(Json::Value &insertjson);
 
     // 分页查询题解
-    Json::Value SelectSolution(Json::Value &queryjson);
+    Json::Value SelectSolutionList(Json::Value &queryjson);
 
     // 管理员查询
-    Json::Value SelectSolutionByAdmin(Json::Value &queryjson);
+    Json::Value SelectSolutionListByAdmin(Json::Value &queryjson);
 
     // 查询
     Json::Value SelectSolutionByEdit(Json::Value &queryjson);
 
     // 查询题解的内容
-    Json::Value SelectSolutionContent(Json::Value &queryjson);
+    Json::Value SelectSolution(Json::Value &queryjson);
 
     // 修改评论数的数量
     bool UpdateSolutionComments(Json::Value &updatejson);
@@ -34,7 +34,7 @@ public:
     Json::Value DeleteSolution(Json::Value &deletejson);
 
 private:
-    Solution();
-    ~Solution();
+    SolutionList();
+    ~SolutionList();
 };
 #endif

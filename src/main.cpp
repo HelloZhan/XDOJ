@@ -435,90 +435,96 @@ void doDeleteAnnouncement(const httplib::Request &req, httplib::Response &res)
 }
 
 // ------------------题解------------------------------
-void doGetSolution(const httplib::Request &req, httplib::Response &res)
+void doGetSolutionList(const httplib::Request &req, httplib::Response &res)
 {
     printf("doGetSolution start!!!\n");
-    Json::Value searchinfo;
-    if (req.has_param("SearchInfo"))
+    Json::Value resjson;
+
+    if (!req.has_param("SearchInfo") || !req.has_param("Page") || !req.has_param("PageSize"))
     {
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "缺少请求参数！";
+    }
+    else
+    {
+        Json::Value searchinfo;
         Json::Reader reader;
         // 解析传入的json
         reader.parse(req.get_param_value("SearchInfo"), searchinfo);
+        string page = req.get_param_value("Page");
+        string pagesize = req.get_param_value("PageSize");
+        Json::Value queryjson;
+        queryjson["SearchInfo"] = searchinfo;
+        queryjson["Page"] = page;
+        queryjson["PageSize"] = pagesize;
+        resjson = control.SelectSolutionList(queryjson);
     }
-    string page = "1";
-    if (req.has_param("Page"))
-    {
-        page = req.get_param_value("Page");
-    }
-
-    string pagesize = "10";
-    if (req.has_param("PageSize"))
-    {
-        pagesize = req.get_param_value("PageSize");
-    }
-    Json::Value queryjson;
-    queryjson["SearchInfo"] = searchinfo;
-    queryjson["Page"] = page;
-    queryjson["PageSize"] = pagesize;
-    Json::Value resjson = control.SelectSolution(queryjson);
-
     printf("doGetSolution end!!!\n");
     res.set_content(resjson.toStyledString(), "json");
 }
 
-void doGetSolutionByAdmin(const httplib::Request &req, httplib::Response &res)
+void doGetSolutionListByAdmin(const httplib::Request &req, httplib::Response &res)
 {
     printf("doGetSolutionByAdmin start!!!\n");
-    string page = "1";
-    if (req.has_param("Page"))
+    Json::Value resjson;
+    if (!req.has_param("Page") || !req.has_param("PageSize"))
     {
-        page = req.get_param_value("Page");
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "缺少请求参数！";
     }
-
-    string pagesize = "10";
-    if (req.has_param("PageSize"))
+    else
     {
-        pagesize = req.get_param_value("PageSize");
-    }
-    Json::Value queryjson;
-    queryjson["Page"] = page;
-    queryjson["PageSize"] = pagesize;
-    Json::Value resjson = control.SelectSolutionByAdmin(queryjson);
+        string page = req.get_param_value("Page");
+        string pagesize = req.get_param_value("PageSize");
 
+        Json::Value queryjson;
+        queryjson["Page"] = page;
+        queryjson["PageSize"] = pagesize;
+        resjson = control.SelectSolutionListByAdmin(queryjson);
+    }
     printf("doGetSolutionByAdmin end!!!\n");
     res.set_content(resjson.toStyledString(), "json");
 }
-void doGetSolutionContent(const httplib::Request &req, httplib::Response &res)
+void doGetSolution(const httplib::Request &req, httplib::Response &res)
 {
     printf("doGetSolutionContent start!!!\n");
+    Json::Value resjson;
 
-    string solutionid = "0";
-    if (req.has_param("SolutionId"))
+    if (!req.has_param("SolutionId"))
     {
-        solutionid = req.get_param_value("SolutionId");
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "缺少请求参数！";
     }
+    else
+    {
+        string solutionid = req.get_param_value("SolutionId");
+        Json::Value queryjson;
+        queryjson["SolutionId"] = solutionid;
 
-    Json::Value queryjson;
-    queryjson["SolutionId"] = solutionid;
-
-    Json::Value resjson = control.SelectSolutionContent(queryjson);
+        resjson = control.SelectSolution(queryjson);
+    }
     printf("doGetSolutionContent end!!!\n");
     res.set_content(resjson.toStyledString(), "json");
 }
 
-void doSelectSolution(const httplib::Request &req, httplib::Response &res)
+void doSelectSolutionByEdit(const httplib::Request &req, httplib::Response &res)
 {
     printf("doSelectSolution start!!!\n");
+    Json::Value resjson;
 
-    string solutionid = "0";
-    if (req.has_param("SolutionId"))
+    if (!req.has_param("SolutionId"))
     {
-        solutionid = req.get_param_value("SolutionId");
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "缺少请求参数！";
     }
-    Json::Value queryjson;
-    queryjson["SolutionId"] = solutionid;
+    else
+    {
+        string solutionid = req.get_param_value("SolutionId");
+        Json::Value queryjson;
+        queryjson["SolutionId"] = solutionid;
 
-    Json::Value resjson = control.SelectSolutionByEdit(queryjson);
+        resjson = control.SelectSolutionByEdit(queryjson);
+    }
     printf("doSelectSolution end!!!\n");
     res.set_content(resjson.toStyledString(), "json");
 }
@@ -550,16 +556,21 @@ void doUpdateSolution(const httplib::Request &req, httplib::Response &res)
 void doDeleteSolution(const httplib::Request &req, httplib::Response &res)
 {
     printf("doDeleteSolution start!!!\n");
+    Json::Value resjson;
 
-    string solutionid = "0";
-    if (req.has_param("SolutionId"))
+    if (!req.has_param("SolutionId"))
     {
-        solutionid = req.get_param_value("SolutionId");
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "缺少请求参数！";
     }
-    Json::Value deletejson;
-    deletejson["SolutionId"] = solutionid;
+    else
+    {
+        string solutionid = req.get_param_value("SolutionId");
+        Json::Value deletejson;
+        deletejson["SolutionId"] = solutionid;
 
-    Json::Value resjson = control.DeleteSolution(deletejson);
+        resjson = control.DeleteSolution(deletejson);
+    }
     printf("doDeleteSolution end!!!\n");
     res.set_content(resjson.toStyledString(), "json");
 }
@@ -839,16 +850,16 @@ int main()
 
     // -------------题解------------------------
     // 获取题解列表
-    server.Get("/solution", doGetSolution);
+    server.Get("/solutionlist", doGetSolutionList);
 
     // 获取题解列表
-    server.Get("/solution/admin", doGetSolutionByAdmin);
+    server.Get("/solutionlist/admin", doGetSolutionListByAdmin);
 
     // 获取题解内容
-    server.Get("/solution/content", doGetSolutionContent);
+    server.Get("/solution", doGetSolution);
 
     // 获取题解信息用于编辑
-    server.Get("/solution/select", doSelectSolution);
+    server.Get("/solution/select", doSelectSolutionByEdit);
 
     // 用户题解公告
     server.Post("/solution/insert", doInsertSolution);

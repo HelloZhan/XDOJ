@@ -87,13 +87,13 @@ public:
 
     // ----------------------题解-----------------------
     // 查询题解列表
-    Json::Value SelectSolution(Json::Value &queryjson);
+    Json::Value SelectSolutionList(Json::Value &queryjson);
 
     // 管理员查询
-    Json::Value SelectSolutionByAdmin(Json::Value &queryjson);
+    Json::Value SelectSolutionListByAdmin(Json::Value &queryjson);
 
     // 查询题解
-    Json::Value SelectSolutionContent(Json::Value &queryjson);
+    Json::Value SelectSolution(Json::Value &queryjson);
 
     // 查询题解进行编辑
     Json::Value SelectSolutionByEdit(Json::Value &queryjson);

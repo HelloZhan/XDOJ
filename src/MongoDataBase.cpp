@@ -1597,119 +1597,135 @@ Json::Value MoDB::DeleteDiscuss(Json::Value &deletejson)
 Json::Value MoDB::InsertSolution(Json::Value &insertjson)
 {
     Json::Value resjson;
-
-    int64_t id = ++m_solutionid;
-    string title = insertjson["Title"].asString();
-    string content = insertjson["Content"].asString();
-    int64_t parentid = stoll(insertjson["ParentId"].asString());
-    int64_t userid = stoll(insertjson["UserId"].asString());
-    bool ispublic = insertjson["Public"].asBool();
-
-    auto client = pool.acquire();
-    mongocxx::collection solutioncoll = (*client)["XDOJ"]["Solution"];
-    bsoncxx::builder::stream::document document{};
-    document
-        << "_id" << id
-        << "Title" << title.data()
-        << "Content" << content.data()
-        << "ParentId" << parentid
-        << "UserId" << userid
-        << "Views" << 0
-        << "Comments" << 0
-        << "Public" << ispublic
-        << "CreateTime" << GetTime().data()
-        << "UpdateTime" << GetTime().data();
-
-    auto result = solutioncoll.insert_one(document.view());
-
-    if ((*result).result().inserted_count() < 1)
+    try
     {
-        resjson["Result"] = "Fail";
-        resjson["Reason"] = "数据库插入失败！";
+        int64_t id = ++m_solutionid;
+        string title = insertjson["Title"].asString();
+        string content = insertjson["Content"].asString();
+        int64_t parentid = stoll(insertjson["ParentId"].asString());
+        int64_t userid = stoll(insertjson["UserId"].asString());
+        bool ispublic = insertjson["Public"].asBool();
+
+        auto client = pool.acquire();
+        mongocxx::collection solutioncoll = (*client)["XDOJ"]["Solution"];
+        bsoncxx::builder::stream::document document{};
+        document
+            << "_id" << id
+            << "Title" << title.data()
+            << "Content" << content.data()
+            << "ParentId" << parentid
+            << "UserId" << userid
+            << "Views" << 0
+            << "Comments" << 0
+            << "Public" << ispublic
+            << "CreateTime" << GetTime().data()
+            << "UpdateTime" << GetTime().data();
+
+        auto result = solutioncoll.insert_one(document.view());
+
+        if ((*result).result().inserted_count() < 1)
+        {
+            resjson["Result"] = "Fail";
+            resjson["Reason"] = "数据库插入失败！";
+            return resjson;
+        }
+        resjson["Result"] = "Success";
         return resjson;
     }
-    resjson["Result"] = "Success";
-    return resjson;
+    catch (const std::exception &e)
+    {
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "数据库异常！";
+        return resjson;
+    }
 }
 /*
     功能：分页查询题解（公开题解）
     传入：Json(SearchInfo,Page,PageSize)
     传出：Json(_id,Title,Views,Comments,CreateTime,User.Avatar,User.NickName)
 */
-Json::Value MoDB::SelectSolution(Json::Value &queryjson)
+Json::Value MoDB::SelectSolutionList(Json::Value &queryjson)
 {
     Json::Value resjson;
-
-    int64_t parentid = stoll(queryjson["SearchInfo"]["ParentId"].asString());
-    int64_t userid = stoll(queryjson["SearchInfo"]["UserId"].asString());
-    int page = stoi(queryjson["Page"].asString());
-    int pagesize = stoi(queryjson["PageSize"].asString());
-    int skip = (page - 1) * pagesize;
-
-    Json::Reader reader;
-    bsoncxx::builder::stream::document document{};
-    mongocxx::pipeline pipe, pipetot;
-
-    auto client = pool.acquire();
-    mongocxx::collection solutioncoll = (*client)["XDOJ"]["Solution"];
-
-    if (parentid > 0)
+    try
     {
-        // 匹配ID
-        pipetot.match({make_document(kvp("ParentId", parentid))});
-        pipe.match({make_document(kvp("ParentId", parentid))});
+        int64_t parentid = stoll(queryjson["SearchInfo"]["ParentId"].asString());
+        int64_t userid = stoll(queryjson["SearchInfo"]["UserId"].asString());
+        int page = stoi(queryjson["Page"].asString());
+        int pagesize = stoi(queryjson["PageSize"].asString());
+        int skip = (page - 1) * pagesize;
 
-        // 匹配公开
-        pipetot.match({make_document(kvp("Public", true))});
-        pipe.match({make_document(kvp("Public", true))});
+        Json::Reader reader;
+        bsoncxx::builder::stream::document document{};
+        mongocxx::pipeline pipe, pipetot;
+
+        auto client = pool.acquire();
+        mongocxx::collection solutioncoll = (*client)["XDOJ"]["Solution"];
+
+        if (parentid > 0)
+        {
+            // 匹配ID
+            pipetot.match({make_document(kvp("ParentId", parentid))});
+            pipe.match({make_document(kvp("ParentId", parentid))});
+
+            // 匹配公开
+            pipetot.match({make_document(kvp("Public", true))});
+            pipe.match({make_document(kvp("Public", true))});
+        }
+        if (userid > 0)
+        {
+            // 匹配ID
+            pipetot.match({make_document(kvp("UserId", userid))});
+            pipe.match({make_document(kvp("UserId", userid))});
+        }
+        // 获取总条数
+
+        pipetot.count("TotalNum");
+        mongocxx::cursor cursor = solutioncoll.aggregate(pipetot);
+        for (auto doc : cursor)
+        {
+            reader.parse(bsoncxx::to_json(doc), resjson);
+        }
+
+        pipe.sort({make_document(kvp("CreateTime", -1))});
+        pipe.skip(skip);
+        pipe.limit(pagesize);
+        document
+            << "from"
+            << "User"
+            << "localField"
+            << "UserId"
+            << "foreignField"
+            << "_id"
+            << "as"
+            << "User";
+        pipe.lookup(document.view());
+
+        document.clear();
+        document
+            << "Title" << 1
+            << "Views" << 1
+            << "Comments" << 1
+            << "CreateTime" << 1
+            << "User.Avatar" << 1
+            << "User.NickName" << 1;
+        pipe.project(document.view());
+
+        cursor = solutioncoll.aggregate(pipe);
+        for (auto doc : cursor)
+        {
+            Json::Value jsonvalue;
+            reader.parse(bsoncxx::to_json(doc), jsonvalue);
+            resjson["ArrayInfo"].append(jsonvalue);
+        }
+        return resjson;
     }
-    if (userid > 0)
+    catch (const std::exception &e)
     {
-        // 匹配ID
-        pipetot.match({make_document(kvp("UserId", userid))});
-        pipe.match({make_document(kvp("UserId", userid))});
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "数据库异常！";
+        return resjson;
     }
-    // 获取总条数
-
-    pipetot.count("TotalNum");
-    mongocxx::cursor cursor = solutioncoll.aggregate(pipetot);
-    for (auto doc : cursor)
-    {
-        reader.parse(bsoncxx::to_json(doc), resjson);
-    }
-
-    pipe.sort({make_document(kvp("CreateTime", -1))});
-    pipe.skip(skip);
-    pipe.limit(pagesize);
-    document
-        << "from"
-        << "User"
-        << "localField"
-        << "UserId"
-        << "foreignField"
-        << "_id"
-        << "as"
-        << "User";
-    pipe.lookup(document.view());
-
-    document.clear();
-    document
-        << "Title" << 1
-        << "Views" << 1
-        << "Comments" << 1
-        << "CreateTime" << 1
-        << "User.Avatar" << 1
-        << "User.NickName" << 1;
-    pipe.project(document.view());
-
-    cursor = solutioncoll.aggregate(pipe);
-    for (auto doc : cursor)
-    {
-        Json::Value jsonvalue;
-        reader.parse(bsoncxx::to_json(doc), jsonvalue);
-        resjson["ArrayInfo"].append(jsonvalue);
-    }
-    return resjson;
 }
 
 /*
@@ -1717,61 +1733,69 @@ Json::Value MoDB::SelectSolution(Json::Value &queryjson)
     传入：Json(Page,PageSize)
     传出：Json(_id,Title,Views,Comments,CreateTime,User.Avatar,User.NickName)
 */
-Json::Value MoDB::SelectSolutionByAdmin(Json::Value &queryjson)
+Json::Value MoDB::SelectSolutionListByAdmin(Json::Value &queryjson)
 {
     Json::Value resjson;
-
-    int page = stoi(queryjson["Page"].asString());
-    int pagesize = stoi(queryjson["PageSize"].asString());
-    int skip = (page - 1) * pagesize;
-
-    Json::Reader reader;
-    bsoncxx::builder::stream::document document{};
-    mongocxx::pipeline pipe, pipetot;
-
-    auto client = pool.acquire();
-    mongocxx::collection solutioncoll = (*client)["XDOJ"]["Solution"];
-
-    // 获取总条数
-    pipetot.count("TotalNum");
-    mongocxx::cursor cursor = solutioncoll.aggregate(pipetot);
-    for (auto doc : cursor)
+    try
     {
-        reader.parse(bsoncxx::to_json(doc), resjson);
+        int page = stoi(queryjson["Page"].asString());
+        int pagesize = stoi(queryjson["PageSize"].asString());
+        int skip = (page - 1) * pagesize;
+
+        Json::Reader reader;
+        bsoncxx::builder::stream::document document{};
+        mongocxx::pipeline pipe, pipetot;
+
+        auto client = pool.acquire();
+        mongocxx::collection solutioncoll = (*client)["XDOJ"]["Solution"];
+
+        // 获取总条数
+        pipetot.count("TotalNum");
+        mongocxx::cursor cursor = solutioncoll.aggregate(pipetot);
+        for (auto doc : cursor)
+        {
+            reader.parse(bsoncxx::to_json(doc), resjson);
+        }
+
+        pipe.sort({make_document(kvp("CreateTime", -1))});
+        pipe.skip(skip);
+        pipe.limit(pagesize);
+        document
+            << "from"
+            << "User"
+            << "localField"
+            << "UserId"
+            << "foreignField"
+            << "_id"
+            << "as"
+            << "User";
+        pipe.lookup(document.view());
+
+        document.clear();
+        document
+            << "Title" << 1
+            << "Views" << 1
+            << "Comments" << 1
+            << "CreateTime" << 1
+            << "User.Avatar" << 1
+            << "User.NickName" << 1;
+        pipe.project(document.view());
+
+        cursor = solutioncoll.aggregate(pipe);
+        for (auto doc : cursor)
+        {
+            Json::Value jsonvalue;
+            reader.parse(bsoncxx::to_json(doc), jsonvalue);
+            resjson["ArrayInfo"].append(jsonvalue);
+        }
+        return resjson;
     }
-
-    pipe.sort({make_document(kvp("CreateTime", -1))});
-    pipe.skip(skip);
-    pipe.limit(pagesize);
-    document
-        << "from"
-        << "User"
-        << "localField"
-        << "UserId"
-        << "foreignField"
-        << "_id"
-        << "as"
-        << "User";
-    pipe.lookup(document.view());
-
-    document.clear();
-    document
-        << "Title" << 1
-        << "Views" << 1
-        << "Comments" << 1
-        << "CreateTime" << 1
-        << "User.Avatar" << 1
-        << "User.NickName" << 1;
-    pipe.project(document.view());
-
-    cursor = solutioncoll.aggregate(pipe);
-    for (auto doc : cursor)
+    catch (const std::exception &e)
     {
-        Json::Value jsonvalue;
-        reader.parse(bsoncxx::to_json(doc), jsonvalue);
-        resjson["ArrayInfo"].append(jsonvalue);
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "数据库异常！";
+        return resjson;
     }
-    return resjson;
 }
 /*
     功能：查询题解的详细信息，主要是编辑时的查询
@@ -1781,99 +1805,115 @@ Json::Value MoDB::SelectSolutionByAdmin(Json::Value &queryjson)
 Json::Value MoDB::SelectSolutionByEdit(Json::Value &queryjson)
 {
     Json::Value resjson;
-
-    int64_t solutionid = stoll(queryjson["SolutionId"].asString());
-
-    auto client = pool.acquire();
-    mongocxx::collection solutioncoll = (*client)["XDOJ"]["Solution"];
-
-    bsoncxx::builder::stream::document document{};
-    mongocxx::pipeline pipe;
-    pipe.match({make_document(kvp("_id", solutionid))});
-    document
-        << "Title" << 1
-        << "Content" << 1
-        << "Public" << 1;
-    pipe.project(document.view());
-    mongocxx::cursor cursor = solutioncoll.aggregate(pipe);
-
-    Json::Reader reader;
-    if (cursor.begin() == cursor.end())
+    try
     {
-        resjson["Result"] = "Fail";
-        resjson["Reason"] = "数据库未查询到数据！";
+        int64_t solutionid = stoll(queryjson["SolutionId"].asString());
+
+        auto client = pool.acquire();
+        mongocxx::collection solutioncoll = (*client)["XDOJ"]["Solution"];
+
+        bsoncxx::builder::stream::document document{};
+        mongocxx::pipeline pipe;
+        pipe.match({make_document(kvp("_id", solutionid))});
+        document
+            << "Title" << 1
+            << "Content" << 1
+            << "Public" << 1;
+        pipe.project(document.view());
+        mongocxx::cursor cursor = solutioncoll.aggregate(pipe);
+
+        Json::Reader reader;
+        if (cursor.begin() == cursor.end())
+        {
+            resjson["Result"] = "Fail";
+            resjson["Reason"] = "数据库未查询到数据！";
+            return resjson;
+        }
+        for (auto doc : cursor)
+        {
+            reader.parse(bsoncxx::to_json(doc), resjson);
+        }
+        resjson["Result"] = "Success";
         return resjson;
     }
-    for (auto doc : cursor)
+    catch (const std::exception &e)
     {
-        reader.parse(bsoncxx::to_json(doc), resjson);
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "数据库异常！";
+        return resjson;
     }
-    resjson["Result"] = "Success";
-    return resjson;
 }
 /*
     功能：查询题解的详细内容，并且将其浏览量加一
     传入：Json(SolutionId)
     传出：Json(Result,Reason,Title,Content,Views,Comments,CreateTime,UpdateTime,User.NicaName,User.Avatar)
 */
-Json::Value MoDB::SelectSolutionContent(Json::Value &queryjson)
+Json::Value MoDB::SelectSolution(Json::Value &queryjson)
 {
     Json::Value resjson;
-
-    int64_t solutionid = stoll(queryjson["SolutionId"].asString());
-
-    auto client = pool.acquire();
-    mongocxx::collection solutioncoll = (*client)["XDOJ"]["Solution"];
-    // 浏览量加一
-    bsoncxx::builder::stream::document document{};
-    document
-        << "$inc" << open_document
-        << "Views" << 1 << close_document;
-    solutioncoll.update_one({make_document(kvp("_id", solutionid))}, document.view());
-
-    // 查询Content
-    mongocxx::pipeline pipe;
-    pipe.match({make_document(kvp("_id", solutionid))});
-    document.clear();
-
-    document
-        << "from"
-        << "User"
-        << "localField"
-        << "UserId"
-        << "foreignField"
-        << "_id"
-        << "as"
-        << "User";
-    pipe.lookup(document.view());
-
-    document.clear();
-    document
-        << "Title" << 1
-        << "Content" << 1
-        << "Views" << 1
-        << "Comments" << 1
-        << "CreateTime" << 1
-        << "UpdateTime" << 1
-        << "User.Avatar" << 1
-        << "User.NickName" << 1;
-    pipe.project(document.view());
-
-    mongocxx::cursor cursor = solutioncoll.aggregate(pipe);
-
-    if (cursor.begin() == cursor.end())
+    try
     {
-        resjson["Result"] = "Fail";
-        resjson["Reason"] = "数据库未查询到数据，可能是请求参数错误！";
+        int64_t solutionid = stoll(queryjson["SolutionId"].asString());
+
+        auto client = pool.acquire();
+        mongocxx::collection solutioncoll = (*client)["XDOJ"]["Solution"];
+        // 浏览量加一
+        bsoncxx::builder::stream::document document{};
+        document
+            << "$inc" << open_document
+            << "Views" << 1 << close_document;
+        solutioncoll.update_one({make_document(kvp("_id", solutionid))}, document.view());
+
+        // 查询Content
+        mongocxx::pipeline pipe;
+        pipe.match({make_document(kvp("_id", solutionid))});
+        document.clear();
+
+        document
+            << "from"
+            << "User"
+            << "localField"
+            << "UserId"
+            << "foreignField"
+            << "_id"
+            << "as"
+            << "User";
+        pipe.lookup(document.view());
+
+        document.clear();
+        document
+            << "Title" << 1
+            << "Content" << 1
+            << "Views" << 1
+            << "Comments" << 1
+            << "CreateTime" << 1
+            << "UpdateTime" << 1
+            << "User.Avatar" << 1
+            << "User.NickName" << 1;
+        pipe.project(document.view());
+
+        mongocxx::cursor cursor = solutioncoll.aggregate(pipe);
+
+        if (cursor.begin() == cursor.end())
+        {
+            resjson["Result"] = "Fail";
+            resjson["Reason"] = "数据库未查询到数据，可能是请求参数错误！";
+            return resjson;
+        }
+        Json::Reader reader;
+        for (auto doc : cursor)
+        {
+            reader.parse(bsoncxx::to_json(doc), resjson);
+        }
+        resjson["Result"] = "Success";
         return resjson;
     }
-    Json::Reader reader;
-    for (auto doc : cursor)
+    catch (const std::exception &e)
     {
-        reader.parse(bsoncxx::to_json(doc), resjson);
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "数据库异常！";
+        return resjson;
     }
-    resjson["Result"] = "Success";
-    return resjson;
 }
 
 /*
@@ -1904,34 +1944,42 @@ bool MoDB::UpdateSolutionComments(Json::Value &updatejson)
 Json::Value MoDB::UpdateSolution(Json::Value &updatejson)
 {
     Json::Value resjson;
-
-    int64_t solutionid = stoll(updatejson["SolutionId"].asString());
-    string title = updatejson["Title"].asString();
-    string content = updatejson["Content"].asString();
-    bool ispublic = updatejson["Public"].asBool();
-
-    auto client = pool.acquire();
-    mongocxx::collection solutioncoll = (*client)["XDOJ"]["Solution"];
-
-    bsoncxx::builder::stream::document document{};
-    document
-        << "$set" << open_document
-        << "Title" << title.data()
-        << "Content" << content.data()
-        << "Public" << ispublic
-        << "UpdateTime" << GetTime().data()
-        << close_document;
-
-    auto result = solutioncoll.update_one({make_document(kvp("_id", solutionid))}, document.view());
-
-    if ((*result).modified_count() < 1)
+    try
     {
-        resjson["Result"] = "Fail";
-        resjson["Reason"] = "数据库插入失败！";
+        int64_t solutionid = stoll(updatejson["SolutionId"].asString());
+        string title = updatejson["Title"].asString();
+        string content = updatejson["Content"].asString();
+        bool ispublic = updatejson["Public"].asBool();
+
+        auto client = pool.acquire();
+        mongocxx::collection solutioncoll = (*client)["XDOJ"]["Solution"];
+
+        bsoncxx::builder::stream::document document{};
+        document
+            << "$set" << open_document
+            << "Title" << title.data()
+            << "Content" << content.data()
+            << "Public" << ispublic
+            << "UpdateTime" << GetTime().data()
+            << close_document;
+
+        auto result = solutioncoll.update_one({make_document(kvp("_id", solutionid))}, document.view());
+
+        if ((*result).modified_count() < 1)
+        {
+            resjson["Result"] = "Fail";
+            resjson["Reason"] = "数据库插入失败！";
+            return resjson;
+        }
+        resjson["Result"] = "Success";
         return resjson;
     }
-    resjson["Result"] = "Success";
-    return resjson;
+    catch (const std::exception &e)
+    {
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "数据库异常！";
+        return resjson;
+    }
 }
 
 /*
@@ -1942,22 +1990,30 @@ Json::Value MoDB::UpdateSolution(Json::Value &updatejson)
 Json::Value MoDB::DeleteSolution(Json::Value &deletejson)
 {
     Json::Value resjson;
-
-    int64_t solutionid = stoll(deletejson["SolutionId"].asString());
-
-    auto client = pool.acquire();
-    mongocxx::collection solutioncoll = (*client)["XDOJ"]["Solution"];
-
-    auto result = solutioncoll.delete_one({make_document(kvp("_id", solutionid))});
-
-    if ((*result).deleted_count() < 1)
+    try
     {
-        resjson["Result"] = "Fail";
-        resjson["Reason"] = "数据库删除失败！";
+        int64_t solutionid = stoll(deletejson["SolutionId"].asString());
+
+        auto client = pool.acquire();
+        mongocxx::collection solutioncoll = (*client)["XDOJ"]["Solution"];
+
+        auto result = solutioncoll.delete_one({make_document(kvp("_id", solutionid))});
+
+        if ((*result).deleted_count() < 1)
+        {
+            resjson["Result"] = "Fail";
+            resjson["Reason"] = "数据库删除失败！";
+            return resjson;
+        }
+        resjson["Result"] = "Success";
         return resjson;
     }
-    resjson["Result"] = "Success";
-    return resjson;
+    catch (const std::exception &e)
+    {
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "数据库异常！";
+        return resjson;
+    }
 }
 
 /*
