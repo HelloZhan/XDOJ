@@ -44,11 +44,8 @@ public:
     // 删除题目
     Json::Value DeleteProblem(Json::Value &deletejson);
 
-    // 返回具体题目
-    std::string GetProblemDescription(std::string problemid);
-
     // 返回题库
-    Json::Value SelectProblemSetInfo(Json::Value &queryjson);
+    Json::Value SelectProblemList(Json::Value &queryjson);
 
     // 返回判题信息
     Json::Value GetJudgeCode(Json::Value judgejson);

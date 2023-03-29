@@ -1,26 +1,15 @@
-#include "ProblemSet.h"
+#include "ProblemList.h"
 #include "MongoDataBase.h"
-#include "Problem.h"
 #include <iostream>
 #include <fstream>
 #include <unistd.h>
 
 using namespace std;
-ProblemSet::ProblemSet()
+ProblemList::ProblemList()
 {
-}
-void ProblemSet::Init()
-{
-    Json::Value jsonvalue = MoDB::GetInstance().getAllProblem();
-    ProblemNum = (int)jsonvalue.size();
-    for (int i = 0; i < ProblemNum; i++)
-    {
-        Problem *tmp = new Problem(jsonvalue[i]);
-        heap[jsonvalue[i]["_id"].asString()] = tmp;
-    }
 }
 
-Json::Value ProblemSet::SelectProblemInfoByAdmin(Json::Value &queryjson)
+Json::Value ProblemList::SelectProblemInfoByAdmin(Json::Value &queryjson)
 {
     // 获取基本信息
     Json::Value resjson = MoDB::GetInstance().SelectProblemInfoByAdmin(queryjson);
@@ -67,7 +56,7 @@ Json::Value ProblemSet::SelectProblemInfoByAdmin(Json::Value &queryjson)
     return resjson;
 }
 
-Json::Value ProblemSet::SelectProblem(Json::Value &queryjson)
+Json::Value ProblemList::SelectProblem(Json::Value &queryjson)
 {
     return MoDB::GetInstance().SelectProblem(queryjson);
 }
@@ -106,7 +95,7 @@ bool InsertProblemDataInfo(Json::Value &insertjson)
     }
     return true;
 }
-Json::Value ProblemSet::InsertProblem(Json::Value &insertjson)
+Json::Value ProblemList::InsertProblem(Json::Value &insertjson)
 {
     cout << insertjson.toStyledString() << endl;
     Json::Value tmpjson = MoDB::GetInstance().InsertProblem(insertjson);
@@ -123,16 +112,13 @@ Json::Value ProblemSet::InsertProblem(Json::Value &insertjson)
     problemjson["TimeLimit"] = insertjson["TimeLimit"];
     problemjson["MemoryLimit"] = insertjson["MemoryLimit"];
 
-    Problem *tmp = new Problem(problemjson);
-    heap[problemjson["_id"].asString()] = tmp;
-
     insertjson["ProblemId"] = tmpjson["ProblemId"];
 
     InsertProblemDataInfo(insertjson);
     return tmpjson;
 }
 
-Json::Value ProblemSet::UpdateProblem(Json::Value &updatejson)
+Json::Value ProblemList::UpdateProblem(Json::Value &updatejson)
 {
     cout << "UpdateProblem" << endl;
     Json::Value tmpjson = MoDB::GetInstance().UpdateProblem(updatejson);
@@ -149,7 +135,7 @@ Json::Value ProblemSet::UpdateProblem(Json::Value &updatejson)
     return tmpjson;
 }
 
-Json::Value ProblemSet::DeleteProblem(Json::Value &deletejson)
+Json::Value ProblemList::DeleteProblem(Json::Value &deletejson)
 {
     Json::Value tmpjson = MoDB::GetInstance().DeleteProblem(deletejson);
 
@@ -161,60 +147,25 @@ Json::Value ProblemSet::DeleteProblem(Json::Value &deletejson)
 
     system(command.data());
 
-    // 删除指针
-    delete heap[deletejson["ProblemId"].asString()];
-    // 删除容器的值
-    heap.erase(deletejson["ProblemId"].asString());
-
     return tmpjson;
 }
 
-std::string ProblemSet::getProblemDescription(std::string id)
+Json::Value ProblemList::SelectProblemList(Json::Value &queryjson)
 {
-    return heap[id]->getProblemDescription();
+    return MoDB::GetInstance().SelectProblemList(queryjson);
 }
 
-Json::Value ProblemSet::SelectProblemSetInfo(Json::Value &queryjson)
-{
-    return MoDB::GetInstance().getProblemSet(queryjson);
-}
-
-bool ProblemSet::UpdateProblemStatusNum(Json::Value &updatejson)
+bool ProblemList::UpdateProblemStatusNum(Json::Value &updatejson)
 {
     return MoDB::GetInstance().UpdateProblemStatusNum(updatejson);
 }
 
-int ProblemSet::getProblemJudgeNum(std::string id)
+ProblemList &ProblemList::GetInstance()
 {
-    return heap[id]->getJudgeNum();
+    static ProblemList problemlist;
+    return problemlist;
 }
 
-string ProblemSet::getProblemTitleById(std::string id)
+ProblemList::~ProblemList()
 {
-    return heap[id]->getProblemTitle();
-}
-
-int ProblemSet::getProblemTimeLimit(std::string id)
-{
-    return heap[id]->getProblemTimeLimit();
-}
-
-int ProblemSet::getProblemMemoryLimit(std::string id)
-{
-    return heap[id]->getProblemMemoryLimit();
-}
-
-ProblemSet &ProblemSet::GetInstance()
-{
-    static ProblemSet problemset;
-    return problemset;
-}
-
-ProblemSet::~ProblemSet()
-{
-    for (auto v : heap)
-    {
-        delete v.second;
-    }
-    heap.clear();
 }

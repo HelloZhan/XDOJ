@@ -1,5 +1,5 @@
 #include "Control.h"
-#include "ProblemSet.h"
+#include "ProblemList.h"
 #include "UserSet.h"
 #include "StatusRecord.h"
 #include "Discuss.h"
@@ -52,50 +52,46 @@ Json::Value Control::DeleteUser(Json::Value &deletejson)
 
 Json::Value Control::SelectProblemInfoByAdmin(Json::Value &queryjson)
 {
-	return ProblemSet::GetInstance().SelectProblemInfoByAdmin(queryjson);
+	return ProblemList::GetInstance().SelectProblemInfoByAdmin(queryjson);
 }
 
 Json::Value Control::SelectProblem(Json::Value &queryjson)
 {
-	return ProblemSet::GetInstance().SelectProblem(queryjson);
+	return ProblemList::GetInstance().SelectProblem(queryjson);
 }
 
 Json::Value Control::EditProblem(Json::Value &insertjson)
 {
 	if (insertjson["EditType"].asString() == "Insert")
 	{
-		return ProblemSet::GetInstance().InsertProblem(insertjson);
+		return ProblemList::GetInstance().InsertProblem(insertjson);
 	}
 	else if (insertjson["EditType"].asString() == "Update")
 	{
-		return ProblemSet::GetInstance().UpdateProblem(insertjson);
+		return ProblemList::GetInstance().UpdateProblem(insertjson);
 	}
 }
 Json::Value Control::DeleteProblem(Json::Value &deletejson)
 {
-	return ProblemSet::GetInstance().DeleteProblem(deletejson);
-}
-string Control::GetProblemDescription(string problemid)
-{
-	return ProblemSet::GetInstance().getProblemDescription(problemid);
+	return ProblemList::GetInstance().DeleteProblem(deletejson);
 }
 
-Json::Value Control::SelectProblemSetInfo(Json::Value &queryjson)
+Json::Value Control::SelectProblemList(Json::Value &queryjson)
 {
-	return ProblemSet::GetInstance().SelectProblemSetInfo(queryjson);
+	return ProblemList::GetInstance().SelectProblemList(queryjson);
 }
 
 Json::Value Control::GetJudgeCode(Json::Value judgejson)
 {
-	string problemid = judgejson["ProblemId"].asString();
+	// 传入Json(ProblemId,UserId,UserNickName,Code,Language,TimeLimit,MemoryLimit,JudgeNum,ProblemTitle)
 
 	// 添加状态记录
 	// 传入：Json(ProblemId,UserId,UserNickName,ProblemTitle,Language,Code);
 	Json::Value insertjson;
-	insertjson["ProblemId"] = problemid;
+	insertjson["ProblemId"] = judgejson["ProblemId"];
 	insertjson["UserId"] = judgejson["UserId"];
 	insertjson["UserNickName"] = judgejson["UserNickName"];
-	insertjson["ProblemTitle"] = ProblemSet::GetInstance().getProblemTitleById(problemid);
+	insertjson["ProblemTitle"] = judgejson["ProblemTitle"];
 	insertjson["Language"] = judgejson["Language"];
 	insertjson["Code"] = judgejson["Code"];
 
@@ -106,11 +102,11 @@ Json::Value Control::GetJudgeCode(Json::Value judgejson)
 	Json::Value runjson;
 	runjson["Code"] = judgejson["Code"];
 	runjson["SubmitId"] = submitid;
-	runjson["ProblemId"] = problemid;
+	runjson["ProblemId"] = judgejson["ProblemId"];
 	runjson["Language"] = judgejson["Language"];
-	runjson["JudgeNum"] = ProblemSet::GetInstance().getProblemJudgeNum(problemid);
-	runjson["TimeLimit"] = ProblemSet::GetInstance().getProblemTimeLimit(problemid);
-	runjson["MemoryLimit"] = ProblemSet::GetInstance().getProblemMemoryLimit(problemid);
+	runjson["JudgeNum"] = judgejson["JudgeNum"];
+	runjson["TimeLimit"] = judgejson["TimeLimit"];
+	runjson["MemoryLimit"] = judgejson["MemoryLimit"];
 
 	Json::Value resjson = judger.Run(runjson);
 
@@ -123,9 +119,9 @@ Json::Value Control::GetJudgeCode(Json::Value judgejson)
 
 	// 更新题目的状态
 	Json::Value updatejson;
-	updatejson["ProblemId"] = problemid;
-	updatejson["Status"] = statusjson["Status"].asString();
-	ProblemSet::GetInstance().UpdateProblemStatusNum(updatejson);
+	updatejson["ProblemId"] = judgejson["ProblemId"];
+	updatejson["Status"] = statusjson["Status"];
+	ProblemList::GetInstance().UpdateProblemStatusNum(updatejson);
 
 	updatejson["UserId"] = judgejson["UserId"];
 
@@ -334,9 +330,6 @@ Json::Value Control::GetTags(Json::Value &queryjson)
 
 Control::Control()
 {
-	// 初始化题库
-	ProblemSet::GetInstance().Init();
-
 	// 初始化题目标签
 	Tag::GetInstance().InitProblemTags();
 }

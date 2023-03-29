@@ -588,7 +588,7 @@ Json::Value MoDB::SelectProblemInfoByAdmin(Json::Value &queryjson)
 /*
     功能：获取题目信息，用于向用户展示题目
     传入：Json(ProblemId)
-    传出：Json(Result,Reason,_id,Title,Description,TimeLimit,MemoryLimit,SubmitNum,ACNum,UserNickName,Tags)
+    传出：Json(Result,Reason,_id,Title,Description,TimeLimit,MemoryLimit,JudgeNum,SubmitNum,ACNum,UserNickName,Tags)
 */
 Json::Value MoDB::SelectProblem(Json::Value &queryjson)
 {
@@ -609,6 +609,7 @@ Json::Value MoDB::SelectProblem(Json::Value &queryjson)
             << "Description" << 1
             << "TimeLimit" << 1
             << "MemoryLimit" << 1
+            << "JudgeNum" << 1
             << "SubmitNum" << 1
             << "ACNum" << 1
             << "UserNickName" << 1
@@ -766,25 +767,7 @@ Json::Value MoDB::DeleteProblem(Json::Value &deletejson)
     resjson["Result"] = "Success";
     return resjson;
 }
-/*
-    功能：获取全部题目信息（用于ProblemSet类进行初始化）
-    Json(_id,Title,Description,JudgeNum)
-*/
-Json::Value MoDB::getAllProblem()
-{
-    Json::Value resjson;
-    Json::Reader reader;
-    auto client = pool.acquire();
-    mongocxx::collection problemcoll = (*client)["XDOJ"]["Problem"];
-    mongocxx::cursor cursor = problemcoll.find({});
-    for (auto doc : cursor)
-    {
-        Json::Value jsonvalue;
-        reader.parse(bsoncxx::to_json(doc), jsonvalue);
-        resjson.append(jsonvalue);
-    }
-    return resjson;
-}
+
 /*
     功能：将字符串变为数字
     主要为查询ID服务，限制：ID长度不能大于4，只关注数字
@@ -810,7 +793,7 @@ int mystoi(string num)
     后端传出
     Json(([ProblemId,Title,SubmitNum,CENum,ACNum,WANum,TLENum,MLENum,SENum,Tags]),TotalNum)
 */
-Json::Value MoDB::getProblemSet(Json::Value &queryjson)
+Json::Value MoDB::SelectProblemList(Json::Value &queryjson)
 {
     Json::Value searchinfo = queryjson["SearchInfo"];
     int page = stoi(queryjson["Page"].asString());

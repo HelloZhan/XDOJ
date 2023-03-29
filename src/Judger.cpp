@@ -106,12 +106,12 @@ bool Judger::Init(Json::Value &initjson)
     outfile << m_code.data();
     outfile.close();
 
-    // 编译spj文件
-    CompilerSPJ();
-
     struct stat statbuf;
     stat(m_command.data(), &statbuf);
     m_length = to_string((int)statbuf.st_size / 128) + "KB";
+
+    // 编译spj文件
+    CompilerSPJ();
 
     return true;
 }

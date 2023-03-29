@@ -88,7 +88,7 @@ public:
     /*
         功能：获取题目信息，用于向用户展示题目
         传入：Json(ProblemId)
-        传出：Json(Result,Reason,_id,Title,Description,TimeLimit,MemoryLimit,SubmitNum,ACNum,UserNickName,Tags)
+        传出：Json(Result,Reason,_id,Title,Description,TimeLimit,MemoryLimit,JudgeNum,SubmitNum,ACNum,UserNickName,Tags)
     */
     Json::Value SelectProblem(Json::Value &queryjson);
     /*
@@ -111,11 +111,6 @@ public:
         传出：Json(Result,Reason)
     */
     Json::Value DeleteProblem(Json::Value &deletejson);
-    /*
-        功能：获取全部题目信息（是ProblemSet类进行初始化）
-        Json(_id,Title,TimeLimit,MemoryLimit,Description,JudgeNum)
-    */
-    Json::Value getAllProblem();
 
     /*
         功能：分页获取题目列表（包含查询条件，暂时未添加）
@@ -124,7 +119,7 @@ public:
         后端传出
         Json(ProblemId,Title,SubmitNum,CENum,ACNum,WANum,TLENum,MLENum,SENum,Tags),TotalNum
     */
-    Json::Value getProblemSet(Json::Value &queryjson);
+    Json::Value SelectProblemList(Json::Value &queryjson);
 
     /*
         功能：更新题目的状态数量

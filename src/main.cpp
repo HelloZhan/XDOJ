@@ -177,7 +177,7 @@ void doGetProblem(const httplib::Request &req, httplib::Response &res)
 }
 
 // 返回题库
-void doGetProblemSet(const httplib::Request &req, httplib::Response &res)
+void doGetProblemList(const httplib::Request &req, httplib::Response &res)
 {
     printf("doGetProblemSet start!!!\n");
     Json::Value serachinfo;
@@ -204,7 +204,7 @@ void doGetProblemSet(const httplib::Request &req, httplib::Response &res)
     queryjson["Page"] = page;
     queryjson["PageSize"] = pagesize;
 
-    Json::Value resjson = control.SelectProblemSetInfo(queryjson);
+    Json::Value resjson = control.SelectProblemList(queryjson);
     printf("doGetProblemSet end!!!\n");
     res.set_content(resjson.toStyledString(), "json");
 }
@@ -766,7 +766,7 @@ int main()
     // 获取单个题目
     server.Get("/problem", doGetProblem);
     // 获取题库
-    server.Get("/problemset", doGetProblemSet);
+    server.Get("/problemlist", doGetProblemList);
 
     // 获取单个题目详细信息
     server.Get("/problem/select", doGetProblemInfo);
