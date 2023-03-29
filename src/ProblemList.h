@@ -1,18 +1,10 @@
-#ifndef PROBLEMSET_H
-#define PROBLEMSET_H
+#ifndef PROBLEMLIST_H
+#define PROBLEMLIST_H
 
 #include <map>
 #include <string>
 #include <jsoncpp/json/json.h>
 
-#define PJ "Pending & Judging"
-#define CE "Compile Error"
-#define AC "Accepted"
-#define WA "Wrong Answer"
-#define RE "Runtime Error"
-#define TLE "Time Limit Exceeded"
-#define MLE "Memory Limit Exceeded"
-#define SE "System Error"
 class ProblemList
 {
 public:

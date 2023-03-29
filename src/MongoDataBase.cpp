@@ -1064,73 +1064,82 @@ Json::Value MoDB::UpdateStatusRecord(Json::Value &updatejson)
     传入：Json(SearchInfo,PageSize,Page)
     传出：测评全部信息，详情请见MongoDB集合表
 */
-Json::Value MoDB::SelectStatusRecord(Json::Value &queryjson)
+Json::Value MoDB::SelectStatusRecordList(Json::Value &queryjson)
 {
-    Json::Value searchinfo = queryjson["SearchInfo"];
-    int page = stoi(queryjson["Page"].asString());
-    int pagesize = stoi(queryjson["PageSize"].asString());
-    int skip = (page - 1) * pagesize;
-
     Json::Value resjson;
-    Json::Reader reader;
-    mongocxx::pipeline pipe, pipetot;
-    bsoncxx::builder::stream::document document{};
-    auto client = pool.acquire();
-    mongocxx::collection statusrecordcoll = (*client)["XDOJ"]["StatusRecord"];
-
-    int problemid = stoi(searchinfo["ProblemId"].asString());
-    int64_t userid = stoll(searchinfo["UserId"].asString());
-
-    // 查询题目
-    if (problemid > 0)
+    try
     {
-        pipe.match({{make_document(kvp("ProblemId", problemid))}});
-        pipetot.match({{make_document(kvp("ProblemId", problemid))}});
-    }
-    // 查询用户ID
-    if (userid > 0)
-    {
-        pipe.match({{make_document(kvp("UserId", userid))}});
-        pipetot.match({{make_document(kvp("UserId", userid))}});
-    }
+        Json::Value searchinfo = queryjson["SearchInfo"];
+        int page = stoi(queryjson["Page"].asString());
+        int pagesize = stoi(queryjson["PageSize"].asString());
+        int skip = (page - 1) * pagesize;
 
-    // 获取总条数
-    pipetot.count("TotalNum");
-    mongocxx::cursor cursor = statusrecordcoll.aggregate(pipetot);
-    for (auto doc : cursor)
-    {
-        reader.parse(bsoncxx::to_json(doc), resjson);
-    }
+        Json::Reader reader;
+        mongocxx::pipeline pipe, pipetot;
+        bsoncxx::builder::stream::document document{};
+        auto client = pool.acquire();
+        mongocxx::collection statusrecordcoll = (*client)["XDOJ"]["StatusRecord"];
 
-    // 排序
-    pipe.sort({make_document(kvp("SubmitTime", -1))});
-    // 跳过
-    pipe.skip(skip);
-    // 限制
-    pipe.limit(pagesize);
+        int problemid = stoi(searchinfo["ProblemId"].asString());
+        int64_t userid = stoll(searchinfo["UserId"].asString());
 
-    document
-        << "ProbleId" << 1
-        << "UserId" << 1
-        << "UserNickName" << 1
-        << "ProblemTitle" << 1
-        << "Status" << 1
-        << "RunTime" << 1
-        << "RunMemory" << 1
-        << "Length" << 1
-        << "Language" << 1
-        << "SubmitTime" << 1;
-    pipe.project(document.view());
-    Json::Value arryjson;
-    cursor = statusrecordcoll.aggregate(pipe);
-    for (auto doc : cursor)
-    {
-        Json::Value jsonvalue;
-        reader.parse(bsoncxx::to_json(doc), jsonvalue);
-        arryjson.append(jsonvalue);
+        // 查询题目
+        if (problemid > 0)
+        {
+            pipe.match({{make_document(kvp("ProblemId", problemid))}});
+            pipetot.match({{make_document(kvp("ProblemId", problemid))}});
+        }
+        // 查询用户ID
+        if (userid > 0)
+        {
+            pipe.match({{make_document(kvp("UserId", userid))}});
+            pipetot.match({{make_document(kvp("UserId", userid))}});
+        }
+
+        // 获取总条数
+        pipetot.count("TotalNum");
+        mongocxx::cursor cursor = statusrecordcoll.aggregate(pipetot);
+        for (auto doc : cursor)
+        {
+            reader.parse(bsoncxx::to_json(doc), resjson);
+        }
+
+        // 排序
+        pipe.sort({make_document(kvp("SubmitTime", -1))});
+        // 跳过
+        pipe.skip(skip);
+        // 限制
+        pipe.limit(pagesize);
+
+        document
+            << "ProbleId" << 1
+            << "UserId" << 1
+            << "UserNickName" << 1
+            << "ProblemTitle" << 1
+            << "Status" << 1
+            << "RunTime" << 1
+            << "RunMemory" << 1
+            << "Length" << 1
+            << "Language" << 1
+            << "SubmitTime" << 1;
+        pipe.project(document.view());
+        Json::Value arryjson;
+        cursor = statusrecordcoll.aggregate(pipe);
+        for (auto doc : cursor)
+        {
+            Json::Value jsonvalue;
+            reader.parse(bsoncxx::to_json(doc), jsonvalue);
+            arryjson.append(jsonvalue);
+        }
+        resjson["ArrayInfo"] = arryjson;
+        return resjson;
     }
-    resjson["Array"] = arryjson;
-    return resjson;
+    catch (const std::exception &e)
+    {
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "数据库异常！";
+        return resjson;
+    }
 }
 
 /*
@@ -1138,21 +1147,31 @@ Json::Value MoDB::SelectStatusRecord(Json::Value &queryjson)
     传入：Json(SubmitId)
     传出：全部记录，详情请看MongoDB集合表
 */
-Json::Value MoDB::SelectOneStatusRecord(Json::Value &queryjson)
+Json::Value MoDB::SelectStatusRecord(Json::Value &queryjson)
 {
-    int64_t submitid = stoll(queryjson["SubmitId"].asString());
-    auto client = pool.acquire();
-    mongocxx::collection statusrecordcoll = (*client)["XDOJ"]["StatusRecord"];
-
-    // 查询测评记录
-    Json::Reader reader;
     Json::Value resjson;
-    mongocxx::cursor cursor = statusrecordcoll.find({{make_document(kvp("_id", submitid))}});
-    for (auto doc : cursor)
+    try
     {
-        reader.parse(bsoncxx::to_json(doc), resjson);
+        int64_t submitid = stoll(queryjson["SubmitId"].asString());
+        auto client = pool.acquire();
+        mongocxx::collection statusrecordcoll = (*client)["XDOJ"]["StatusRecord"];
+
+        // 查询测评记录
+        Json::Reader reader;
+
+        mongocxx::cursor cursor = statusrecordcoll.find({{make_document(kvp("_id", submitid))}});
+        for (auto doc : cursor)
+        {
+            reader.parse(bsoncxx::to_json(doc), resjson);
+        }
+        return resjson;
     }
-    return resjson;
+    catch (const std::exception &e)
+    {
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "数据库异常！";
+        return resjson;
+    }
 }
 /*
     功能：添加讨论

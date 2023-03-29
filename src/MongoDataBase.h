@@ -157,14 +157,14 @@ public:
         传入：Json(SearchInfo,PageSize,Page)
         传出：测评全部信息，详情请见MongoDB集合表
     */
-    Json::Value SelectStatusRecord(Json::Value &queryjson);
+    Json::Value SelectStatusRecordList(Json::Value &queryjson);
 
     /*
         功能：查询一条详细测评记录
         传入：Json(SubmitId)
         传出：全部记录，详情请看MongoDB集合表
     */
-    Json::Value SelectOneStatusRecord(Json::Value &queryjson);
+    Json::Value SelectStatusRecord(Json::Value &queryjson);
 
     // +++++++++++++++++++++++++Disscuss 讨论表++++++++++++++++++++++++++++
 

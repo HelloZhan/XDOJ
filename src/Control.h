@@ -51,10 +51,10 @@ public:
 
     // ---------------测评表-------------------------
     // 返回状态记录的信息
-    Json::Value SelectStatusRecordInfo(Json::Value &queryjson);
+    Json::Value SelectStatusRecordList(Json::Value &queryjson);
 
     // 查询一条详细测评记录
-    Json::Value SelectOneStatusRecord(Json::Value &queryjson);
+    Json::Value SelectStatusRecord(Json::Value &queryjson);
 
     // ---------------评论Comment-------------------
     // 获取评论 根据Id

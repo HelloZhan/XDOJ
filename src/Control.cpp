@@ -1,7 +1,7 @@
 #include "Control.h"
 #include "ProblemList.h"
 #include "UserSet.h"
-#include "StatusRecord.h"
+#include "StatusRecordList.h"
 #include "Discuss.h"
 #include "Comment.h"
 #include "Solution.h"
@@ -96,7 +96,7 @@ Json::Value Control::GetJudgeCode(Json::Value judgejson)
 	insertjson["Language"] = judgejson["Language"];
 	insertjson["Code"] = judgejson["Code"];
 
-	string submitid = StatusRecord::GetInstance().InsertStatusRecord(insertjson);
+	string submitid = StatusRecordList::GetInstance().InsertStatusRecord(insertjson);
 
 	// 运行代码
 	// Json(SubmitId,ProblemId,JudgeNum,Code,Language,TimeLimit,MemoryLimit)
@@ -118,7 +118,7 @@ Json::Value Control::GetJudgeCode(Json::Value judgejson)
 		传入：Json(SubmitId,Status,RunTime,RunMemory,Length,ComplierInfo,
 		TestInfo[(Status,StandardOutput,PersonalOutput,RunTime,RunMemory)])
 	*/
-	Json::Value statusjson = StatusRecord::GetInstance().UpdateStatusRecord(resjson);
+	Json::Value statusjson = StatusRecordList::GetInstance().UpdateStatusRecord(resjson);
 
 	// 更新题目的状态
 	Json::Value updatejson;
@@ -137,14 +137,14 @@ Json::Value Control::GetJudgeCode(Json::Value judgejson)
 	return statusjson;
 }
 
-Json::Value Control::SelectStatusRecordInfo(Json::Value &queryjson)
+Json::Value Control::SelectStatusRecordList(Json::Value &queryjson)
 {
-	return StatusRecord::GetInstance().SelectStatusRecordInfo(queryjson);
+	return StatusRecordList::GetInstance().SelectStatusRecordList(queryjson);
 }
 
-Json::Value Control::SelectOneStatusRecord(Json::Value &queryjson)
+Json::Value Control::SelectStatusRecord(Json::Value &queryjson)
 {
-	return StatusRecord::GetInstance().SelectOneStatusRecord(queryjson);
+	return StatusRecordList::GetInstance().SelectStatusRecord(queryjson);
 }
 
 Json::Value Control::GetComment(Json::Value &queryjson)

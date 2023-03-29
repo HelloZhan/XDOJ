@@ -266,50 +266,53 @@ void doPostCode(const httplib::Request &req, httplib::Response &res)
     res.set_content(resjson.toStyledString(), "json");
 }
 
-void doGetStatusRecord(const httplib::Request &req, httplib::Response &res)
+void doGetStatusRecordList(const httplib::Request &req, httplib::Response &res)
 {
     printf("doGetStatusRecord start!!!\n");
-    Json::Value searchinfo;
+    Json::Value resjson;
 
-    if (req.has_param("SearchInfo"))
+    if (!req.has_param("SearchInfo") || !req.has_param("Page") || !req.has_param("PageSize"))
     {
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "缺少请求参数！";
+    }
+    else
+    {
+        Json::Value searchinfo;
         Json::Reader reader;
         // 解析传入的json
         reader.parse(req.get_param_value("SearchInfo"), searchinfo);
-    }
 
-    string page = "1";
-    if (req.has_param("Page"))
-    {
-        page = req.get_param_value("Page");
-    }
+        string page = req.get_param_value("Page");
+        string pagesize = req.get_param_value("PageSize");
 
-    string pagesize = "25";
-    if (req.has_param("PageSize"))
-    {
-        pagesize = req.get_param_value("PageSize");
+        Json::Value queryjson;
+        queryjson["SearchInfo"] = searchinfo;
+        queryjson["Page"] = page;
+        queryjson["PageSize"] = pagesize;
+        resjson = control.SelectStatusRecordList(queryjson);
     }
-
-    Json::Value queryjson;
-    queryjson["SearchInfo"] = searchinfo;
-    queryjson["Page"] = page;
-    queryjson["PageSize"] = pagesize;
-    Json::Value resvalue = control.SelectStatusRecordInfo(queryjson);
-    printf("doGetProblemSet end!!!\n");
-    res.set_content(resvalue.toStyledString(), "json");
+    printf("doGetStatusRecord end!!!\n");
+    res.set_content(resjson.toStyledString(), "json");
 }
-void doGetStatusRecordInfo(const httplib::Request &req, httplib::Response &res)
+void doGetStatusRecord(const httplib::Request &req, httplib::Response &res)
 {
     printf("doGetStatusRecordInfo start!!!\n");
-    // 默认为 1
-    string submitid = "1";
-    if (req.has_param("SubmitId"))
+
+    Json::Value resjson;
+    if (!req.has_param("SubmitId"))
     {
-        submitid = req.get_param_value("SubmitId");
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "缺少请求参数！";
     }
-    Json::Value queryjson;
-    queryjson["SubmitId"] = submitid;
-    Json::Value resjson = control.SelectOneStatusRecord(queryjson);
+    else
+    {
+        string submitid = req.get_param_value("SubmitId");
+
+        Json::Value queryjson;
+        queryjson["SubmitId"] = submitid;
+        resjson = control.SelectStatusRecord(queryjson);
+    }
     printf("doGetStatusRecordInfo end!!!\n");
     res.set_content(resjson.toStyledString(), "json");
 }
@@ -781,10 +784,11 @@ int main()
     // 删除题目
     server.Post("/problem/delete", doDeleteProblem);
 
+    // ---------------测评-----------------
     // 获取状态记录
-    server.Get("/statusrecord", doGetStatusRecord);
+    server.Get("/statusrecordlist", doGetStatusRecordList);
     // 获取一条测评记录
-    server.Get("/statusrecord/info", doGetStatusRecordInfo);
+    server.Get("/statusrecord", doGetStatusRecord);
 
     // 提交代码
     server.Post("/problemcode", doPostCode);
