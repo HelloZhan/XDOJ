@@ -193,7 +193,10 @@ void doGetProblemList(const httplib::Request &req, httplib::Response &res)
     }
     else
     {
-        Json::Value serachinfo = req.get_param_value("SearchInfo");
+        Json::Value serachinfo;
+        Json::Reader reader;
+        // 解析传入的json
+        reader.parse(req.get_param_value("SearchInfo"), serachinfo);
         string page = req.get_param_value("Page");
         string pagesize = req.get_param_value("PageSize");
 
@@ -317,43 +320,48 @@ void doGetStatusRecord(const httplib::Request &req, httplib::Response &res)
     res.set_content(resjson.toStyledString(), "json");
 }
 // ------------------公告------------------------------
-void doGetAnnouncement(const httplib::Request &req, httplib::Response &res)
+void doGetAnnouncementList(const httplib::Request &req, httplib::Response &res)
 {
     printf("doGetAnnouncement start!!!\n");
-    string page = "1";
-    if (req.has_param("Page"))
+    Json::Value resjson;
+    if (!req.has_param("Page") || !req.has_param("PageSize"))
     {
-        page = req.get_param_value("Page");
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "缺少请求参数！";
     }
+    else
+    {
+        string page = req.get_param_value("Page");
+        string pagesize = req.get_param_value("PageSize");
 
-    string pagesize = "10";
-    if (req.has_param("PageSize"))
-    {
-        pagesize = req.get_param_value("PageSize");
+        Json::Value queryjson;
+        queryjson["Page"] = page;
+        queryjson["PageSize"] = pagesize;
+        resjson = control.SelectAnnouncementList(queryjson);
     }
-    Json::Value queryjson;
-    queryjson["Page"] = page;
-    queryjson["PageSize"] = pagesize;
-    Json::Value resjson = control.SelectAnnouncement(queryjson);
 
     printf("doGetAnnouncement end!!!\n");
     res.set_content(resjson.toStyledString(), "json");
 }
 
-void doGetAnnouncementContent(const httplib::Request &req, httplib::Response &res)
+void doGetAnnouncement(const httplib::Request &req, httplib::Response &res)
 {
     printf("doGetAnnouncementContent start!!!\n");
+    Json::Value resjson;
 
-    string announcementid = "0";
-    if (req.has_param("AnnouncementId"))
+    if (!req.has_param("AnnouncementId"))
     {
-        announcementid = req.get_param_value("AnnouncementId");
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "缺少请求参数！";
     }
+    else
+    {
+        string announcementid = req.get_param_value("AnnouncementId");
+        Json::Value queryjson;
+        queryjson["AnnouncementId"] = announcementid;
 
-    Json::Value queryjson;
-    queryjson["AnnouncementId"] = announcementid;
-
-    Json::Value resjson = control.SelectAnnouncementContent(queryjson);
+        resjson = control.SelectAnnouncement(queryjson);
+    }
     printf("doGetAnnouncementContent end!!!\n");
     res.set_content(resjson.toStyledString(), "json");
 }
@@ -362,15 +370,20 @@ void doSelectAnnouncement(const httplib::Request &req, httplib::Response &res)
 {
     printf("doSelectAnnouncement start!!!\n");
 
-    string announcementid = "0";
-    if (req.has_param("AnnouncementId"))
+    Json::Value resjson;
+    if (!req.has_param("AnnouncementId"))
     {
-        announcementid = req.get_param_value("AnnouncementId");
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "缺少请求参数！";
     }
-    Json::Value queryjson;
-    queryjson["AnnouncementId"] = announcementid;
+    else
+    {
+        string announcementid = req.get_param_value("AnnouncementId");
+        Json::Value queryjson;
+        queryjson["AnnouncementId"] = announcementid;
 
-    Json::Value resjson = control.SelectAnnouncementByEdit(queryjson);
+        resjson = control.SelectAnnouncementByEdit(queryjson);
+    }
     printf("doSelectAnnouncement end!!!\n");
     res.set_content(resjson.toStyledString(), "json");
 }
@@ -402,16 +415,21 @@ void doUpdateAnnouncement(const httplib::Request &req, httplib::Response &res)
 void doDeleteAnnouncement(const httplib::Request &req, httplib::Response &res)
 {
     printf("doDeleteAnnouncement start!!!\n");
+    Json::Value resjson;
 
-    string announcementid = "0";
-    if (req.has_param("AnnouncementId"))
+    if (!req.has_param("AnnouncementId"))
     {
-        announcementid = req.get_param_value("AnnouncementId");
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "缺少请求参数！";
     }
-    Json::Value deletejson;
-    deletejson["AnnouncementId"] = announcementid;
+    else
+    {
+        string announcementid = req.get_param_value("AnnouncementId");
+        Json::Value deletejson;
+        deletejson["AnnouncementId"] = announcementid;
 
-    Json::Value resjson = control.DeleteAnnouncement(deletejson);
+        resjson = control.DeleteAnnouncement(deletejson);
+    }
     printf("doDeleteAnnouncement end!!!\n");
     res.set_content(resjson.toStyledString(), "json");
 }
@@ -795,10 +813,10 @@ int main()
 
     // --------------公告--------------------
     // 获取公告列表
-    server.Get("/announcement", doGetAnnouncement);
+    server.Get("/announcementlist", doGetAnnouncementList);
 
     // 获取公告内容
-    server.Get("/announcement/content", doGetAnnouncementContent);
+    server.Get("/announcement", doGetAnnouncement);
 
     // 获取公告信息用于编辑
     server.Get("/announcement/select", doSelectAnnouncement);

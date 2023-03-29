@@ -296,7 +296,7 @@ public:
         传入：Json(Page,PageSize)
         传出：Json([Result,Reason,_id,Title,Views,Comments,CreateTime],TotalNum)
     */
-    Json::Value SelectAnnouncement(Json::Value &queryjson);
+    Json::Value SelectAnnouncementList(Json::Value &queryjson);
 
     /*
         功能：查询公告的详细信息，主要是编辑时的查询
@@ -310,7 +310,7 @@ public:
         传入：Json(AnnouncementId)
         传出：Json(Title,Content,Views,Comments,CreateTime,UpdateTime)
     */
-    Json::Value SelectAnnouncementContent(Json::Value &queryjson);
+    Json::Value SelectAnnouncement(Json::Value &queryjson);
 
     /*
         功能：修改公告的评论数

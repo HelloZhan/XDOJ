@@ -5,7 +5,7 @@
 #include "Discuss.h"
 #include "Comment.h"
 #include "Solution.h"
-#include "Announcement.h"
+#include "AnnouncementList.h"
 #include "Tag.h"
 #include "Judger.h"
 #include <iostream>
@@ -177,7 +177,7 @@ Json::Value Control::InsertComment(Json::Value &insertjson)
 	}
 	else if (insertjson["ArticleType"].asString() == "Announcement")
 	{
-		Announcement::GetInstance().UpdateAnnouncementComments(updatejson);
+		AnnouncementList::GetInstance().UpdateAnnouncementComments(updatejson);
 	}
 
 	if (type == "Father") // 父评论
@@ -224,33 +224,33 @@ Json::Value Control::DeleteComment(Json::Value &deletejson)
 	return resjson;
 }
 // --------------------公告------------------------
-Json::Value Control::SelectAnnouncement(Json::Value &queryjson)
+Json::Value Control::SelectAnnouncementList(Json::Value &queryjson)
 {
-	return Announcement::GetInstance().SelectAnnouncement(queryjson);
+	return AnnouncementList::GetInstance().SelectAnnouncementList(queryjson);
 }
 
-Json::Value Control::SelectAnnouncementContent(Json::Value &queryjson)
+Json::Value Control::SelectAnnouncement(Json::Value &queryjson)
 {
-	return Announcement::GetInstance().SelectAnnouncementContent(queryjson);
+	return AnnouncementList::GetInstance().SelectAnnouncement(queryjson);
 }
 
 Json::Value Control::SelectAnnouncementByEdit(Json::Value &queryjson)
 {
-	return Announcement::GetInstance().SelectAnnouncementByEdit(queryjson);
+	return AnnouncementList::GetInstance().SelectAnnouncementByEdit(queryjson);
 }
 
 Json::Value Control::InsertAnnouncement(Json::Value &insertjson)
 {
-	return Announcement::GetInstance().InsertAnnouncement(insertjson);
+	return AnnouncementList::GetInstance().InsertAnnouncement(insertjson);
 }
 
 Json::Value Control::UpdateAnnouncement(Json::Value &updatejson)
 {
-	return Announcement::GetInstance().UpdateAnnouncement(updatejson);
+	return AnnouncementList::GetInstance().UpdateAnnouncement(updatejson);
 }
 Json::Value Control::DeleteAnnouncement(Json::Value &deletejson)
 {
-	return Announcement::GetInstance().DeleteAnnouncement(deletejson);
+	return AnnouncementList::GetInstance().DeleteAnnouncement(deletejson);
 }
 
 // ----------------------题解----------------------------

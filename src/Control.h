@@ -68,10 +68,10 @@ public:
 
     // ----------------------公告---------------------------
     // 查询公告列表
-    Json::Value SelectAnnouncement(Json::Value &queryjson);
+    Json::Value SelectAnnouncementList(Json::Value &queryjson);
 
     // 查询公告
-    Json::Value SelectAnnouncementContent(Json::Value &queryjson);
+    Json::Value SelectAnnouncement(Json::Value &queryjson);
 
     // 查询公告 进行编辑
     Json::Value SelectAnnouncementByEdit(Json::Value &queryjson);
