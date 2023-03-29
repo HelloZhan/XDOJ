@@ -2,7 +2,7 @@
 #include "ProblemList.h"
 #include "UserSet.h"
 #include "StatusRecordList.h"
-#include "Discuss.h"
+#include "DiscussList.h"
 #include "Comment.h"
 #include "Solution.h"
 #include "AnnouncementList.h"
@@ -169,7 +169,7 @@ Json::Value Control::InsertComment(Json::Value &insertjson)
 	// 文章添加评论数
 	if (insertjson["ArticleType"].asString() == "Discuss")
 	{
-		Discuss::GetInstance().UpdateDiscussComments(updatejson);
+		DiscussList::GetInstance().UpdateDiscussComments(updatejson);
 	}
 	else if (insertjson["ArticleType"].asString() == "Solution")
 	{
@@ -217,7 +217,7 @@ Json::Value Control::DeleteComment(Json::Value &deletejson)
 
 	if (articletype == "Discuss")
 	{
-		Discuss::GetInstance().UpdateDiscussComments(articlejson);
+		DiscussList::GetInstance().UpdateDiscussComments(articlejson);
 	}
 
 	resjson["Result"] = "Success";
@@ -289,38 +289,38 @@ Json::Value Control::DeleteSolution(Json::Value &deletejson)
 }
 
 // ----------------------讨论----------------------------
+Json::Value Control::SelectDiscussList(Json::Value &queryjson)
+{
+	return DiscussList::GetInstance().SelectDiscussList(queryjson);
+}
+
+Json::Value Control::SelectDiscussListByAdmin(Json::Value &queryjson)
+{
+	return DiscussList::GetInstance().SelectDiscussListByAdmin(queryjson);
+}
+
 Json::Value Control::SelectDiscuss(Json::Value &queryjson)
 {
-	return Discuss::GetInstance().SelectDiscuss(queryjson);
-}
-
-Json::Value Control::SelectDiscussByAdmin(Json::Value &queryjson)
-{
-	return Discuss::GetInstance().SelectDiscussByAdmin(queryjson);
-}
-
-Json::Value Control::SelectDiscussContent(Json::Value &queryjson)
-{
-	return Discuss::GetInstance().SelectDiscussContent(queryjson);
+	return DiscussList::GetInstance().SelectDiscuss(queryjson);
 }
 
 Json::Value Control::SelectDiscussByEdit(Json::Value &queryjson)
 {
-	return Discuss::GetInstance().SelectDiscussByEdit(queryjson);
+	return DiscussList::GetInstance().SelectDiscussByEdit(queryjson);
 }
 
 Json::Value Control::InsertDiscuss(Json::Value &insertjson)
 {
-	return Discuss::GetInstance().InsertDiscuss(insertjson);
+	return DiscussList::GetInstance().InsertDiscuss(insertjson);
 }
 
 Json::Value Control::UpdateDiscuss(Json::Value &updatejson)
 {
-	return Discuss::GetInstance().UpdateDiscuss(updatejson);
+	return DiscussList::GetInstance().UpdateDiscuss(updatejson);
 }
 Json::Value Control::DeleteDiscuss(Json::Value &deletejson)
 {
-	return Discuss::GetInstance().DeleteDiscuss(deletejson);
+	return DiscussList::GetInstance().DeleteDiscuss(deletejson);
 }
 
 Json::Value Control::GetTags(Json::Value &queryjson)

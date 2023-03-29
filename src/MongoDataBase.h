@@ -180,14 +180,14 @@ public:
         传入：Json(SearchInfo,Page,PageSize)
         传出：Json(_id,Title,Views,Comments,CreateTime,User.Avatar,User.NickName)
     */
-    Json::Value SelectDiscuss(Json::Value &queryjson);
+    Json::Value SelectDiscussList(Json::Value &queryjson);
 
     /*
         功能：管理员分页查询讨论
         传入：Json(Page,PageSize)
         传出：Json(_id,Title,Views,Comments,CreateTime,User.Avatar,User.NickName)
     */
-    Json::Value SelectDiscussByAdmin(Json::Value &queryjson);
+    Json::Value SelectDiscussListByAdmin(Json::Value &queryjson);
 
     /*
         功能：查询讨论的详细信息，主要是编辑时的查询
@@ -201,7 +201,7 @@ public:
         传入：Json(DiscussId)
         传出：Json(Resutl,Reason,Content,Views,Comments,CreateTime,UpdateTime,User.NickName,User.Avatar)
     */
-    Json::Value SelectDiscussContent(Json::Value &queryjson);
+    Json::Value SelectDiscuss(Json::Value &queryjson);
 
     /*
         功能：修改讨论的评论数

@@ -565,91 +565,93 @@ void doDeleteSolution(const httplib::Request &req, httplib::Response &res)
 }
 
 // ------------------讨论------------------------------
-void doGetDiscuss(const httplib::Request &req, httplib::Response &res)
+void doGetDiscussList(const httplib::Request &req, httplib::Response &res)
 {
     printf("doGetDiscuss start!!!\n");
-    Json::Value searchinfo;
-    if (req.has_param("SearchInfo"))
+    Json::Value resjson;
+    if (!req.has_param("SearchInfo") || !req.has_param("Page") || !req.has_param("PageSize"))
     {
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "缺少请求参数！";
+    }
+    else
+    {
+        Json::Value searchinfo;
         Json::Reader reader;
         // 解析传入的json
         reader.parse(req.get_param_value("SearchInfo"), searchinfo);
+        string page = req.get_param_value("Page");
+        string pagesize = req.get_param_value("PageSize");
+        Json::Value queryjson;
+        queryjson["SearchInfo"] = searchinfo;
+        queryjson["Page"] = page;
+        queryjson["PageSize"] = pagesize;
+        resjson = control.SelectDiscussList(queryjson);
     }
-    string page = "1";
-    if (req.has_param("Page"))
-    {
-        page = req.get_param_value("Page");
-    }
-
-    string pagesize = "10";
-    if (req.has_param("PageSize"))
-    {
-        pagesize = req.get_param_value("PageSize");
-    }
-    Json::Value queryjson;
-    queryjson["SearchInfo"] = searchinfo;
-    queryjson["Page"] = page;
-    queryjson["PageSize"] = pagesize;
-    Json::Value resjson = control.SelectDiscuss(queryjson);
-
     printf("doGetDiscuss end!!!\n");
     res.set_content(resjson.toStyledString(), "json");
 }
 
-void doGetDiscussByAdmin(const httplib::Request &req, httplib::Response &res)
+void doGetDiscussListByAdmin(const httplib::Request &req, httplib::Response &res)
 {
     printf("doGetDiscussByAdmin start!!!\n");
-    string page = "1";
-    if (req.has_param("Page"))
+    Json::Value resjson;
+    if (!req.has_param("Page") || !req.has_param("PageSize"))
     {
-        page = req.get_param_value("Page");
-    }
 
-    string pagesize = "10";
-    if (req.has_param("PageSize"))
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "缺少请求参数！";
+    }
+    else
     {
-        pagesize = req.get_param_value("PageSize");
+        string page = req.get_param_value("Page");
+        string pagesize = req.get_param_value("PageSize");
+        Json::Value queryjson;
+        queryjson["Page"] = page;
+        queryjson["PageSize"] = pagesize;
+        resjson = control.SelectDiscussListByAdmin(queryjson);
     }
-    Json::Value queryjson;
-    queryjson["Page"] = page;
-    queryjson["PageSize"] = pagesize;
-    Json::Value resjson = control.SelectDiscussByAdmin(queryjson);
-
     printf("doGetDiscussByAdmin end!!!\n");
     res.set_content(resjson.toStyledString(), "json");
 }
-void doGetDiscussContent(const httplib::Request &req, httplib::Response &res)
+void doGetDiscuss(const httplib::Request &req, httplib::Response &res)
 {
     printf("doGetDiscussContent start!!!\n");
-
-    string discussid = "0";
-    if (req.has_param("DiscussId"))
+    Json::Value resjson;
+    if (!req.has_param("DiscussId"))
     {
-        discussid = req.get_param_value("DiscussId");
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "缺少请求参数！";
     }
-
-    Json::Value queryjson;
-    queryjson["DiscussId"] = discussid;
-
-    Json::Value resjson = control.SelectDiscussContent(queryjson);
+    else
+    {
+        string discussid = req.get_param_value("DiscussId");
+        Json::Value queryjson;
+        queryjson["DiscussId"] = discussid;
+        resjson = control.SelectDiscuss(queryjson);
+    }
     printf("doGetDiscussContent end!!!\n");
     res.set_content(resjson.toStyledString(), "json");
 }
 
-void doSelectDiscuss(const httplib::Request &req, httplib::Response &res)
+void doSelectDiscussByEdit(const httplib::Request &req, httplib::Response &res)
 {
-    printf("doSelectDiscuss start!!!\n");
-
-    string discussid = "0";
-    if (req.has_param("DiscussId"))
+    printf("doSelectDiscussByEdit start!!!\n");
+    Json::Value resjson;
+    if (!req.has_param("DiscussId"))
     {
-        discussid = req.get_param_value("DiscussId");
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "缺少请求参数！";
     }
-    Json::Value queryjson;
-    queryjson["DiscussId"] = discussid;
+    else
+    {
+        string discussid = req.get_param_value("DiscussId");
+        Json::Value queryjson;
+        queryjson["DiscussId"] = discussid;
 
-    Json::Value resjson = control.SelectDiscussByEdit(queryjson);
-    printf("doSelectDiscuss end!!!\n");
+        resjson = control.SelectDiscussByEdit(queryjson);
+    }
+    printf("doSelectDiscussByEdit end!!!\n");
     res.set_content(resjson.toStyledString(), "json");
 }
 
@@ -680,16 +682,21 @@ void doUpdateDiscuss(const httplib::Request &req, httplib::Response &res)
 void doDeleteDiscuss(const httplib::Request &req, httplib::Response &res)
 {
     printf("doDeleteDiscuss start!!!\n");
+    Json::Value resjson;
 
-    string discussid = "0";
-    if (req.has_param("DiscussId"))
+    if (!req.has_param("DiscussId"))
     {
-        discussid = req.get_param_value("DiscussId");
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "缺少请求参数！";
     }
-    Json::Value deletejson;
-    deletejson["DiscussId"] = discussid;
+    else
+    {
+        string discussid = req.get_param_value("DiscussId");
+        Json::Value deletejson;
+        deletejson["DiscussId"] = discussid;
 
-    Json::Value resjson = control.DeleteDiscuss(deletejson);
+        resjson = control.DeleteDiscuss(deletejson);
+    }
     printf("doDeleteDiscuss end!!!\n");
     res.set_content(resjson.toStyledString(), "json");
 }
@@ -854,16 +861,16 @@ int main()
 
     // -------------讨论------------------------
     // 获取讨论列表
-    server.Get("/discuss", doGetDiscuss);
+    server.Get("/discusslist", doGetDiscussList);
 
     // 管理员获取讨论列表
-    server.Get("/discuss/admin", doGetDiscussByAdmin);
+    server.Get("/discusslist/admin", doGetDiscussListByAdmin);
 
     // 获取讨论内容
-    server.Get("/discuss/content", doGetDiscussContent);
+    server.Get("/discuss", doGetDiscuss);
 
     // 获取讨论信息用于编辑
-    server.Get("/discuss/select", doSelectDiscuss);
+    server.Get("/discuss/select", doSelectDiscussByEdit);
 
     // 用户提交讨论
     server.Post("/discuss/insert", doInsertDiscuss);

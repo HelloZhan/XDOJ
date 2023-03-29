@@ -109,13 +109,13 @@ public:
 
     // ----------------------讨论-----------------------
     // 查询题解列表
-    Json::Value SelectDiscuss(Json::Value &queryjson);
+    Json::Value SelectDiscussList(Json::Value &queryjson);
 
     // 管理员查询
-    Json::Value SelectDiscussByAdmin(Json::Value &queryjson);
+    Json::Value SelectDiscussListByAdmin(Json::Value &queryjson);
 
     // 查询题解
-    Json::Value SelectDiscussContent(Json::Value &queryjson);
+    Json::Value SelectDiscuss(Json::Value &queryjson);
 
     // 查询题解进行编辑
     Json::Value SelectDiscussByEdit(Json::Value &queryjson);
