@@ -7,6 +7,7 @@
 #include "Solution.h"
 #include "Announcement.h"
 #include "Tag.h"
+#include "Judger.h"
 #include <iostream>
 using namespace std;
 
@@ -108,6 +109,8 @@ Json::Value Control::GetJudgeCode(Json::Value judgejson)
 	runjson["TimeLimit"] = judgejson["TimeLimit"];
 	runjson["MemoryLimit"] = judgejson["MemoryLimit"];
 
+	// 创建判题对象
+	Judger judger;
 	Json::Value resjson = judger.Run(runjson);
 
 	// 更新状态信息 返回结果

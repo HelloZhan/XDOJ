@@ -2,7 +2,6 @@
 #define CONTROL_H
 #include <jsoncpp/json/json.h>
 #include <string>
-#include "Judger.h"
 class Control
 {
 public:
@@ -136,8 +135,6 @@ public:
     ~Control();
 
 private:
-    Judger judger;
-    /* data */
 };
 
 #endif

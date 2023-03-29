@@ -163,15 +163,20 @@ void doDeleteUser(const httplib::Request &req, httplib::Response &res)
 void doGetProblem(const httplib::Request &req, httplib::Response &res)
 {
     printf("doGetProblem start!!!\n");
-    // 默认为 1
-    string ProblemId = "1";
-    if (req.has_param("ProblemId"))
+    Json::Value resjson;
+    if (!req.has_param("ProblemId"))
     {
-        ProblemId = req.get_param_value("ProblemId");
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "缺少请求参数！";
     }
-    Json::Value queryjson;
-    queryjson["ProblemId"] = ProblemId;
-    Json::Value resjson = control.SelectProblem(queryjson);
+    else
+    {
+        string problemid = req.get_param_value("ProblemId");
+
+        Json::Value queryjson;
+        queryjson["ProblemId"] = problemid;
+        resjson = control.SelectProblem(queryjson);
+    }
     printf("doGetProblem end!!!\n");
     res.set_content(resjson.toStyledString(), "json");
 }
@@ -179,33 +184,26 @@ void doGetProblem(const httplib::Request &req, httplib::Response &res)
 // 返回题库
 void doGetProblemList(const httplib::Request &req, httplib::Response &res)
 {
-    printf("doGetProblemSet start!!!\n");
-    Json::Value serachinfo;
-    if (req.has_param("SearchInfo"))
+    printf("doGetProblemList start!!!\n");
+    Json::Value resjson;
+    if (!req.has_param("SearchInfo") || !req.has_param("Page") || !req.has_param("PageSize"))
     {
-        string info = req.get_param_value("SearchInfo");
-        Json::Reader reader;
-        // 解析传入的json
-        reader.parse(info, serachinfo);
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "请求参数有误！";
     }
-    string page = "1";
-    if (req.has_param("Page"))
+    else
     {
-        page = req.get_param_value("Page");
-    }
+        Json::Value serachinfo = req.get_param_value("SearchInfo");
+        string page = req.get_param_value("Page");
+        string pagesize = req.get_param_value("PageSize");
 
-    string pagesize = "25";
-    if (req.has_param("PageSize"))
-    {
-        pagesize = req.get_param_value("PageSize");
+        Json::Value queryjson;
+        queryjson["SearchInfo"] = serachinfo;
+        queryjson["Page"] = page;
+        queryjson["PageSize"] = pagesize;
+        resjson = control.SelectProblemList(queryjson);
     }
-    Json::Value queryjson;
-    queryjson["SearchInfo"] = serachinfo;
-    queryjson["Page"] = page;
-    queryjson["PageSize"] = pagesize;
-
-    Json::Value resjson = control.SelectProblemList(queryjson);
-    printf("doGetProblemSet end!!!\n");
+    printf("doGetProblemList end!!!\n");
     res.set_content(resjson.toStyledString(), "json");
 }
 
@@ -213,15 +211,21 @@ void doGetProblemList(const httplib::Request &req, httplib::Response &res)
 void doGetProblemInfo(const httplib::Request &req, httplib::Response &res)
 {
     printf("doGetProblemInfo start!!!\n");
-    // 默认为 1
-    string ProblemId = "1";
-    if (req.has_param("ProblemId"))
+    Json::Value resjson;
+
+    if (!req.has_param("ProblemId"))
     {
-        ProblemId = req.get_param_value("ProblemId");
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "请求参数有误！";
     }
-    Json::Value queryjson;
-    queryjson["ProblemId"] = ProblemId;
-    Json::Value resjson = control.SelectProblemInfoByAdmin(queryjson);
+    else
+    {
+        string problemid = req.get_param_value("ProblemId");
+
+        Json::Value queryjson;
+        queryjson["ProblemId"] = problemid;
+        resjson = control.SelectProblemInfoByAdmin(queryjson);
+    }
     printf("doGetProblemInfo end!!!\n");
     res.set_content(resjson.toStyledString(), "json");
 }
@@ -746,6 +750,7 @@ int main()
 {
     using namespace httplib;
     Server server;
+    // -----------------用户----------------
     // 注册用户
     server.Post("/user/register", doRegisterUser);
     // 登录用户
@@ -763,6 +768,7 @@ int main()
     // 更新用户信息
     server.Delete("/user", doDeleteUser);
 
+    // ----------------题目------------------
     // 获取单个题目
     server.Get("/problem", doGetProblem);
     // 获取题库

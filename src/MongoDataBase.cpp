@@ -546,43 +546,52 @@ Json::Value MoDB::DeleteUser(Json::Value &deletejson)
 */
 Json::Value MoDB::SelectProblemInfoByAdmin(Json::Value &queryjson)
 {
-    int64_t problemid = stoll(queryjson["ProblemId"].asString());
-
-    auto client = pool.acquire();
-    mongocxx::collection problemcoll = (*client)["XDOJ"]["Problem"];
-
-    bsoncxx::builder::stream::document document{};
-    mongocxx::pipeline pipe;
-    pipe.match({make_document(kvp("_id", problemid))});
-
-    document
-        << "Title" << 1
-        << "Description" << 1
-        << "TimeLimit" << 1
-        << "MemoryLimit" << 1
-        << "JudgeNum" << 1
-        << "UserNickName" << 1
-        << "Tags" << 1;
-    pipe.project(document.view());
-
-    Json::Reader reader;
     Json::Value resjson;
-
-    mongocxx::cursor cursor = problemcoll.aggregate(pipe);
-
-    if (cursor.begin() == cursor.end())
+    try
     {
-        resjson["Result"] = "Fail";
-        resjson["Reason"] = "数据库未查询到该信息！";
+        int64_t problemid = stoll(queryjson["ProblemId"].asString());
+
+        auto client = pool.acquire();
+        mongocxx::collection problemcoll = (*client)["XDOJ"]["Problem"];
+
+        bsoncxx::builder::stream::document document{};
+        mongocxx::pipeline pipe;
+        pipe.match({make_document(kvp("_id", problemid))});
+
+        document
+            << "Title" << 1
+            << "Description" << 1
+            << "TimeLimit" << 1
+            << "MemoryLimit" << 1
+            << "JudgeNum" << 1
+            << "UserNickName" << 1
+            << "Tags" << 1;
+        pipe.project(document.view());
+
+        Json::Reader reader;
+
+        mongocxx::cursor cursor = problemcoll.aggregate(pipe);
+
+        if (cursor.begin() == cursor.end())
+        {
+            resjson["Result"] = "Fail";
+            resjson["Reason"] = "数据库未查询到该信息！";
+            return resjson;
+        }
+
+        for (auto doc : cursor)
+        {
+            reader.parse(bsoncxx::to_json(doc), resjson);
+        }
+        resjson["Result"] = "Success";
         return resjson;
     }
-
-    for (auto doc : cursor)
+    catch (const std::exception &e)
     {
-        reader.parse(bsoncxx::to_json(doc), resjson);
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "数据库异常！";
+        return resjson;
     }
-    resjson["Result"] = "Success";
-    return resjson;
 }
 
 /*
@@ -750,22 +759,31 @@ Json::Value MoDB::UpdateProblem(Json::Value &updatejson)
 */
 Json::Value MoDB::DeleteProblem(Json::Value &deletejson)
 {
-    int64_t problemid = stoll(deletejson["ProblemId"].asString());
-
-    auto client = pool.acquire();
-    mongocxx::collection problemcoll = (*client)["XDOJ"]["Problem"];
-
-    auto result = problemcoll.delete_one({make_document(kvp("_id", problemid))});
-
     Json::Value resjson;
-    if ((*result).deleted_count() < 1)
+    try
     {
-        resjson["Result"] = "Fail";
-        resjson["Reason"] = "数据库未查询到该数据！";
+        int64_t problemid = stoll(deletejson["ProblemId"].asString());
+
+        auto client = pool.acquire();
+        mongocxx::collection problemcoll = (*client)["XDOJ"]["Problem"];
+
+        auto result = problemcoll.delete_one({make_document(kvp("_id", problemid))});
+
+        if ((*result).deleted_count() < 1)
+        {
+            resjson["Result"] = "Fail";
+            resjson["Reason"] = "数据库未查询到该数据！";
+            return resjson;
+        }
+        resjson["Result"] = "Success";
         return resjson;
     }
-    resjson["Result"] = "Success";
-    return resjson;
+    catch (const std::exception &e)
+    {
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "数据库异常！";
+        return resjson;
+    }
 }
 
 /*
@@ -787,7 +805,7 @@ int mystoi(string num)
     return resnum;
 }
 /*
-    功能：分页获取题目列表（包含查询条件，暂时未添加）
+    功能：分页获取题目列表
     前端传入
     Json(SearchInfo,Page,PageSize)
     后端传出
@@ -795,88 +813,97 @@ int mystoi(string num)
 */
 Json::Value MoDB::SelectProblemList(Json::Value &queryjson)
 {
-    Json::Value searchinfo = queryjson["SearchInfo"];
-    int page = stoi(queryjson["Page"].asString());
-    int pagesize = stoi(queryjson["PageSize"].asString());
-    int skip = (page - 1) * pagesize;
-
-    auto client = pool.acquire();
-    mongocxx::collection problemcoll = (*client)["XDOJ"]["Problem"];
     Json::Value resjson;
-    Json::Reader reader;
-    mongocxx::pipeline pipe, pipetot;
-    bsoncxx::builder::stream::document document{};
-    // 查询ID
-    if (searchinfo["Id"].asString().size() > 0)
+    try
     {
-        int id = mystoi(searchinfo["Id"].asString());
-        pipe.match({make_document(kvp("_id", id))});
-        pipetot.match({make_document(kvp("_id", id))});
-    }
+        Json::Value searchinfo = queryjson["SearchInfo"];
+        int page = stoi(queryjson["Page"].asString());
+        int pagesize = stoi(queryjson["PageSize"].asString());
+        int skip = (page - 1) * pagesize;
 
-    // 查询标题
-    document
-        << "Title" << open_document
-        << "$regex" << searchinfo["Title"].asString()
-        << close_document;
-    pipe.match(document.view());
-    pipetot.match(document.view());
-    document.clear();
-
-    // 查询标签
-    if (searchinfo["Tags"].size() > 0)
-    {
-        auto in_array = document
-                        << "Tags" << open_document
-                        << "$in" << open_array;
-        for (int i = 0; i < searchinfo["Tags"].size(); i++)
+        auto client = pool.acquire();
+        mongocxx::collection problemcoll = (*client)["XDOJ"]["Problem"];
+        Json::Reader reader;
+        mongocxx::pipeline pipe, pipetot;
+        bsoncxx::builder::stream::document document{};
+        // 查询ID
+        if (searchinfo["Id"].asString().size() > 0)
         {
-            in_array = in_array
-                       << searchinfo["Tags"][i].asString();
+            int id = mystoi(searchinfo["Id"].asString());
+            pipe.match({make_document(kvp("_id", id))});
+            pipetot.match({make_document(kvp("_id", id))});
         }
-        bsoncxx::document::value doc = in_array << close_array << close_document << finalize;
-        pipe.match(doc.view());
-        pipetot.match(doc.view());
+
+        // 查询标题
+        document
+            << "Title" << open_document
+            << "$regex" << searchinfo["Title"].asString()
+            << close_document;
+        pipe.match(document.view());
+        pipetot.match(document.view());
         document.clear();
-    }
-    // 获取总条数
-    pipetot.count("TotalNum");
-    mongocxx::cursor cursor = problemcoll.aggregate(pipetot);
-    for (auto doc : cursor)
-    {
-        reader.parse(bsoncxx::to_json(doc), resjson);
-    }
 
-    // 排序
-    pipe.sort({make_document(kvp("_id", 1))});
-    // 跳过
-    pipe.skip(skip);
-    // 限制
-    pipe.limit(pagesize);
-    // 进行
-    document
-        << "ProblemId"
-        << "$_id"
-        << "Title" << 1
-        << "SubmitNum" << 1
-        << "CENum" << 1
-        << "ACNum" << 1
-        << "WANum" << 1
-        << "TLENum" << 1
-        << "MLENum" << 1
-        << "Tags" << 1;
-    pipe.project(document.view());
+        // 查询标签
+        if (searchinfo["Tags"].size() > 0)
+        {
+            auto in_array = document
+                            << "Tags" << open_document
+                            << "$in" << open_array;
+            for (int i = 0; i < searchinfo["Tags"].size(); i++)
+            {
+                in_array = in_array
+                           << searchinfo["Tags"][i].asString();
+            }
+            bsoncxx::document::value doc = in_array << close_array << close_document << finalize;
+            pipe.match(doc.view());
+            pipetot.match(doc.view());
+            document.clear();
+        }
+        // 获取总条数
+        pipetot.count("TotalNum");
+        mongocxx::cursor cursor = problemcoll.aggregate(pipetot);
+        for (auto doc : cursor)
+        {
+            reader.parse(bsoncxx::to_json(doc), resjson);
+        }
 
-    Json::Value arryjson;
-    cursor = problemcoll.aggregate(pipe);
-    for (auto doc : cursor)
-    {
-        Json::Value jsonvalue;
-        reader.parse(bsoncxx::to_json(doc), jsonvalue);
-        arryjson.append(jsonvalue);
+        // 排序
+        pipe.sort({make_document(kvp("_id", 1))});
+        // 跳过
+        pipe.skip(skip);
+        // 限制
+        pipe.limit(pagesize);
+        // 进行
+        document
+            << "ProblemId"
+            << "$_id"
+            << "Title" << 1
+            << "SubmitNum" << 1
+            << "CENum" << 1
+            << "ACNum" << 1
+            << "WANum" << 1
+            << "TLENum" << 1
+            << "MLENum" << 1
+            << "Tags" << 1;
+        pipe.project(document.view());
+
+        Json::Value arryjson;
+        cursor = problemcoll.aggregate(pipe);
+        for (auto doc : cursor)
+        {
+            Json::Value jsonvalue;
+            reader.parse(bsoncxx::to_json(doc), jsonvalue);
+            arryjson.append(jsonvalue);
+        }
+        resjson["Array"] = arryjson;
+        return resjson;
     }
-    resjson["Array"] = arryjson;
-    return resjson;
+    catch (const std::exception &e)
+    {
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "数据库出错啦！";
+        return resjson;
+    }
 }
 /*
     功能：更新题目的状态数量

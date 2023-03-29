@@ -14,6 +14,10 @@ Json::Value ProblemList::SelectProblemInfoByAdmin(Json::Value &queryjson)
     // 获取基本信息
     Json::Value resjson = MoDB::GetInstance().SelectProblemInfoByAdmin(queryjson);
 
+    if (resjson["Result"].asString() == "Fail")
+    {
+        return resjson;
+    }
     // 获取测试点信息
     string problemid = resjson["_id"].asString();
     int judgenum = stoi(resjson["JudgeNum"].asString());
@@ -142,6 +146,7 @@ Json::Value ProblemList::DeleteProblem(Json::Value &deletejson)
     if (tmpjson["Result"] == "Fail")
         return tmpjson;
 
+    // 删除数据
     string DATA_PATH = "../../problemdata/" + deletejson["ProblemId"].asString();
     string command = "rm -rf " + DATA_PATH;
 
