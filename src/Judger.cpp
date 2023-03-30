@@ -12,9 +12,26 @@ extern "C"
 }
 
 using namespace std;
+// 获取文件大小
+size_t GetFileSize(const char *fileName)
+{
+    if (fileName == NULL)
+    {
+        return 0;
+    }
+    struct stat statbuf;
+
+    stat(fileName, &statbuf);
+
+    size_t filesize = statbuf.st_size;
+
+    return filesize;
+}
+
 Judger::Judger()
 {
 }
+
 Json::Value Judger::Run(Json::Value &runjson)
 {
     if (!Init(runjson))
@@ -97,6 +114,11 @@ bool Judger::Init(Json::Value &initjson)
     {
         m_command = RUN_PATH + "main.go";
     }
+    else
+    {
+        m_result = SE;
+        return false;
+    }
     outfile.open(m_command.data());
     if (!outfile.is_open())
     {
@@ -106,9 +128,7 @@ bool Judger::Init(Json::Value &initjson)
     outfile << m_code.data();
     outfile.close();
 
-    struct stat statbuf;
-    stat(m_command.data(), &statbuf);
-    m_length = to_string((int)statbuf.st_size / 128) + "KB";
+    m_length = to_string(GetFileSize(m_command.data())) + "B";
 
     // 编译spj文件
     CompilerSPJ();
@@ -118,19 +138,34 @@ bool Judger::Init(Json::Value &initjson)
 
 bool Judger::CompilerSPJ()
 {
+    // 如果存在可执行文件spj
+    m_command = DATA_PATH + "spj";
+    if (access(m_command.data(), F_OK) == 0)
+    {
+        m_isspj = true;
+        return true;
+    }
+
+    // 如果不存在spj.cpp文件
     m_command = DATA_PATH + "spj.cpp";
-    // 如果不存在
     if (access(m_command.data(), F_OK) == -1)
         return true;
 
     // 编译SPJ文件
-    m_command = "timeout 10 g++ " + DATA_PATH + "spj.cpp -o spj -O2 -std=c++14";
+    m_command = "timeout 10 g++ " + DATA_PATH + "spj.cpp -o " + DATA_PATH + "spj -O2 -std=c++14";
     if (system(m_command.data()) == -1)
     {
         m_result = SE;
         return false;
     }
-    m_isspj = true;
+
+    // 如果存在可执行文件spj
+    m_command = DATA_PATH + "spj";
+    if (access(m_command.data(), F_OK) == 0)
+    {
+        m_isspj = true;
+        return true;
+    }
     return true;
 }
 
@@ -336,6 +371,13 @@ bool Judger::JudgmentResult(struct result *res, string &index)
     // 判断结果
     if (res->result == 0)
     {
+        // 获取标准输入
+        ifstream infile;
+        string indatapath = DATA_PATH + index + ".in";
+        infile.open(indatapath.data());
+        string standardinput((istreambuf_iterator<char>(infile)),
+                             (istreambuf_iterator<char>()));
+        infile.close();
         // 获取标准答案
         ifstream infile1;
         string datapath = DATA_PATH + index + ".out";
@@ -350,9 +392,8 @@ bool Judger::JudgmentResult(struct result *res, string &index)
         string calculateanswer((istreambuf_iterator<char>(infile2)),
                                (istreambuf_iterator<char>()));
         infile2.close();
-        printf("standardanswer = %s\n", standardanswer.data());
-        printf("calculateanswer = %s\n", calculateanswer.data());
 
+        testinfo["StandardInput"] = standardinput;
         testinfo["StandardOutput"] = standardanswer;
         testinfo["PersonalOutput"] = calculateanswer;
 
@@ -370,12 +411,12 @@ bool Judger::JudgmentResult(struct result *res, string &index)
         else if (m_isspj) // SPJ判断
         {
             cout << "SPJ判断" << endl;
-            m_command = "./spj " + datapath + " " + runpath;
+            m_command = DATA_PATH + "spj " + datapath + " " + runpath;
             testinfo["Status"] = AC;
             if (system(m_command.data()) != 0) // 如果失败
             {
                 testinfo["Status"] = WA;
-                m_reason = "standardanswer = " + standardanswer + ",calculateanswer = " + calculateanswer + ";";
+                m_result = WA;
             }
         }
         else // 普通比较
@@ -386,7 +427,6 @@ bool Judger::JudgmentResult(struct result *res, string &index)
             {
                 testinfo["Status"] = WA;
                 m_result = WA;
-                m_reason = "standardanswer = " + standardanswer + ",calculateanswer = " + calculateanswer + ";";
             }
         }
     }

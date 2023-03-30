@@ -209,6 +209,29 @@ void doGetProblemList(const httplib::Request &req, httplib::Response &res)
     printf("doGetProblemList end!!!\n");
     res.set_content(resjson.toStyledString(), "json");
 }
+// 返回题库
+void doGetProblemListByAdmin(const httplib::Request &req, httplib::Response &res)
+{
+    printf("doGetProblemListByAdmin start!!!\n");
+    Json::Value resjson;
+    if (!req.has_param("Page") || !req.has_param("PageSize"))
+    {
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "请求参数有误！";
+    }
+    else
+    {
+        string page = req.get_param_value("Page");
+        string pagesize = req.get_param_value("PageSize");
+
+        Json::Value queryjson;
+        queryjson["Page"] = page;
+        queryjson["PageSize"] = pagesize;
+        resjson = control.SelectProblemListByAdmin(queryjson);
+    }
+    printf("doGetProblemListByAdmin end!!!\n");
+    res.set_content(resjson.toStyledString(), "json");
+}
 
 // 返回网页请求的题目描述
 void doGetProblemInfo(const httplib::Request &req, httplib::Response &res)
@@ -812,7 +835,8 @@ int main()
     server.Get("/problem", doGetProblem);
     // 获取题库
     server.Get("/problemlist", doGetProblemList);
-
+    // 管理员获取题库
+    server.Get("/problemlist/admin", doGetProblemListByAdmin);
     // 获取单个题目详细信息
     server.Get("/problem/select", doGetProblemInfo);
     // 编辑题目 包含添加题目，修改题目

@@ -122,6 +122,13 @@ public:
     Json::Value SelectProblemList(Json::Value &queryjson);
 
     /*
+        功能：分页获取题目列表
+        传入：Json(Page,PageSize)
+        传出：Json(ArrayInfo([ProblemId,Title,SubmitNum,CENum,ACNum,WANum,TLENum,MLENum,SENum,Tags]),TotalNum)
+    */
+    Json::Value SelectProblemListByAdmin(Json::Value &queryjson);
+
+    /*
         功能：更新题目的状态数量
         传入：Json(ProblemId,Status)
         传出：bool

@@ -82,6 +82,11 @@ Json::Value Control::SelectProblemList(Json::Value &queryjson)
 	return ProblemList::GetInstance().SelectProblemList(queryjson);
 }
 
+Json::Value Control::SelectProblemListByAdmin(Json::Value &queryjson)
+{
+	return ProblemList::GetInstance().SelectProblemListByAdmin(queryjson);
+}
+
 Json::Value Control::GetJudgeCode(Json::Value judgejson)
 {
 	// 传入Json(ProblemId,UserId,UserNickName,Code,Language,TimeLimit,MemoryLimit,JudgeNum,ProblemTitle)

@@ -910,6 +910,74 @@ Json::Value MoDB::SelectProblemList(Json::Value &queryjson)
         return resjson;
     }
 }
+
+/*
+    功能：分页获取题目列表
+    传入：Json(Page,PageSize)
+    传出：Json(ArrayInfo([ProblemId,Title,SubmitNum,CENum,ACNum,WANum,TLENum,MLENum,SENum,Tags]),TotalNum)
+*/
+Json::Value MoDB::SelectProblemListByAdmin(Json::Value &queryjson)
+{
+    Json::Value resjson;
+    try
+    {
+        int page = stoi(queryjson["Page"].asString());
+        int pagesize = stoi(queryjson["PageSize"].asString());
+        int skip = (page - 1) * pagesize;
+
+        auto client = pool.acquire();
+        mongocxx::collection problemcoll = (*client)["XDOJ"]["Problem"];
+
+        Json::Reader reader;
+        mongocxx::pipeline pipe, pipetot;
+        bsoncxx::builder::stream::document document{};
+
+        // 获取总条数
+        pipetot.count("TotalNum");
+        mongocxx::cursor cursor = problemcoll.aggregate(pipetot);
+        for (auto doc : cursor)
+        {
+            reader.parse(bsoncxx::to_json(doc), resjson);
+        }
+
+        // 排序
+        pipe.sort({make_document(kvp("_id", 1))});
+        // 跳过
+        pipe.skip(skip);
+        // 限制
+        pipe.limit(pagesize);
+        // 进行
+        document
+            << "ProblemId"
+            << "$_id"
+            << "Title" << 1
+            << "SubmitNum" << 1
+            << "CENum" << 1
+            << "ACNum" << 1
+            << "WANum" << 1
+            << "TLENum" << 1
+            << "MLENum" << 1
+            << "Tags" << 1;
+        pipe.project(document.view());
+
+        Json::Value arryjson;
+        cursor = problemcoll.aggregate(pipe);
+        for (auto doc : cursor)
+        {
+            Json::Value jsonvalue;
+            reader.parse(bsoncxx::to_json(doc), jsonvalue);
+            arryjson.append(jsonvalue);
+        }
+        resjson["ArrayInfo"] = arryjson;
+        return resjson;
+    }
+    catch (const std::exception &e)
+    {
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "数据库出错啦！";
+        return resjson;
+    }
+}
 /*
     功能：更新题目的状态数量
     传入：Json(ProblemId,Status)
@@ -1011,7 +1079,7 @@ string MoDB::InsertStatusRecord(Json::Value &insertjson)
 /*
     功能：更新测评记录并返回测评记录
     传入：Json(SubmitId,Status,RunTime,RunMemory,Length,ComplierInfo,
-    TestInfo[(Status,StandardOutput,PersonalOutput,RunTime,RunMemory)])
+    TestInfo[(Status,StandardInput,StandardOutput,PersonalOutput,RunTime,RunMemory)])
 
     传出：Json() 测评记录
 */
@@ -1040,12 +1108,14 @@ Json::Value MoDB::UpdateStatusRecord(Json::Value &updatejson)
     for (int i = 0; i < updatejson["TestInfo"].size(); i++)
     {
         int teststatus = stoi(updatejson["TestInfo"][i]["Status"].asString());
+        string standardinput = updatejson["TestInfo"][i]["StandardInput"].asString();
         string standardoutput = updatejson["TestInfo"][i]["StandardOutput"].asString();
         string personaloutput = updatejson["TestInfo"][i]["PersonalOutput"].asString();
         string testruntime = updatejson["TestInfo"][i]["RunTime"].asString();
         string testrunmemory = updatejson["TestInfo"][i]["RunMemory"].asString();
         in_array = in_array << open_document
                             << "Status" << teststatus
+                            << "StandardInput" << standardinput
                             << "StandardOutput" << standardoutput
                             << "PersonalOutput" << personaloutput
                             << "RunTime" << testruntime
@@ -1161,10 +1231,23 @@ Json::Value MoDB::SelectStatusRecord(Json::Value &queryjson)
         auto client = pool.acquire();
         mongocxx::collection statusrecordcoll = (*client)["XDOJ"]["StatusRecord"];
 
+        mongocxx::pipeline pipe;
+        bsoncxx::builder::stream::document document{};
+
+        pipe.match({make_document(kvp("_id", submitid))});
+
+        document
+            << "Status" << 1
+            << "Language" << 1
+            << "Code" << 1
+            << "ComplierInfo" << 1
+            << "TestInfo" << 1;
+
+        pipe.project(document.view());
         // 查询测评记录
         Json::Reader reader;
 
-        mongocxx::cursor cursor = statusrecordcoll.find({{make_document(kvp("_id", submitid))}});
+        mongocxx::cursor cursor = statusrecordcoll.aggregate(pipe);
         for (auto doc : cursor)
         {
             reader.parse(bsoncxx::to_json(doc), resjson);

@@ -160,6 +160,11 @@ Json::Value ProblemList::SelectProblemList(Json::Value &queryjson)
     return MoDB::GetInstance().SelectProblemList(queryjson);
 }
 
+Json::Value ProblemList::SelectProblemListByAdmin(Json::Value &queryjson)
+{
+    return MoDB::GetInstance().SelectProblemListByAdmin(queryjson);
+}
+
 bool ProblemList::UpdateProblemStatusNum(Json::Value &updatejson)
 {
     return MoDB::GetInstance().UpdateProblemStatusNum(updatejson);

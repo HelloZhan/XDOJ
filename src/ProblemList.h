@@ -28,6 +28,9 @@ public:
     // 通过普通查询获取题库数据
     Json::Value SelectProblemList(Json::Value &queryjson);
 
+    // 管理员查询列表
+    Json::Value SelectProblemListByAdmin(Json::Value &queryjson);
+
     // 更新题目状态数量
     bool UpdateProblemStatusNum(Json::Value &updatejson);
 

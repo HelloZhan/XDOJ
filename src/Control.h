@@ -46,6 +46,8 @@ public:
     // 返回题库
     Json::Value SelectProblemList(Json::Value &queryjson);
 
+    // 管理员查询列表
+    Json::Value SelectProblemListByAdmin(Json::Value &queryjson);
     // 返回判题信息
     Json::Value GetJudgeCode(Json::Value judgejson);
 

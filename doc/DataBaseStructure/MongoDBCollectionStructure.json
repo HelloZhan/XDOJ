@@ -51,6 +51,7 @@
             "TestInfo": [
                 {
                     "Status": "int",
+                    "StandardInput": "string",
                     "StandardOutput": "string",
                     "PersonalOutput": "string",
                     "RunTime": "string",
