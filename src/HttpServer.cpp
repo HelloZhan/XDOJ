@@ -737,6 +737,30 @@ void doDeleteDiscuss(const httplib::Request &req, httplib::Response &res)
     res.set_content(resjson.toStyledString(), "json");
 }
 
+void doSelectCommentListByAdmin(const httplib::Request &req, httplib::Response &res)
+{
+    printf("doSelectCommentListByAdmin start!!!\n");
+    Json::Value resjson;
+
+    if (!req.has_param("Page") || !req.has_param("PageSize"))
+    {
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "缺少请求参数！";
+    }
+    else
+    {
+        string page = req.get_param_value("Page");
+        string pagesize = req.get_param_value("PageSize");
+        Json::Value queryjson;
+        queryjson["Page"] = page;
+        queryjson["PageSize"] = pagesize;
+
+        resjson = control.SelectCommentListByAdmin(queryjson);
+    }
+    printf("doSelectCommentListByAdmin end!!!\n");
+    res.set_content(resjson.toStyledString(), "json");
+}
+
 void doGetComment(const httplib::Request &req, httplib::Response &res)
 {
     printf("doGetComment start!!!\n");
@@ -782,11 +806,21 @@ void doInsertComment(const httplib::Request &req, httplib::Response &res)
 void doDeleteComment(const httplib::Request &req, httplib::Response &res)
 {
     printf("doDeleteComment start!!!\n");
-    Json::Value jsonvalue;
-    Json::Reader reader;
-    // 解析传入的json
-    reader.parse(req.body, jsonvalue);
-    Json::Value resjson = control.DeleteComment(jsonvalue);
+    Json::Value resjson;
+    if (!req.has_param("ArticleId") || !req.has_param("CommentId"))
+    {
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "缺少请求参数！";
+    }
+    else
+    {
+        string articleid = req.get_param_value("ArticleId");
+        string commentid = req.get_param_value("CommentId");
+        Json::Value deletejson;
+        deletejson["ArticleId"] = articleid;
+        deletejson["CommentId"] = commentid;
+        resjson = control.DeleteComment(deletejson);
+    }
     printf("doDeleteComment end!!!\n");
     res.set_content(resjson.toStyledString(), "json");
 }
@@ -935,11 +969,13 @@ void HttpServer::Run()
 
     // ---------------评论--------------------
     // 获取评论
+    server.Get("/commentlist/admin", doSelectCommentListByAdmin);
+    // 获取评论
     server.Get("/comment", doGetComment);
     // 提交评论
     server.Post("/comment/insert", doInsertComment);
     // 删除评论
-    server.Post("/comment/delete", doDeleteComment);
+    server.Delete("/comment", doDeleteComment);
 
     // 获取图片资源
     server.Get(R"(/image/(\d+))", doGetImage);

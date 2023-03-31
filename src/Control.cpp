@@ -152,6 +152,11 @@ Json::Value Control::SelectStatusRecord(Json::Value &queryjson)
 	return StatusRecordList::GetInstance()->SelectStatusRecord(queryjson);
 }
 
+Json::Value Control::SelectCommentListByAdmin(Json::Value &queryjson)
+{
+	return CommentList::GetInstance()->SelectCommentListByAdmin(queryjson);
+}
+
 Json::Value Control::GetComment(Json::Value &queryjson)
 {
 	if (queryjson["Type"].asString() == "Father")
@@ -194,11 +199,10 @@ Json::Value Control::InsertComment(Json::Value &insertjson)
 	}
 }
 
-// Json(ArticleId,ArticleType,CommentId)
+// Json(ArticleId,CommentId)
 Json::Value Control::DeleteComment(Json::Value &deletejson)
 {
 	string articleid = deletejson["ArticleId"].asString();
-	string articletype = deletejson["ArticleType"].asString();
 
 	Json::Value resjson;
 	// 删除父评论
@@ -217,7 +221,7 @@ Json::Value Control::DeleteComment(Json::Value &deletejson)
 	Json::Value articlejson;
 	articlejson["Num"] = stoi(json["DeleteNum"].asString()) * -1;
 	articlejson["ArticleId"] = articleid;
-	articletype = json["ArticleType"].asString();
+	string articletype = json["ArticleType"].asString();
 
 	if (articletype == "Discuss")
 	{

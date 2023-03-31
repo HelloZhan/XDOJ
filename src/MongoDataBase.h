@@ -341,6 +341,14 @@ public:
     Json::Value DeleteAnnouncement(Json::Value &deletejson);
 
     // ++++++++++++++++++++++评论表 Comment+++++++++++++++++++++++
+
+    /*
+        功能：管理员查询评论
+        传入：Json(Page,PageSize)
+        传出：Json(_id,ParentId,ParentType,Content,CreateTime,
+            Child_Comments._id,Child_Comments.Content,Child_Comments.CreateTime)
+    */
+    Json::Value SelectCommentListByAdmin(Json::Value &queryjson);
     /*
         功能：查询父评论
         传入：Json(ParentId,Skip,Limie,SonNum)

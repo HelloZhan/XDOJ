@@ -59,6 +59,10 @@ public:
     Json::Value SelectStatusRecord(Json::Value &queryjson);
 
     // ---------------评论Comment-------------------
+
+    // 管理员查询评论
+    Json::Value SelectCommentListByAdmin(Json::Value &queryjson);
+
     // 获取评论 根据Id
     Json::Value GetComment(Json::Value &queryjson);
 

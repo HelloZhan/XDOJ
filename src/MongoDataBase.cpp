@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <iostream>
 #include "./utils/snowflake.hpp"
+#include "./log/log.h"
 #include <ctime>
 #include <bsoncxx/json.hpp>
 #include <mongocxx/client.hpp>
@@ -2409,8 +2410,66 @@ Json::Value MoDB::DeleteAnnouncement(Json::Value &deletejson)
 }
 
 /*
+    功能：管理员查询评论
+    传入：Json(Page,PageSize)
+    传出：Json(_id,ParentId,ParentType,Content,CreateTime,
+        Child_Comments._id,Child_Comments.Content,Child_Comments.CreateTime)
+*/
+Json::Value MoDB::SelectCommentListByAdmin(Json::Value &queryjson)
+{
+    Json::Value resjson;
+    try
+    {
+        int page = stoi(queryjson["Page"].asString());
+        int pagesize = stoi(queryjson["PageSize"].asString());
+        int skip = (page - 1) * pagesize;
+
+        auto client = pool.acquire();
+        mongocxx::collection commentcoll = (*client)["XDOJ"]["Comment"];
+
+        mongocxx::pipeline pipe;
+        bsoncxx::builder::stream::document document{};
+        // 按照时间先后顺序
+        pipe.sort({make_document(kvp("CreateTime", -1))});
+        // 跳过多少条
+        pipe.skip(skip);
+        // 限制多少条
+        pipe.limit(pagesize);
+
+        // 选择需要的字段
+        document
+            << "ParentId" << 1
+            << "ParentType" << 1
+            << "Content" << 1
+            << "CreateTime" << 1
+            << "Child_Comments._id" << 1
+            << "Child_Comments.Content" << 1
+            << "Child_Comments.CreateTime" << 1;
+        pipe.project(document.view());
+        document.clear();
+
+        Json::Reader reader;
+
+        mongocxx::cursor cursor = commentcoll.aggregate(pipe);
+        for (auto doc : cursor)
+        {
+            Json::Value jsonvalue;
+            reader.parse(bsoncxx::to_json(doc), jsonvalue);
+            resjson["ArrayInfo"].append(jsonvalue);
+        }
+        resjson["TotalNum"] = to_string(commentcoll.count_documents({}));
+        return resjson;
+    }
+    catch (const std::exception &e)
+    {
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "数据库异常！";
+        return resjson;
+    }
+}
+/*
     功能：查询父评论
-    传入：Json(ParentId,Skip,Limie,SonNum)
+    传入：Json(ParentId,Page,PageSize,SonNum)
     传出：
     Json(ParentId,Content,Likes,CreateTime,Child_Total,
     User(Avatar,NickName),

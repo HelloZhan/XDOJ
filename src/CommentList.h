@@ -9,6 +9,9 @@ public:
     // 局部静态特性的方式实现单实例
     static CommentList *GetInstance();
 
+    // 管理员查询评论
+    Json::Value SelectCommentListByAdmin(Json::Value &queryjson);
+
     // 获取父评论
     Json::Value getFatherComment(Json::Value &queryjson);
 

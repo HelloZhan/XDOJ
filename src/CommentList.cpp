@@ -6,6 +6,12 @@ CommentList *CommentList::GetInstance()
     static CommentList commentlist;
     return &commentlist;
 }
+
+Json::Value CommentList::SelectCommentListByAdmin(Json::Value &queryjson)
+{
+    return MoDB::GetInstance()->SelectCommentListByAdmin(queryjson);
+}
+
 Json::Value CommentList::getFatherComment(Json::Value &queryjson)
 {
     return MoDB::GetInstance()->getFatherComment(queryjson);
