@@ -1,13 +1,13 @@
-#ifndef COMMENT_H
-#define COMMENT_H
+#ifndef COMMENTLIST_H
+#define COMMENTLIST_H
 #include <jsoncpp/json/json.h>
 #include <string>
 // 讨论类
-class Comment
+class CommentList
 {
 public:
     // 局部静态特性的方式实现单实例
-    static Comment &GetInstance();
+    static CommentList &GetInstance();
 
     // 获取父评论
     Json::Value getFatherComment(Json::Value &queryjson);
@@ -31,7 +31,7 @@ public:
     Json::Value DeleteSonComment(Json::Value &deletejson);
 
 private:
-    Comment();
-    ~Comment();
+    CommentList();
+    ~CommentList();
 };
 #endif

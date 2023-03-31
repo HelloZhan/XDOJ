@@ -738,19 +738,30 @@ void doDeleteDiscuss(const httplib::Request &req, httplib::Response &res)
 void doGetComment(const httplib::Request &req, httplib::Response &res)
 {
     printf("doGetComment start!!!\n");
-    Json::Value queryjson;
-    string type = req.get_param_value("Type");
-    string parentid = req.get_param_value("ParentId");
-    string skip = req.get_param_value("Skip");
-    string limit = req.get_param_value("Limit");
-    string sonsnum = req.get_param_value("SonNum");
-    queryjson["Type"] = type;
-    queryjson["ParentId"] = parentid;
-    queryjson["Skip"] = skip;
-    queryjson["Limit"] = limit;
-    queryjson["SonNum"] = sonsnum;
+    Json::Value resjson;
 
-    Json::Value resjson = control.GetComment(queryjson);
+    if (!req.has_param("Type") || !req.has_param("ParentId") || !req.has_param("Page") || !req.has_param("PageSize") || !req.has_param("SonNum"))
+    {
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "缺少请求参数！";
+    }
+    else
+    {
+        string type = req.get_param_value("Type");
+        string parentid = req.get_param_value("ParentId");
+        string page = req.get_param_value("Page");
+        string pagesize = req.get_param_value("PageSize");
+        string sonsnum = req.get_param_value("SonNum");
+        Json::Value queryjson;
+        queryjson["Type"] = type;
+        queryjson["ParentId"] = parentid;
+        queryjson["Page"] = page;
+        queryjson["PageSize"] = pagesize;
+        queryjson["SonNum"] = sonsnum;
+
+        resjson = control.GetComment(queryjson);
+    }
+
     printf("doGetComment end!!!\n");
     res.set_content(resjson.toStyledString(), "json");
 }
