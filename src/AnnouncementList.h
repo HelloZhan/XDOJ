@@ -7,7 +7,7 @@ class AnnouncementList
 {
 public:
     // 局部静态特性的方式实现单实例
-    static AnnouncementList &GetInstance();
+    static AnnouncementList *GetInstance();
 
     // 添加公告
     Json::Value InsertAnnouncement(Json::Value &insertjson);

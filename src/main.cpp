@@ -4,6 +4,7 @@
 #include <fstream>
 #include <typeinfo>
 #include "Control.h"
+#include "./log/log.h"
 
 using namespace std;
 Control control;
@@ -821,6 +822,10 @@ void doGetTags(const httplib::Request &req, httplib::Response &res)
 
 int main()
 {
+    // 创建日志文件系统
+    Log::Instance()->init(1, "./log", ".log", 1024);
+    LOG_INFO("========== Server init ==========");
+
     using namespace httplib;
     Server server;
     // -----------------用户----------------

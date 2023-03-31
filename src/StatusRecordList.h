@@ -7,7 +7,7 @@ class StatusRecordList
 {
 public:
     // 局部静态特性的方式实现单实例
-    static StatusRecordList &GetInstance();
+    static StatusRecordList *GetInstance();
 
     // 分页查询测评记录
     Json::Value SelectStatusRecordList(Json::Value &queryjson);

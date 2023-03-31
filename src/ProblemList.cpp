@@ -12,7 +12,7 @@ ProblemList::ProblemList()
 Json::Value ProblemList::SelectProblemInfoByAdmin(Json::Value &queryjson)
 {
     // 获取基本信息
-    Json::Value resjson = MoDB::GetInstance().SelectProblemInfoByAdmin(queryjson);
+    Json::Value resjson = MoDB::GetInstance()->SelectProblemInfoByAdmin(queryjson);
 
     if (resjson["Result"].asString() == "Fail")
     {
@@ -62,7 +62,7 @@ Json::Value ProblemList::SelectProblemInfoByAdmin(Json::Value &queryjson)
 
 Json::Value ProblemList::SelectProblem(Json::Value &queryjson)
 {
-    return MoDB::GetInstance().SelectProblem(queryjson);
+    return MoDB::GetInstance()->SelectProblem(queryjson);
 }
 
 bool InsertProblemDataInfo(Json::Value &insertjson)
@@ -102,7 +102,7 @@ bool InsertProblemDataInfo(Json::Value &insertjson)
 Json::Value ProblemList::InsertProblem(Json::Value &insertjson)
 {
     cout << insertjson.toStyledString() << endl;
-    Json::Value tmpjson = MoDB::GetInstance().InsertProblem(insertjson);
+    Json::Value tmpjson = MoDB::GetInstance()->InsertProblem(insertjson);
 
     if (tmpjson["Result"] == "Fail") // 插入失败
         return tmpjson;
@@ -125,7 +125,7 @@ Json::Value ProblemList::InsertProblem(Json::Value &insertjson)
 Json::Value ProblemList::UpdateProblem(Json::Value &updatejson)
 {
     cout << "UpdateProblem" << endl;
-    Json::Value tmpjson = MoDB::GetInstance().UpdateProblem(updatejson);
+    Json::Value tmpjson = MoDB::GetInstance()->UpdateProblem(updatejson);
     if (tmpjson["Result"].asString() == "Fail")
         return tmpjson;
 
@@ -141,7 +141,7 @@ Json::Value ProblemList::UpdateProblem(Json::Value &updatejson)
 
 Json::Value ProblemList::DeleteProblem(Json::Value &deletejson)
 {
-    Json::Value tmpjson = MoDB::GetInstance().DeleteProblem(deletejson);
+    Json::Value tmpjson = MoDB::GetInstance()->DeleteProblem(deletejson);
 
     if (tmpjson["Result"] == "Fail")
         return tmpjson;
@@ -157,23 +157,23 @@ Json::Value ProblemList::DeleteProblem(Json::Value &deletejson)
 
 Json::Value ProblemList::SelectProblemList(Json::Value &queryjson)
 {
-    return MoDB::GetInstance().SelectProblemList(queryjson);
+    return MoDB::GetInstance()->SelectProblemList(queryjson);
 }
 
 Json::Value ProblemList::SelectProblemListByAdmin(Json::Value &queryjson)
 {
-    return MoDB::GetInstance().SelectProblemListByAdmin(queryjson);
+    return MoDB::GetInstance()->SelectProblemListByAdmin(queryjson);
 }
 
 bool ProblemList::UpdateProblemStatusNum(Json::Value &updatejson)
 {
-    return MoDB::GetInstance().UpdateProblemStatusNum(updatejson);
+    return MoDB::GetInstance()->UpdateProblemStatusNum(updatejson);
 }
 
-ProblemList &ProblemList::GetInstance()
+ProblemList *ProblemList::GetInstance()
 {
     static ProblemList problemlist;
-    return problemlist;
+    return &problemlist;
 }
 
 ProblemList::~ProblemList()

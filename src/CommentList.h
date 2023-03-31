@@ -7,7 +7,7 @@ class CommentList
 {
 public:
     // 局部静态特性的方式实现单实例
-    static CommentList &GetInstance();
+    static CommentList *GetInstance();
 
     // 获取父评论
     Json::Value getFatherComment(Json::Value &queryjson);

@@ -6,7 +6,7 @@ class UserList
 {
 public:
     // 局部静态特性的方式实现单实例
-    static UserList &GetInstance();
+    static UserList *GetInstance();
     // 注册用户
     Json::Value RegisterUser(Json::Value &registerjson);
 

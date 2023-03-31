@@ -37,10 +37,10 @@ string GetTime()
     return (string)str;
 }
 
-MoDB &MoDB::GetInstance()
+MoDB *MoDB::GetInstance()
 {
     static MoDB modb;
-    return modb;
+    return &modb;
 }
 
 /*

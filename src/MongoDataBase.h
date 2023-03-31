@@ -11,7 +11,7 @@ class MoDB
 {
 public:
     // 局部静态特性的方式实现单实例
-    static MoDB &GetInstance();
+    static MoDB *GetInstance();
 
     // +++++++++++++++++++++++用户表User+++++++++++++++++++++++++++++
     /*

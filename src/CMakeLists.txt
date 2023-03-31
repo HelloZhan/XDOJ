@@ -18,9 +18,11 @@ include_directories(/usr/local/include/bsoncxx/v_noabi /usr/local/include/libbso
 # 并将名称保存到 DIR_SRCS 变量
 aux_source_directory(. DIR_SRCS)
 aux_source_directory(./utils DIR_UTILS)
+aux_source_directory(./log DIR_LOG)
+aux_source_directory(./buffer DIR_BUFFER)
 
 # 指定生成目标
-add_executable(xdoj ${DIR_SRCS} ${DIR_UTILS})
+add_executable(xdoj ${DIR_SRCS} ${DIR_UTILS} ${DIR_LOG} ${DIR_BUFFER})
 
 # 链接库
 target_link_libraries(xdoj jsoncpp pthread judger mongocxx bsoncxx)

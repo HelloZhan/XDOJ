@@ -7,7 +7,7 @@ class DiscussList
 {
 public:
     // 局部静态特性的方式实现单实例
-    static DiscussList &GetInstance();
+    static DiscussList *GetInstance();
 
     // 添加讨论
     Json::Value InsertDiscuss(Json::Value &insertjson);

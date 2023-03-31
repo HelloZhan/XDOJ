@@ -9,7 +9,7 @@ class ProblemList
 {
 public:
     // 局部静态特性的方式实现单实例
-    static ProblemList &GetInstance();
+    static ProblemList *GetInstance();
 
     // 管理员查询题目详细信息
     Json::Value SelectProblemInfoByAdmin(Json::Value &queryjson);

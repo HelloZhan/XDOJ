@@ -7,7 +7,7 @@ class SolutionList
 {
 public:
     // 局部静态特性的方式实现单实例
-    static SolutionList &GetInstance();
+    static SolutionList *GetInstance();
 
     // 添加题解
     Json::Value InsertSolution(Json::Value &insertjson);
