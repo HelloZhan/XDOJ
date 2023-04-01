@@ -45,6 +45,7 @@ void doGetUserRank(const httplib::Request &req, httplib::Response &res)
     {
         resjson["Result"] = "Fail";
         resjson["Reason"] = "缺少请求参数！";
+        LOG_ERROR("【doGetUserRank】缺少请求参数！");
     }
     else
     {
@@ -69,6 +70,7 @@ void doGetUserInfo(const httplib::Request &req, httplib::Response &res)
     {
         resjson["Result"] = "Fail";
         resjson["Reason"] = "缺少请求参数！";
+        LOG_ERROR("【doGetUserInfo】缺少请求参数！");
     }
     else
     {
@@ -103,6 +105,7 @@ void doGetUserUpdateInfo(const httplib::Request &req, httplib::Response &res)
     {
         resjson["Result"] = "Fail";
         resjson["Reason"] = "缺少请求参数！";
+        LOG_ERROR("【doGetUserUpdateInfo】缺少请求参数！");
     }
     else
     {
@@ -124,6 +127,7 @@ void doGetUserSetInfo(const httplib::Request &req, httplib::Response &res)
     {
         resjson["Result"] = "Fail";
         resjson["Reason"] = "缺少请求参数！";
+        LOG_ERROR("【doGetUserSetInfo】缺少请求参数！");
     }
     else
     {
@@ -148,6 +152,7 @@ void doDeleteUser(const httplib::Request &req, httplib::Response &res)
     {
         resjson["Result"] = "Fail";
         resjson["Reason"] = "缺少请求参数！";
+        LOG_ERROR("【doDeleteUser】缺少请求参数！");
     }
     else
     {
@@ -170,6 +175,7 @@ void doGetProblem(const httplib::Request &req, httplib::Response &res)
     {
         resjson["Result"] = "Fail";
         resjson["Reason"] = "缺少请求参数！";
+        LOG_ERROR("【doGetProblem】缺少请求参数！");
     }
     else
     {
@@ -192,6 +198,7 @@ void doGetProblemList(const httplib::Request &req, httplib::Response &res)
     {
         resjson["Result"] = "Fail";
         resjson["Reason"] = "请求参数有误！";
+        LOG_ERROR("【doGetProblemList】缺少请求参数！");
     }
     else
     {
@@ -220,6 +227,7 @@ void doGetProblemListByAdmin(const httplib::Request &req, httplib::Response &res
     {
         resjson["Result"] = "Fail";
         resjson["Reason"] = "请求参数有误！";
+        LOG_ERROR("【doGetProblemListByAdmin】缺少请求参数！");
     }
     else
     {
@@ -245,6 +253,7 @@ void doGetProblemInfo(const httplib::Request &req, httplib::Response &res)
     {
         resjson["Result"] = "Fail";
         resjson["Reason"] = "请求参数有误！";
+        LOG_ERROR("【doGetProblemInfo】缺少请求参数！");
     }
     else
     {
@@ -273,11 +282,21 @@ void doEditProblem(const httplib::Request &req, httplib::Response &res)
 void doDeleteProblem(const httplib::Request &req, httplib::Response &res)
 {
     printf("doDeleteProblem start!!!\n");
-    Json::Value jsonvalue;
-    Json::Reader reader;
-    // 解析传入的json
-    reader.parse(req.body, jsonvalue);
-    Json::Value resjson = control.DeleteProblem(jsonvalue);
+    Json::Value resjson;
+    if (!req.has_param("ProblemId"))
+    {
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "请求参数有误！";
+        LOG_ERROR("【doDeleteProblem】缺少请求参数！");
+    }
+    else
+    {
+        string problemid = req.get_param_value("ProblemId");
+
+        Json::Value deletejson;
+        deletejson["ProblemId"] = problemid;
+        resjson = control.DeleteProblem(deletejson);
+    }
     printf("doDeleteProblem end!!!\n");
     res.set_content(resjson.toStyledString(), "json");
 }
@@ -296,13 +315,14 @@ void doPostCode(const httplib::Request &req, httplib::Response &res)
 
 void doGetStatusRecordList(const httplib::Request &req, httplib::Response &res)
 {
-    printf("doGetStatusRecord start!!!\n");
+    printf("doGetStatusRecordList start!!!\n");
     Json::Value resjson;
 
     if (!req.has_param("SearchInfo") || !req.has_param("Page") || !req.has_param("PageSize"))
     {
         resjson["Result"] = "Fail";
         resjson["Reason"] = "缺少请求参数！";
+        LOG_ERROR("【doGetStatusRecordList】缺少请求参数！");
     }
     else
     {
@@ -320,7 +340,7 @@ void doGetStatusRecordList(const httplib::Request &req, httplib::Response &res)
         queryjson["PageSize"] = pagesize;
         resjson = control.SelectStatusRecordList(queryjson);
     }
-    printf("doGetStatusRecord end!!!\n");
+    printf("doGetStatusRecordList end!!!\n");
     res.set_content(resjson.toStyledString(), "json");
 }
 void doGetStatusRecord(const httplib::Request &req, httplib::Response &res)
@@ -332,6 +352,7 @@ void doGetStatusRecord(const httplib::Request &req, httplib::Response &res)
     {
         resjson["Result"] = "Fail";
         resjson["Reason"] = "缺少请求参数！";
+        LOG_ERROR("【doGetStatusRecord】缺少请求参数！");
     }
     else
     {
@@ -347,12 +368,13 @@ void doGetStatusRecord(const httplib::Request &req, httplib::Response &res)
 // ------------------公告------------------------------
 void doGetAnnouncementList(const httplib::Request &req, httplib::Response &res)
 {
-    printf("doGetAnnouncement start!!!\n");
+    printf("doGetAnnouncementList start!!!\n");
     Json::Value resjson;
     if (!req.has_param("Page") || !req.has_param("PageSize"))
     {
         resjson["Result"] = "Fail";
         resjson["Reason"] = "缺少请求参数！";
+        LOG_ERROR("【doGetAnnouncementList】缺少请求参数！");
     }
     else
     {
@@ -365,19 +387,20 @@ void doGetAnnouncementList(const httplib::Request &req, httplib::Response &res)
         resjson = control.SelectAnnouncementList(queryjson);
     }
 
-    printf("doGetAnnouncement end!!!\n");
+    printf("doGetAnnouncementList end!!!\n");
     res.set_content(resjson.toStyledString(), "json");
 }
 
 void doGetAnnouncement(const httplib::Request &req, httplib::Response &res)
 {
-    printf("doGetAnnouncementContent start!!!\n");
+    printf("doGetAnnouncement start!!!\n");
     Json::Value resjson;
 
     if (!req.has_param("AnnouncementId"))
     {
         resjson["Result"] = "Fail";
         resjson["Reason"] = "缺少请求参数！";
+        LOG_ERROR("【doGetAnnouncement】缺少请求参数！");
     }
     else
     {
@@ -387,7 +410,7 @@ void doGetAnnouncement(const httplib::Request &req, httplib::Response &res)
 
         resjson = control.SelectAnnouncement(queryjson);
     }
-    printf("doGetAnnouncementContent end!!!\n");
+    printf("doGetAnnouncement end!!!\n");
     res.set_content(resjson.toStyledString(), "json");
 }
 
@@ -400,6 +423,7 @@ void doSelectAnnouncement(const httplib::Request &req, httplib::Response &res)
     {
         resjson["Result"] = "Fail";
         resjson["Reason"] = "缺少请求参数！";
+        LOG_ERROR("【doSelectAnnouncement】缺少请求参数！");
     }
     else
     {
@@ -446,6 +470,7 @@ void doDeleteAnnouncement(const httplib::Request &req, httplib::Response &res)
     {
         resjson["Result"] = "Fail";
         resjson["Reason"] = "缺少请求参数！";
+        LOG_ERROR("【doDeleteAnnouncement】缺少请求参数！");
     }
     else
     {
@@ -462,13 +487,14 @@ void doDeleteAnnouncement(const httplib::Request &req, httplib::Response &res)
 // ------------------题解------------------------------
 void doGetSolutionList(const httplib::Request &req, httplib::Response &res)
 {
-    printf("doGetSolution start!!!\n");
+    printf("doGetSolutionList start!!!\n");
     Json::Value resjson;
 
     if (!req.has_param("SearchInfo") || !req.has_param("Page") || !req.has_param("PageSize"))
     {
         resjson["Result"] = "Fail";
         resjson["Reason"] = "缺少请求参数！";
+        LOG_ERROR("【doGetSolutionList】缺少请求参数！");
     }
     else
     {
@@ -484,18 +510,19 @@ void doGetSolutionList(const httplib::Request &req, httplib::Response &res)
         queryjson["PageSize"] = pagesize;
         resjson = control.SelectSolutionList(queryjson);
     }
-    printf("doGetSolution end!!!\n");
+    printf("doGetSolutionList end!!!\n");
     res.set_content(resjson.toStyledString(), "json");
 }
 
 void doGetSolutionListByAdmin(const httplib::Request &req, httplib::Response &res)
 {
-    printf("doGetSolutionByAdmin start!!!\n");
+    printf("doGetSolutionListByAdmin start!!!\n");
     Json::Value resjson;
     if (!req.has_param("Page") || !req.has_param("PageSize"))
     {
         resjson["Result"] = "Fail";
         resjson["Reason"] = "缺少请求参数！";
+        LOG_ERROR("【doGetSolutionListByAdmin】缺少请求参数！");
     }
     else
     {
@@ -507,18 +534,19 @@ void doGetSolutionListByAdmin(const httplib::Request &req, httplib::Response &re
         queryjson["PageSize"] = pagesize;
         resjson = control.SelectSolutionListByAdmin(queryjson);
     }
-    printf("doGetSolutionByAdmin end!!!\n");
+    printf("doGetSolutionListByAdmin end!!!\n");
     res.set_content(resjson.toStyledString(), "json");
 }
 void doGetSolution(const httplib::Request &req, httplib::Response &res)
 {
-    printf("doGetSolutionContent start!!!\n");
+    printf("doGetSolution start!!!\n");
     Json::Value resjson;
 
     if (!req.has_param("SolutionId"))
     {
         resjson["Result"] = "Fail";
         resjson["Reason"] = "缺少请求参数！";
+        LOG_ERROR("【doGetSolution】缺少请求参数！");
     }
     else
     {
@@ -528,19 +556,20 @@ void doGetSolution(const httplib::Request &req, httplib::Response &res)
 
         resjson = control.SelectSolution(queryjson);
     }
-    printf("doGetSolutionContent end!!!\n");
+    printf("doGetSolution end!!!\n");
     res.set_content(resjson.toStyledString(), "json");
 }
 
 void doSelectSolutionByEdit(const httplib::Request &req, httplib::Response &res)
 {
-    printf("doSelectSolution start!!!\n");
+    printf("doSelectSolutionByEdit start!!!\n");
     Json::Value resjson;
 
     if (!req.has_param("SolutionId"))
     {
         resjson["Result"] = "Fail";
         resjson["Reason"] = "缺少请求参数！";
+        LOG_ERROR("【doSelectSolutionByEdit】缺少请求参数！");
     }
     else
     {
@@ -550,7 +579,7 @@ void doSelectSolutionByEdit(const httplib::Request &req, httplib::Response &res)
 
         resjson = control.SelectSolutionByEdit(queryjson);
     }
-    printf("doSelectSolution end!!!\n");
+    printf("doSelectSolutionByEdit end!!!\n");
     res.set_content(resjson.toStyledString(), "json");
 }
 
@@ -587,6 +616,7 @@ void doDeleteSolution(const httplib::Request &req, httplib::Response &res)
     {
         resjson["Result"] = "Fail";
         resjson["Reason"] = "缺少请求参数！";
+        LOG_ERROR("【doDeleteSolution】缺少请求参数！");
     }
     else
     {
@@ -603,12 +633,13 @@ void doDeleteSolution(const httplib::Request &req, httplib::Response &res)
 // ------------------讨论------------------------------
 void doGetDiscussList(const httplib::Request &req, httplib::Response &res)
 {
-    printf("doGetDiscuss start!!!\n");
+    printf("doGetDiscussList start!!!\n");
     Json::Value resjson;
     if (!req.has_param("SearchInfo") || !req.has_param("Page") || !req.has_param("PageSize"))
     {
         resjson["Result"] = "Fail";
         resjson["Reason"] = "缺少请求参数！";
+        LOG_ERROR("【doGetDiscussList】缺少请求参数！");
     }
     else
     {
@@ -624,19 +655,19 @@ void doGetDiscussList(const httplib::Request &req, httplib::Response &res)
         queryjson["PageSize"] = pagesize;
         resjson = control.SelectDiscussList(queryjson);
     }
-    printf("doGetDiscuss end!!!\n");
+    printf("doGetDiscussList end!!!\n");
     res.set_content(resjson.toStyledString(), "json");
 }
 
 void doGetDiscussListByAdmin(const httplib::Request &req, httplib::Response &res)
 {
-    printf("doGetDiscussByAdmin start!!!\n");
+    printf("doGetDiscussListByAdmin start!!!\n");
     Json::Value resjson;
     if (!req.has_param("Page") || !req.has_param("PageSize"))
     {
-
         resjson["Result"] = "Fail";
         resjson["Reason"] = "缺少请求参数！";
+        LOG_ERROR("【doGetDiscussListByAdmin】缺少请求参数！");
     }
     else
     {
@@ -647,17 +678,18 @@ void doGetDiscussListByAdmin(const httplib::Request &req, httplib::Response &res
         queryjson["PageSize"] = pagesize;
         resjson = control.SelectDiscussListByAdmin(queryjson);
     }
-    printf("doGetDiscussByAdmin end!!!\n");
+    printf("doGetDiscussListByAdmin end!!!\n");
     res.set_content(resjson.toStyledString(), "json");
 }
 void doGetDiscuss(const httplib::Request &req, httplib::Response &res)
 {
-    printf("doGetDiscussContent start!!!\n");
+    printf("doGetDiscuss start!!!\n");
     Json::Value resjson;
     if (!req.has_param("DiscussId"))
     {
         resjson["Result"] = "Fail";
         resjson["Reason"] = "缺少请求参数！";
+        LOG_ERROR("【doGetDiscuss】缺少请求参数！");
     }
     else
     {
@@ -666,7 +698,7 @@ void doGetDiscuss(const httplib::Request &req, httplib::Response &res)
         queryjson["DiscussId"] = discussid;
         resjson = control.SelectDiscuss(queryjson);
     }
-    printf("doGetDiscussContent end!!!\n");
+    printf("doGetDiscuss end!!!\n");
     res.set_content(resjson.toStyledString(), "json");
 }
 
@@ -678,6 +710,7 @@ void doSelectDiscussByEdit(const httplib::Request &req, httplib::Response &res)
     {
         resjson["Result"] = "Fail";
         resjson["Reason"] = "缺少请求参数！";
+        LOG_ERROR("【doSelectDiscussByEdit】缺少请求参数！");
     }
     else
     {
@@ -724,6 +757,7 @@ void doDeleteDiscuss(const httplib::Request &req, httplib::Response &res)
     {
         resjson["Result"] = "Fail";
         resjson["Reason"] = "缺少请求参数！";
+        LOG_ERROR("【doDeleteDiscuss】缺少请求参数！");
     }
     else
     {
@@ -746,6 +780,7 @@ void doSelectCommentListByAdmin(const httplib::Request &req, httplib::Response &
     {
         resjson["Result"] = "Fail";
         resjson["Reason"] = "缺少请求参数！";
+        LOG_ERROR("【doSelectCommentListByAdmin】缺少请求参数！");
     }
     else
     {
@@ -770,6 +805,7 @@ void doGetComment(const httplib::Request &req, httplib::Response &res)
     {
         resjson["Result"] = "Fail";
         resjson["Reason"] = "缺少请求参数！";
+        LOG_ERROR("【doGetComment】缺少请求参数！");
     }
     else
     {
@@ -811,6 +847,7 @@ void doDeleteComment(const httplib::Request &req, httplib::Response &res)
     {
         resjson["Result"] = "Fail";
         resjson["Reason"] = "缺少请求参数！";
+        LOG_ERROR("【doDeleteComment】缺少请求参数！");
     }
     else
     {
@@ -893,7 +930,7 @@ void HttpServer::Run()
     // 编辑题目 包含添加题目，修改题目
     server.Post("/problem/edit", doEditProblem);
     // 删除题目
-    server.Post("/problem/delete", doDeleteProblem);
+    server.Delete("/problem", doDeleteProblem);
 
     // ---------------测评-----------------
     // 获取状态记录

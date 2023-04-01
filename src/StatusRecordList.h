@@ -16,7 +16,7 @@ public:
     std::string InsertStatusRecord(Json::Value &insertjson);
 
     // 更新测评信息返回测评结果
-    Json::Value UpdateStatusRecord(Json::Value &updatejson);
+    bool UpdateStatusRecord(Json::Value &updatejson);
 
     // 查询一条详细测评记录
     Json::Value SelectStatusRecord(Json::Value &queryjson);

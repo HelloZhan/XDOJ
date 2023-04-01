@@ -89,6 +89,7 @@ Json::Value Control::SelectProblemListByAdmin(Json::Value &queryjson)
 
 Json::Value Control::GetJudgeCode(Json::Value judgejson)
 {
+	Json::Value resjson;
 	// 传入Json(ProblemId,UserId,UserNickName,Code,Language,TimeLimit,MemoryLimit,JudgeNum,ProblemTitle)
 
 	// 添加状态记录
@@ -103,6 +104,13 @@ Json::Value Control::GetJudgeCode(Json::Value judgejson)
 
 	string submitid = StatusRecordList::GetInstance()->InsertStatusRecord(insertjson);
 
+	if (submitid == "0")
+	{
+		resjson["Result"] = "Fail";
+		resjson["Reason"] = "系统出错！";
+		return resjson;
+	}
+
 	// 运行代码
 	// Json(SubmitId,ProblemId,JudgeNum,Code,Language,TimeLimit,MemoryLimit)
 	Json::Value runjson;
@@ -116,30 +124,33 @@ Json::Value Control::GetJudgeCode(Json::Value judgejson)
 
 	// 创建判题对象
 	Judger judger;
-	Json::Value resjson = judger.Run(runjson);
+	Json::Value json = judger.Run(runjson);
 
-	// 更新状态信息 返回结果
+	// 更新状态信息
 	/*
 		传入：Json(SubmitId,Status,RunTime,RunMemory,Length,ComplierInfo,
 		TestInfo[(Status,StandardOutput,PersonalOutput,RunTime,RunMemory)])
 	*/
-	Json::Value statusjson = StatusRecordList::GetInstance()->UpdateStatusRecord(resjson);
+	StatusRecordList::GetInstance()->UpdateStatusRecord(json);
 
 	// 更新题目的状态
 	Json::Value updatejson;
 	updatejson["ProblemId"] = judgejson["ProblemId"];
-	updatejson["Status"] = statusjson["Status"];
+	updatejson["Status"] = json["Status"];
 	ProblemList::GetInstance()->UpdateProblemStatusNum(updatejson);
 
 	updatejson["UserId"] = judgejson["UserId"];
 
 	// 更新用户的状态
 	if (UserList::GetInstance()->UpdateUserProblemInfo(updatejson))
-		statusjson["IsFirstAC"] = true;
+		resjson["IsFirstAC"] = true;
 	else
-		statusjson["IsFirstAC"] = false;
+		resjson["IsFirstAC"] = false;
 
-	return statusjson;
+	resjson["Result"] = "Success";
+	resjson["Status"] = json["Status"];
+	resjson["ComplierInfo"] = json["ComplierInfo"];
+	return resjson;
 }
 
 Json::Value Control::SelectStatusRecordList(Json::Value &queryjson)

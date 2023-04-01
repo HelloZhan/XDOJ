@@ -15,14 +15,14 @@ public:
 
     // +++++++++++++++++++++++用户表User+++++++++++++++++++++++++++++
     /*
-        功能：注册用户
+        功能：用户注册
         传入：Json(NickName,Account,PassWord,PersonalProfile,School,Major)
         传出：Json(Result,Reason)
     */
     Json::Value RegisterUser(Json::Value &registerjson);
 
     /*
-        功能：登录用户
+        功能：用户登录
         传入：Json(Account,PassWord)
         传出：Json(Result,Reason,Info(_id,NickName,Avatar,CommentLikes,Solves,Authority))
     */
@@ -43,7 +43,7 @@ public:
     Json::Value SelectUserRank(Json::Value &queryjson);
 
     /*
-        功能：获取用户大部分信息，主要用于用户主页的展示
+        功能：用户主页展示
         传入：Json(UserId)
         传出：Json(Result,Reason,_id,Avatar,NickName,PersonalProfile,School,Major,JoinTime,Solves,ACNum,SubmitNum)
     */
@@ -86,7 +86,7 @@ public:
     Json::Value SelectProblemInfoByAdmin(Json::Value &queryjson);
 
     /*
-        功能：获取题目信息，用于向用户展示题目
+        功能：获取题目信息
         传入：Json(ProblemId)
         传出：Json(Result,Reason,_id,Title,Description,TimeLimit,MemoryLimit,JudgeNum,SubmitNum,ACNum,UserNickName,Tags)
     */
@@ -122,7 +122,7 @@ public:
     Json::Value SelectProblemList(Json::Value &queryjson);
 
     /*
-        功能：分页获取题目列表
+        功能：管理员分页获取题目列表
         传入：Json(Page,PageSize)
         传出：Json(ArrayInfo([ProblemId,Title,SubmitNum,CENum,ACNum,WANum,TLENum,MLENum,SENum,Tags]),TotalNum)
     */
@@ -144,20 +144,19 @@ public:
     // ++++++++++++++++++++++++评测表StatusRecord+++++++++++++++++++++++++
 
     /*
-        功能：向测评表插入一条待测评记录
+        功能：插入待测评记录
         传入：Json(ProblemId,UserId,UserNickName,ProblemTitle,Language,Code)
         传出：SubmitId测评的ID
     */
     std::string InsertStatusRecord(Json::Value &insertjson);
 
     /*
-        功能：更新测评记录并返回测评记录
+        功能：更新测评记录
         传入：Json(SubmitId,Status,RunTime,RunMemory,Length,ComplierInfo,
-        TestInfo[(Status,StandardOutput,PersonalOutput,RunTime,RunMemory)])
-
-        传出：Json() 测评记录
+        TestInfo[(Status,StandardInput,StandardOutput,PersonalOutput,RunTime,RunMemory)])
+        传出：bool
     */
-    Json::Value UpdateStatusRecord(Json::Value &updatejson);
+    bool UpdateStatusRecord(Json::Value &updatejson);
 
     /*
         功能：分页查询测评记录
@@ -167,7 +166,7 @@ public:
     Json::Value SelectStatusRecordList(Json::Value &queryjson);
 
     /*
-        功能：查询一条详细测评记录
+        功能：查询测评记录
         传入：Json(SubmitId)
         传出：全部记录，详情请看MongoDB集合表
     */

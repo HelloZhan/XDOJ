@@ -20,7 +20,7 @@ string StatusRecordList::InsertStatusRecord(Json::Value &insertjson)
     return MoDB::GetInstance()->InsertStatusRecord(insertjson);
 }
 
-Json::Value StatusRecordList::UpdateStatusRecord(Json::Value &updatejson)
+bool StatusRecordList::UpdateStatusRecord(Json::Value &updatejson)
 {
     return MoDB::GetInstance()->UpdateStatusRecord(updatejson);
 }
