@@ -233,7 +233,9 @@ bool MoDB::UpdateUserProblemInfo(Json::Value &updatejson)
                 document
                     << "$push" << open_document
                     << "Solves" << problemid
-                    << close_document;
+                    << close_document
+                    << "$inc" << open_document
+                    << "ACNum" << 1 << close_document;
                 usercoll.update_one({make_document(kvp("_id", userid))}, document.view());
                 return true;
             }
@@ -3003,7 +3005,7 @@ Json::Value MoDB::DeleteFatherComment(Json::Value &deletejson)
             reader.parse(bsoncxx::to_json(doc), jsonvalue);
         }
         int sonnum = stoi(jsonvalue["Child_Total"].asString());
-        string articletype = jsonvalue["ArticleType"].asString();
+        string articletype = jsonvalue["ParentType"].asString();
 
         auto result = commentcoll.delete_one({make_document(kvp("_id", commentid))});
 
@@ -3057,7 +3059,7 @@ Json::Value MoDB::DeleteSonComment(Json::Value &deletejson)
             reader.parse(bsoncxx::to_json(doc), jsonvalue);
         }
         int64_t fatherid = stoll(jsonvalue["_id"].asString());
-        string articletype = jsonvalue["ArticleType"].asString();
+        string articletype = jsonvalue["ParentType"].asString();
         // 删除子评论
         bsoncxx::builder::stream::document document{};
         document

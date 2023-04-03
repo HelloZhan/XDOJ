@@ -132,7 +132,6 @@ Json::Value Control::GetJudgeCode(Json::Value judgejson)
 		TestInfo[(Status,StandardOutput,PersonalOutput,RunTime,RunMemory)])
 	*/
 	StatusRecordList::GetInstance()->UpdateStatusRecord(json);
-
 	// 更新题目的状态
 	Json::Value updatejson;
 	updatejson["ProblemId"] = judgejson["ProblemId"];
@@ -233,7 +232,6 @@ Json::Value Control::DeleteComment(Json::Value &deletejson)
 	articlejson["Num"] = stoi(json["DeleteNum"].asString()) * -1;
 	articlejson["ArticleId"] = articleid;
 	string articletype = json["ArticleType"].asString();
-
 	if (articletype == "Discuss")
 	{
 		DiscussList::GetInstance()->UpdateDiscussComments(articlejson);

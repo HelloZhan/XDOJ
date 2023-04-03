@@ -88,7 +88,7 @@ bool Judger::Init(Json::Value &initjson)
     m_isspj = false;
 
     RUN_PATH = "./" + m_submitid + "/";
-    DATA_PATH = "../../problemdata/" + m_problemid + "/";
+    DATA_PATH = "../../../problemdata/" + m_problemid + "/";
     // 获取信息
     m_resjson.clear();
 
