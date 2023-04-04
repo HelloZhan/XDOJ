@@ -1336,7 +1336,7 @@ Json::Value MoDB::InsertDiscuss(Json::Value &insertjson)
     Json::Value resjson;
     try
     {
-        int64_t id = ++m_discussid;
+        int64_t id = ++m_articleid;
         string title = insertjson["Title"].asString();
         string content = insertjson["Content"].asString();
         int64_t parentid = atoll(insertjson["ParentId"].asString().data());
@@ -1422,7 +1422,6 @@ Json::Value MoDB::SelectDiscussList(Json::Value &queryjson)
         {
             reader.parse(bsoncxx::to_json(doc), resjson);
         }
-
         pipe.sort({make_document(kvp("CreateTime", -1))});
         pipe.skip(skip);
         pipe.limit(pagesize);
@@ -1454,6 +1453,7 @@ Json::Value MoDB::SelectDiscussList(Json::Value &queryjson)
             reader.parse(bsoncxx::to_json(doc), jsonvalue);
             resjson["ArrayInfo"].append(jsonvalue);
         }
+        resjson["Result"] = "Success";
         return resjson;
     }
     catch (const std::exception &e)
@@ -1625,6 +1625,7 @@ Json::Value MoDB::SelectDiscuss(Json::Value &queryjson)
             << "Comments" << 1
             << "CreateTime" << 1
             << "UpdateTime" << 1
+            << "User._id" << 1
             << "User.Avatar" << 1
             << "User.NickName" << 1;
         pipe.project(document.view());
@@ -1772,7 +1773,7 @@ Json::Value MoDB::InsertSolution(Json::Value &insertjson)
     Json::Value resjson;
     try
     {
-        int64_t id = ++m_solutionid;
+        int64_t id = ++m_articleid;
         string title = insertjson["Title"].asString();
         string content = insertjson["Content"].asString();
         int64_t parentid = stoll(insertjson["ParentId"].asString());
@@ -1892,6 +1893,7 @@ Json::Value MoDB::SelectSolutionList(Json::Value &queryjson)
             reader.parse(bsoncxx::to_json(doc), jsonvalue);
             resjson["ArrayInfo"].append(jsonvalue);
         }
+        resjson["Result"] = "Success";
         return resjson;
     }
     catch (const std::exception &e)
@@ -2065,6 +2067,7 @@ Json::Value MoDB::SelectSolution(Json::Value &queryjson)
             << "Comments" << 1
             << "CreateTime" << 1
             << "UpdateTime" << 1
+            << "User._id" << 1
             << "User.Avatar" << 1
             << "User.NickName" << 1;
         pipe.project(document.view());
@@ -2214,7 +2217,7 @@ Json::Value MoDB::InsertAnnouncement(Json::Value &insertjson)
     Json::Value resjson;
     try
     {
-        int64_t id = ++m_announcementid;
+        int64_t id = ++m_articleid;
         string title = insertjson["Title"].asString();
         string content = insertjson["Content"].asString();
         int64_t userid = stoll(insertjson["UserId"].asString());
@@ -3124,10 +3127,11 @@ MoDB::MoDB()
     // 初始化ID
     m_problemid = GetMaxId("Problem");
     m_statusrecordid = GetMaxId("StatusRecord");
-    m_announcementid = GetMaxId("Announcement");
     m_commentid = GetMaxId("Comment");
-    m_solutionid = GetMaxId("Solution");
-    m_discussid = GetMaxId("Discuss");
+    int64_t m_announcementid = GetMaxId("Announcement");
+    int64_t m_solutionid = GetMaxId("Solution");
+    int64_t m_discussid = GetMaxId("Discuss");
+    m_articleid = max(m_solutionid, max(m_discussid, m_announcementid));
 }
 MoDB::~MoDB()
 {

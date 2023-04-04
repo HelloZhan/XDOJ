@@ -416,10 +416,8 @@ private:
 
     std::atomic_int64_t m_problemid;      // 题目ID
     std::atomic_int64_t m_statusrecordid; // 测评ID
-    std::atomic_int64_t m_announcementid; // 公告ID
     std::atomic_int64_t m_commentid;      // 评论ID
-    std::atomic_int64_t m_solutionid;     // 题解ID
-    std::atomic_int64_t m_discussid;      // 评论ID
+    std::atomic_int64_t m_articleid;      // 文章ID
 };
 
 #endif
