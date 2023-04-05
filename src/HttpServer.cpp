@@ -866,7 +866,7 @@ void doGetImage(const httplib::Request &req, httplib::Response &res)
 {
     printf("doGetImage start!!!\n");
     int index = stoi(req.matches[1]);
-    string path = "../../WWW/image/avatar_" + to_string(index) + ".webp";
+    string path = "../../WWW/image/avatar" + to_string(index) + ".webp";
     ifstream infile;
     infile.open(path.data());
     if (!infile.is_open())

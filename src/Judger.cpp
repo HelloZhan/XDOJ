@@ -396,7 +396,6 @@ bool Judger::JudgmentResult(struct result *res, string &index)
         testinfo["StandardInput"] = standardinput;
         testinfo["StandardOutput"] = standardanswer;
         testinfo["PersonalOutput"] = calculateanswer;
-
         // 判断是否超出时间限制
         if (res->cpu_time > m_timelimit)
         {
@@ -410,10 +409,10 @@ bool Judger::JudgmentResult(struct result *res, string &index)
         }
         else if (m_isspj) // SPJ判断
         {
-            cout << "SPJ判断" << endl;
-            m_command = DATA_PATH + "spj " + datapath + " " + runpath;
+            m_command = DATA_PATH + "spj " + indatapath + " " + datapath + " " + runpath;
             testinfo["Status"] = AC;
-            if (system(m_command.data()) != 0) // 如果失败
+
+            if (system(m_command.data()) != 0) // 如果答案错误
             {
                 testinfo["Status"] = WA;
                 m_result = WA;
@@ -422,7 +421,7 @@ bool Judger::JudgmentResult(struct result *res, string &index)
         else // 普通比较
         {
             testinfo["Status"] = AC;
-            // 比较答案 TODO：简易版，后续完善（添加去除行末空格）
+            // 比较答案（比较字符串）
             if (strcmp(standardanswer.data(), calculateanswer.data()) != 0)
             {
                 testinfo["Status"] = WA;

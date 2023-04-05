@@ -85,7 +85,7 @@ Json::Value MoDB::RegisterUser(Json::Value &registerjson)
         int64_t id = uuid.nextid();
         string jointime = GetTime();
         // 默认头像
-        string avatar = "http://192.168.49.132:8081/image/1";
+        string avatar = "http://192.168.49.132/image/1";
         // 插入
         bsoncxx::builder::stream::document document{};
         document
@@ -401,14 +401,8 @@ Json::Value MoDB::UpdateUserInfo(Json::Value &updatejson)
             << "Major" << major.data()
             << close_document;
 
-        auto result = usercoll.update_one({make_document(kvp("_id", userid))}, document.view());
+        usercoll.update_one({make_document(kvp("_id", userid))}, document.view());
 
-        if ((*result).modified_count() < 1)
-        {
-            resjson["Result"] = "Fail";
-            resjson["Reason"] = "数据库插入失败！";
-            return resjson;
-        }
         resjson["Result"] = "Success";
         return resjson;
     }
@@ -776,14 +770,8 @@ Json::Value MoDB::UpdateProblem(Json::Value &updatejson)
         }
         bsoncxx::document::value doc = in_array << close_array << close_document << finalize;
 
-        auto result = problemcoll.update_one({make_document(kvp("_id", problemid))}, doc.view());
+        problemcoll.update_one({make_document(kvp("_id", problemid))}, doc.view());
 
-        if ((*result).modified_count() < 1)
-        {
-            resjson["Result"] = "Fail";
-            resjson["Reason"] = "数据库插入失败！";
-            return resjson;
-        }
         resjson["Result"] = "Success";
         return resjson;
     }
@@ -1708,14 +1696,8 @@ Json::Value MoDB::UpdateDiscuss(Json::Value &updatejson)
             << "UpdateTime" << GetTime().data()
             << close_document;
 
-        auto result = discusscoll.update_one({make_document(kvp("_id", discussid))}, document.view());
+        discusscoll.update_one({make_document(kvp("_id", discussid))}, document.view());
 
-        if ((*result).modified_count() < 1)
-        {
-            resjson["Result"] = "Fail";
-            resjson["Reason"] = "数据库插入失败！";
-            return resjson;
-        }
         resjson["Result"] = "Success";
         return resjson;
     }
@@ -2152,14 +2134,8 @@ Json::Value MoDB::UpdateSolution(Json::Value &updatejson)
             << "UpdateTime" << GetTime().data()
             << close_document;
 
-        auto result = solutioncoll.update_one({make_document(kvp("_id", solutionid))}, document.view());
+        solutioncoll.update_one({make_document(kvp("_id", solutionid))}, document.view());
 
-        if ((*result).modified_count() < 1)
-        {
-            resjson["Result"] = "Fail";
-            resjson["Reason"] = "数据库插入失败！";
-            return resjson;
-        }
         resjson["Result"] = "Success";
         return resjson;
     }
@@ -2477,13 +2453,8 @@ Json::Value MoDB::UpdateAnnouncement(Json::Value &updatejson)
             << "UpdateTime" << GetTime().data()
             << close_document;
 
-        auto result = announcementcoll.update_one({make_document(kvp("_id", announcementid))}, document.view());
-        if ((*result).modified_count() < 1)
-        {
-            resjson["Result"] = "Fail";
-            resjson["Reason"] = "数据库插入失败！";
-            return resjson;
-        }
+        announcementcoll.update_one({make_document(kvp("_id", announcementid))}, document.view());
+
         resjson["Result"] = "Success";
         return resjson;
     }
