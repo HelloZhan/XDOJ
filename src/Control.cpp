@@ -63,14 +63,17 @@ Json::Value Control::SelectProblem(Json::Value &queryjson)
 
 Json::Value Control::EditProblem(Json::Value &insertjson)
 {
+	Json::Value resjson;
 	if (insertjson["EditType"].asString() == "Insert")
 	{
-		return ProblemList::GetInstance()->InsertProblem(insertjson);
+		resjson = ProblemList::GetInstance()->InsertProblem(insertjson);
 	}
 	else if (insertjson["EditType"].asString() == "Update")
 	{
-		return ProblemList::GetInstance()->UpdateProblem(insertjson);
+		resjson = ProblemList::GetInstance()->UpdateProblem(insertjson);
 	}
+	Tag::GetInstance()->InitProblemTags();
+	return resjson;
 }
 Json::Value Control::DeleteProblem(Json::Value &deletejson)
 {
