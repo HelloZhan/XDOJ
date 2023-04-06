@@ -85,7 +85,7 @@ Json::Value MoDB::RegisterUser(Json::Value &registerjson)
         int64_t id = uuid.nextid();
         string jointime = GetTime();
         // 默认头像
-        string avatar = "http://192.168.49.132/image/1";
+        string avatar = "http://192.168.49.132:8081/image/1";
         // 插入
         bsoncxx::builder::stream::document document{};
         document
@@ -2677,12 +2677,14 @@ Json::Value MoDB::getFatherComment(Json::Value &queryjson)
             << "Likes" << 1
             << "CreateTime" << 1
             << "Child_Total" << 1
+            << "User._id" << 1
             << "User.Avatar" << 1
             << "User.NickName" << 1
             << "Child_Comments._id" << 1
             << "Child_Comments.Content" << 1
             << "Child_Comments.Likes" << 1
             << "Child_Comments.CreateTime" << 1
+            << "Child_Comments.User._id" << 1
             << "Child_Comments.User.Avatar" << 1
             << "Child_Comments.User.NickName" << 1;
         pipe.project(document.view());
@@ -2792,6 +2794,7 @@ Json::Value MoDB::getSonComment(Json::Value &queryjson)
             << "Child_Comments.Content" << 1
             << "Child_Comments.Likes" << 1
             << "Child_Comments.CreateTime" << 1
+            << "Child_Comments.User._id" << 1
             << "Child_Comments.User.NickName" << 1
             << "Child_Comments.User.Avatar" << 1;
         pipe.project(document.view());
