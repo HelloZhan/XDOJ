@@ -700,6 +700,7 @@ Json::Value MoDB::InsertProblem(Json::Value &insertjson)
                         << "CENum" << 0
                         << "ACNum" << 0
                         << "WANum" << 0
+                        << "RENum" << 0
                         << "TLENum" << 0
                         << "MLENum" << 0
                         << "SENum" << 0
@@ -842,7 +843,7 @@ int mystoi(string num)
     前端传入
     Json(SearchInfo,Page,PageSize)
     后端传出
-    Json(([ProblemId,Title,SubmitNum,CENum,ACNum,WANum,TLENum,MLENum,SENum,Tags]),TotalNum)
+    Json(([ProblemId,Title,SubmitNum,CENum,ACNum,WANum,RENum,TLENum,MLENum,SENum,Tags]),TotalNum)
 */
 Json::Value MoDB::SelectProblemList(Json::Value &queryjson)
 {
@@ -919,6 +920,7 @@ Json::Value MoDB::SelectProblemList(Json::Value &queryjson)
             << "CENum" << 1
             << "ACNum" << 1
             << "WANum" << 1
+            << "RENum" << 1
             << "TLENum" << 1
             << "MLENum" << 1
             << "Tags" << 1;
@@ -946,7 +948,7 @@ Json::Value MoDB::SelectProblemList(Json::Value &queryjson)
 /*
     功能：管理员分页获取题目列表
     传入：Json(Page,PageSize)
-    传出：Json(ArrayInfo([ProblemId,Title,SubmitNum,CENum,ACNum,WANum,TLENum,MLENum,SENum,Tags]),TotalNum)
+    传出：Json(ArrayInfo([ProblemId,Title,SubmitNum,CENum,ACNum,WANum,RENum,TLENum,MLENum,SENum,Tags]),TotalNum)
 */
 Json::Value MoDB::SelectProblemListByAdmin(Json::Value &queryjson)
 {
@@ -987,6 +989,7 @@ Json::Value MoDB::SelectProblemListByAdmin(Json::Value &queryjson)
             << "CENum" << 1
             << "ACNum" << 1
             << "WANum" << 1
+            << "RENum" << 1
             << "TLENum" << 1
             << "MLENum" << 1
             << "Tags" << 1;

@@ -27,6 +27,7 @@
             "CENum": "int",
             "ACNum": "int",
             "WANum": "int",
+            "RENum": "int",
             "TLENum": "int",
             "MLENum": "int",
             "SENum": "int",
