@@ -71,7 +71,7 @@
             "Views": "int",
             "Comments": "int",
             "CreateTime": "time",
-            "Public": "int",
+            "Public": "bool",
             "UpdateTime": "time"
         }
     ],
@@ -96,7 +96,7 @@
             "UserId": "int64_t",
             "Views": "int",
             "Comments": "int",
-            "level": "int",
+            "Level": "int",
             "CreateTime": "time",
             "UpdateTime": "time"
         }
