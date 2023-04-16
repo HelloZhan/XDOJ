@@ -281,12 +281,11 @@ Json::Value MoDB::SelectUserRank(Json::Value &queryjson)
         document
             << "ACNum" << -1
             << "SubmitNum" << 1;
-        document.clear();
 
         pipe.sort(document.view());
         pipe.skip(skip);
         pipe.limit(pagesize);
-
+        document.clear();
         document
             << "Avatar" << 1
             << "NickName" << 1
