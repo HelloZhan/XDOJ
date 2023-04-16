@@ -85,7 +85,7 @@ Json::Value MoDB::RegisterUser(Json::Value &registerjson)
         int64_t id = uuid.nextid();
         string jointime = GetTime();
         // 默认头像
-        string avatar = "http://192.168.49.132:8081/image/1";
+        string avatar = "http://175.178.54.194:8081/image/1";
         // 插入
         bsoncxx::builder::stream::document document{};
         document
