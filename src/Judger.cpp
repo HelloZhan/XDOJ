@@ -773,34 +773,35 @@ bool Judger::JudgmentResult(struct result *res, string &index)
     testinfo["RunTime"] = to_string(res->cpu_time) + "MS";
     testinfo["RunMemory"] = to_string(res->memory / 1024 / 1024) + "MB";
 
+    // 获取标准输入
+    ifstream infile;
+    string indatapath = DATA_PATH + index + ".in";
+    infile.open(indatapath.data());
+    string standardinput((istreambuf_iterator<char>(infile)),
+                         (istreambuf_iterator<char>()));
+    infile.close();
+    // 获取标准答案
+    ifstream infile1;
+    string datapath = DATA_PATH + index + ".out";
+    infile1.open(datapath.data());
+    string standardanswer((istreambuf_iterator<char>(infile1)),
+                          (istreambuf_iterator<char>()));
+    infile1.close();
+    // 获取计算答案
+    ifstream infile2;
+    string runpath = RUN_PATH + index + ".out";
+    infile2.open(runpath.data());
+    string calculateanswer((istreambuf_iterator<char>(infile2)),
+                           (istreambuf_iterator<char>()));
+    infile2.close();
+
+    testinfo["StandardInput"] = standardinput;
+    testinfo["StandardOutput"] = standardanswer;
+    testinfo["PersonalOutput"] = calculateanswer;
+
     // 判断结果
     if (res->result == 0)
     {
-        // 获取标准输入
-        ifstream infile;
-        string indatapath = DATA_PATH + index + ".in";
-        infile.open(indatapath.data());
-        string standardinput((istreambuf_iterator<char>(infile)),
-                             (istreambuf_iterator<char>()));
-        infile.close();
-        // 获取标准答案
-        ifstream infile1;
-        string datapath = DATA_PATH + index + ".out";
-        infile1.open(datapath.data());
-        string standardanswer((istreambuf_iterator<char>(infile1)),
-                              (istreambuf_iterator<char>()));
-        infile1.close();
-        // 获取计算答案
-        ifstream infile2;
-        string runpath = RUN_PATH + index + ".out";
-        infile2.open(runpath.data());
-        string calculateanswer((istreambuf_iterator<char>(infile2)),
-                               (istreambuf_iterator<char>()));
-        infile2.close();
-
-        testinfo["StandardInput"] = standardinput;
-        testinfo["StandardOutput"] = standardanswer;
-        testinfo["PersonalOutput"] = calculateanswer;
         // 判断是否超出时间限制
         if (res->cpu_time > m_timelimit)
         {
