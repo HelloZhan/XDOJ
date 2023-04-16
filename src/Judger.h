@@ -31,18 +31,36 @@ private:
     // 数据初始化
     bool Init(Json::Value &initjson);
 
-    bool CompilerSPJ(); // 编译SPJ文件
+    bool CompileSPJ(); // 编译SPJ文件
 
-    // -----C-----
-    bool CompilerC(); // 编译C
+    // -----编译-----
+    bool CompileC(); // 编译C
 
-    bool CompilerCpp(); // 编译C++
+    bool CompileCpp(); // 编译C++
 
-    bool CompilerGo(); // 编译Go
+    bool CompileGo(); // 编译Go
+
+    bool CompileJava(); // 编译Java
+
+    bool CompilePython2(); // 编译Python2
+
+    bool CompilePython3(); // 编译Python3
+
+    bool CompileJavaScript(); // 编译JavaScript
+
+    // ------运行--------
 
     bool RunProgramC_Cpp(); // 运行C或者C++
 
     bool RunProgramGo(); // 运行Go
+
+    bool RunProgramJava(); // 运行Java
+
+    bool RunProgramPython2(); // 运行Python2
+
+    bool RunProgramPython3(); // 运行Python3
+
+    bool RunProgramJavaScript(); // 运行JavaScript
 
     bool JudgmentResult(struct result *res, std::string &index); // 判断结果
     // 返回结果

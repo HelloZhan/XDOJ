@@ -39,17 +39,37 @@ Json::Value Judger::Run(Json::Value &runjson)
     // 编译
     if (m_language == "C")
     {
-        if (!CompilerC())
+        if (!CompileC())
             return Done();
     }
     else if (m_language == "C++")
     {
-        if (!CompilerCpp())
+        if (!CompileCpp())
             return Done();
     }
     else if (m_language == "Go")
     {
-        if (!CompilerGo())
+        if (!CompileGo())
+            return Done();
+    }
+    else if (m_language == "Java")
+    {
+        if (!CompileJava())
+            return Done();
+    }
+    else if (m_language == "Python2")
+    {
+        if (!CompilePython2())
+            return Done();
+    }
+    else if (m_language == "Python3")
+    {
+        if (!CompilePython3())
+            return Done();
+    }
+    else if (m_language == "JavaScript")
+    {
+        if (!CompileJavaScript())
             return Done();
     }
     // 运行
@@ -61,6 +81,26 @@ Json::Value Judger::Run(Json::Value &runjson)
     else if (m_language == "Go")
     {
         if (!RunProgramGo())
+            return Done();
+    }
+    else if (m_language == "Java")
+    {
+        if (!RunProgramJava())
+            return Done();
+    }
+    else if (m_language == "Python2")
+    {
+        if (!RunProgramPython2())
+            return Done();
+    }
+    else if (m_language == "Python3")
+    {
+        if (!RunProgramPython3())
+            return Done();
+    }
+    else if (m_language == "JavaScript")
+    {
+        if (!RunProgramJavaScript())
             return Done();
     }
 
@@ -114,6 +154,22 @@ bool Judger::Init(Json::Value &initjson)
     {
         m_command = RUN_PATH + "main.go";
     }
+    else if (m_language == "Java")
+    {
+        m_command = RUN_PATH + "Main.java";
+    }
+    else if (m_language == "Python2")
+    {
+        m_command = RUN_PATH + "main.py";
+    }
+    else if (m_language == "Python3")
+    {
+        m_command = RUN_PATH + "main.py";
+    }
+    else if (m_language == "JavaScript")
+    {
+        m_command = RUN_PATH + "main.js";
+    }
     else
     {
         m_result = SE;
@@ -131,12 +187,12 @@ bool Judger::Init(Json::Value &initjson)
     m_length = to_string(GetFileSize(m_command.data())) + "B";
 
     // 编译spj文件
-    CompilerSPJ();
+    CompileSPJ();
 
     return true;
 }
 
-bool Judger::CompilerSPJ()
+bool Judger::CompileSPJ()
 {
     // 如果存在可执行文件spj
     m_command = DATA_PATH + "spj";
@@ -169,7 +225,7 @@ bool Judger::CompilerSPJ()
     return true;
 }
 
-bool Judger::CompilerC()
+bool Judger::CompileC()
 {
     // 进行gcc编译
     m_command = "timeout 10 gcc " + RUN_PATH + "main.c -fmax-errors=3 -o " + RUN_PATH + "main -O2 -std=c11 2>" + RUN_PATH + "compileinfo.txt";
@@ -200,7 +256,7 @@ bool Judger::CompilerC()
     return true;
 }
 
-bool Judger::CompilerCpp()
+bool Judger::CompileCpp()
 {
     // 进行g++编译
     m_command = "timeout 10 g++ " + RUN_PATH + "main.cpp -fmax-errors=3 -o " + RUN_PATH + "main -O2 -std=c++11 2>" + RUN_PATH + "compileinfo.txt";
@@ -231,9 +287,9 @@ bool Judger::CompilerCpp()
     return true;
 }
 
-bool Judger::CompilerGo()
+bool Judger::CompileGo()
 {
-    // 进行g++编译
+    // 进行go编译
     m_command = "go build -o " + RUN_PATH + "main " + RUN_PATH + "main.go 2>" + RUN_PATH + "compileinfo.txt";
     if (system(m_command.data()) == -1)
     {
@@ -261,6 +317,132 @@ bool Judger::CompilerGo()
     }
     return true;
 }
+
+bool Judger::CompileJava()
+{
+    // 进行java编译
+    m_command = "javac " + RUN_PATH + "Main.java -d " + RUN_PATH + "Main 2>" + RUN_PATH + "compileinfo.txt";
+    if (system(m_command.data()) == -1)
+    {
+        m_result = SE;
+        return false;
+    }
+
+    m_command = RUN_PATH + "Main";
+    // 编译失败
+    if (access(m_command.data(), F_OK) == -1)
+    {
+        // 返回编译失败原因
+        ifstream infile;
+
+        m_command = RUN_PATH + "compileinfo.txt";
+        infile.open(m_command.data());
+        // 读取全部信息
+        string reason((istreambuf_iterator<char>(infile)),
+                      (istreambuf_iterator<char>()));
+
+        m_reason = reason;
+        m_result = CE;
+        infile.close();
+        return false;
+    }
+    return true;
+}
+
+bool Judger::CompilePython2()
+{
+    // 进行Python2编译
+    m_command = "python -m py_compile " + RUN_PATH + "main.py 2>" + RUN_PATH + "compileinfo.txt";
+    if (system(m_command.data()) == -1)
+    {
+        m_result = SE;
+        return false;
+    }
+
+    m_command = RUN_PATH + "main.pyc";
+    // 编译失败
+    if (access(m_command.data(), F_OK) == -1)
+    {
+        // 返回编译失败原因
+        ifstream infile;
+
+        m_command = RUN_PATH + "compileinfo.txt";
+        infile.open(m_command.data());
+        // 读取全部信息
+        string reason((istreambuf_iterator<char>(infile)),
+                      (istreambuf_iterator<char>()));
+
+        m_reason = reason;
+        m_result = CE;
+        infile.close();
+        return false;
+    }
+    return true;
+}
+
+bool Judger::CompilePython3()
+{
+    // 进行Python3编译
+    m_command = "python3 -m py_compile " + RUN_PATH + "main.py 2>" + RUN_PATH + "compileinfo.txt";
+    if (system(m_command.data()) == -1)
+    {
+        m_result = SE;
+        return false;
+    }
+
+    m_command = RUN_PATH + "__pycache__/main.cpython-36.pyc";
+    // 编译失败
+    if (access(m_command.data(), F_OK) == -1)
+    {
+        // 返回编译失败原因
+        ifstream infile;
+
+        m_command = RUN_PATH + "compileinfo.txt";
+        infile.open(m_command.data());
+        // 读取全部信息
+        string reason((istreambuf_iterator<char>(infile)),
+                      (istreambuf_iterator<char>()));
+
+        m_reason = reason;
+        m_result = CE;
+        infile.close();
+        return false;
+    }
+    return true;
+}
+
+bool Judger::CompileJavaScript()
+{
+    // 进行JavaScript编译
+    m_command = "/usr/bin/node --check " + RUN_PATH + "main.js 2>" + RUN_PATH + "compileinfo.txt";
+    if (system(m_command.data()) == -1)
+    {
+        m_result = SE;
+        return false;
+    }
+
+    // TODO:不能返回错误
+    m_command = RUN_PATH + "main.js";
+    // 编译失败
+    if (access(m_command.data(), F_OK) == -1)
+    {
+        // 返回编译失败原因
+        ifstream infile;
+
+        m_command = RUN_PATH + "compileinfo.txt";
+        infile.open(m_command.data());
+        // 读取全部信息
+        string reason((istreambuf_iterator<char>(infile)),
+                      (istreambuf_iterator<char>()));
+
+        m_reason = reason;
+        m_result = CE;
+        infile.close();
+        return false;
+    }
+    return true;
+}
+
 bool Judger::RunProgramC_Cpp()
 {
     // 创建结构体
@@ -331,6 +513,7 @@ bool Judger::RunProgramGo()
     string log_path = RUN_PATH + "judger.log";
     conf.log_path = (char *)log_path.data();
     conf.seccomp_rule_name = (char *)"golang";
+    conf.memory_limit_check_only = 1;
     conf.uid = 0;
     conf.gid = 0;
     memset(conf.args, 0, sizeof(conf.args));
@@ -348,6 +531,228 @@ bool Judger::RunProgramGo()
         string output_path = RUN_PATH + index + ".out";
         conf.output_path = (char *)output_path.data();
 
+        // 执行程序
+        run(&conf, &res);
+        printf("cpu time is %d,real time is %d,memory is %ld,signal is %d,result is %d\n", res.cpu_time, res.real_time, res.memory, res.signal, res.result);
+
+        JudgmentResult(&res, index);
+    }
+    return true;
+}
+
+bool Judger::RunProgramJava()
+{
+    // 创建结构体
+    struct config conf;
+    struct result res;
+
+    conf.max_cpu_time = m_timelimit * 2;
+    conf.max_real_time = m_maxtimelimit * 2;
+    conf.max_memory = m_maxmemorylimie * 2;
+
+    // conf.max_cpu_time = 2000;
+    // conf.max_real_time = 4000;
+    // conf.max_memory = 128 * 1024 * 1024;
+    conf.max_process_number = 200;
+    conf.max_output_size = 10000;
+    conf.max_stack = 32 * 1024 * 1024;
+    string exe_path = "/usr/bin/java";
+    conf.exe_path = (char *)exe_path.data();
+    string error_path = RUN_PATH + "error.out";
+    conf.error_path = (char *)error_path.data();
+    string log_path = RUN_PATH + "judger.log";
+    conf.log_path = (char *)log_path.data();
+    conf.seccomp_rule_name = nullptr;
+    conf.memory_limit_check_only = 1;
+    conf.uid = 0;
+    conf.gid = 0;
+    memset(conf.args, 0, sizeof(conf.args));
+    memset(conf.env, 0, sizeof(conf.env));
+
+    string exe_file = RUN_PATH + "Main";
+    conf.args[0] = (char *)"/usr/bin/java";
+    conf.args[1] = (char *)"-cp";
+    conf.args[2] = (char *)exe_file.data();
+    conf.args[3] = (char *)"-Djava.security.policy==policy";
+    conf.args[4] = (char *)"-Djava.awt.headless=true";
+    conf.args[5] = (char *)"Main";
+
+    conf.env[0] = (char *)"LANG=en_US.UTF-8";
+    conf.env[1] = (char *)"LANGUAGE=en_US:en";
+    conf.env[2] = (char *)"LC_ALL=en_US.UTF-8";
+
+    // 根据测试数量进行判定
+    for (int i = 1; i <= m_judgenum; i++)
+    {
+        string index = to_string(i);
+        string input_path = DATA_PATH + index + ".in";
+        conf.input_path = (char *)input_path.data();
+        string output_path = RUN_PATH + index + ".out";
+        conf.output_path = (char *)output_path.data();
+
+        // 执行程序
+        run(&conf, &res);
+        printf("cpu time is %d,real time is %d,memory is %ld,signal is %d,result is %d\n", res.cpu_time, res.real_time, res.memory, res.signal, res.result);
+
+        JudgmentResult(&res, index);
+    }
+    return true;
+}
+
+bool Judger::RunProgramPython2()
+{
+    // 创建结构体
+    struct config conf;
+    struct result res;
+
+    conf.max_cpu_time = m_timelimit;
+    conf.max_real_time = m_maxtimelimit;
+    conf.max_memory = m_maxmemorylimie;
+
+    // conf.max_cpu_time = 2000;
+    // conf.max_real_time = 4000;
+    // conf.max_memory = 128 * 1024 * 1024;
+    conf.max_process_number = 200;
+    conf.max_output_size = 10000;
+    conf.max_stack = 32 * 1024 * 1024;
+    string exe_path = "/usr/bin/python";
+    conf.exe_path = (char *)exe_path.data();
+    string error_path = RUN_PATH + "error.out";
+    conf.error_path = (char *)error_path.data();
+    string log_path = RUN_PATH + "judger.log";
+    conf.log_path = (char *)log_path.data();
+    conf.seccomp_rule_name = (char *)"general";
+    conf.uid = 0;
+    conf.gid = 0;
+    memset(conf.args, 0, sizeof(conf.args));
+    memset(conf.env, 0, sizeof(conf.env));
+
+    string exe_file = RUN_PATH + "main.pyc";
+    conf.args[0] = (char *)"/usr/bin/python";
+    conf.args[1] = (char *)exe_file.data();
+
+    conf.env[0] = (char *)"LANG=en_US.UTF-8";
+    conf.env[1] = (char *)"LANGUAGE=en_US:en";
+    conf.env[2] = (char *)"LC_ALL=en_US.UTF-8";
+
+    // 根据测试数量进行判定
+    for (int i = 1; i <= m_judgenum; i++)
+    {
+        string index = to_string(i);
+        string input_path = DATA_PATH + index + ".in";
+        conf.input_path = (char *)input_path.data();
+        string output_path = RUN_PATH + index + ".out";
+        conf.output_path = (char *)output_path.data();
+
+        // 执行程序
+        run(&conf, &res);
+        printf("cpu time is %d,real time is %d,memory is %ld,signal is %d,result is %d\n", res.cpu_time, res.real_time, res.memory, res.signal, res.result);
+
+        JudgmentResult(&res, index);
+    }
+    return true;
+}
+
+bool Judger::RunProgramPython3()
+{
+    // 创建结构体
+    struct config conf;
+    struct result res;
+
+    conf.max_cpu_time = m_timelimit;
+    conf.max_real_time = m_maxtimelimit;
+    conf.max_memory = m_maxmemorylimie;
+
+    // conf.max_cpu_time = 2000;
+    // conf.max_real_time = 4000;
+    // conf.max_memory = 128 * 1024 * 1024;
+    conf.max_process_number = 200;
+    conf.max_output_size = 10000;
+    conf.max_stack = 32 * 1024 * 1024;
+    string exe_path = "/usr/bin/python3";
+    conf.exe_path = (char *)exe_path.data();
+    string error_path = RUN_PATH + "error.out";
+    conf.error_path = (char *)error_path.data();
+    string log_path = RUN_PATH + "judger.log";
+    conf.log_path = (char *)log_path.data();
+    conf.seccomp_rule_name = (char *)"general";
+    conf.uid = 0;
+    conf.gid = 0;
+    memset(conf.args, 0, sizeof(conf.args));
+    memset(conf.env, 0, sizeof(conf.env));
+
+    string exe_file = RUN_PATH + "__pycache__/main.cpython-36.pyc";
+    conf.args[0] = (char *)"/usr/bin/python3";
+    conf.args[1] = (char *)exe_file.data();
+
+    conf.env[0] = (char *)"LANG=en_US.UTF-8";
+    conf.env[1] = (char *)"LANGUAGE=en_US:en";
+    conf.env[2] = (char *)"LC_ALL=en_US.UTF-8";
+    conf.env[2] = (char *)"PYTHONIOENCODING=utf-8";
+
+    // 根据测试数量进行判定
+    for (int i = 1; i <= m_judgenum; i++)
+    {
+        string index = to_string(i);
+        string input_path = DATA_PATH + index + ".in";
+        conf.input_path = (char *)input_path.data();
+        string output_path = RUN_PATH + index + ".out";
+        conf.output_path = (char *)output_path.data();
+
+        // 执行程序
+        run(&conf, &res);
+        printf("cpu time is %d,real time is %d,memory is %ld,signal is %d,result is %d\n", res.cpu_time, res.real_time, res.memory, res.signal, res.result);
+
+        JudgmentResult(&res, index);
+    }
+    return true;
+}
+
+bool Judger::RunProgramJavaScript()
+{
+    // 创建结构体
+    struct config conf;
+    struct result res;
+
+    conf.max_cpu_time = m_timelimit;
+    conf.max_real_time = m_maxtimelimit;
+    conf.max_memory = m_maxmemorylimie;
+
+    // conf.max_cpu_time = 2000;
+    // conf.max_real_time = 4000;
+    // conf.max_memory = 128 * 1024 * 1024;
+    conf.max_process_number = 200;
+    conf.max_output_size = 10000;
+    conf.max_stack = 32 * 1024 * 1024;
+    string exe_path = "/usr/bin/node";
+    conf.exe_path = (char *)exe_path.data();
+    string error_path = RUN_PATH + "error.out";
+    conf.error_path = (char *)error_path.data();
+    string log_path = RUN_PATH + "judger.log";
+    conf.log_path = (char *)log_path.data();
+    conf.seccomp_rule_name = (char *)"node";
+    conf.memory_limit_check_only = 1;
+    conf.uid = 0;
+    conf.gid = 0;
+    memset(conf.args, 0, sizeof(conf.args));
+    memset(conf.env, 0, sizeof(conf.env));
+
+    string exe_file = RUN_PATH + "main.js";
+    conf.args[0] = (char *)"/usr/bin/node";
+    conf.args[1] = (char *)exe_file.data();
+
+    conf.env[0] = (char *)"LANG=en_US.UTF-8";
+    conf.env[1] = (char *)"LANGUAGE=en_US:en";
+    conf.env[2] = (char *)"LC_ALL=en_US.UTF-8";
+
+    // 根据测试数量进行判定
+    for (int i = 1; i <= m_judgenum; i++)
+    {
+        string index = to_string(i);
+        string input_path = DATA_PATH + index + ".in";
+        conf.input_path = (char *)input_path.data();
+        string output_path = RUN_PATH + index + ".out";
+        conf.output_path = (char *)output_path.data();
         // 执行程序
         run(&conf, &res);
         printf("cpu time is %d,real time is %d,memory is %ld,signal is %d,result is %d\n", res.cpu_time, res.real_time, res.memory, res.signal, res.result);
