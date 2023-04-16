@@ -278,7 +278,12 @@ Json::Value MoDB::SelectUserRank(Json::Value &queryjson)
             reader.parse(bsoncxx::to_json(doc), resjson);
         }
 
-        pipe.sort({make_document(kvp("ACNum", -1))});
+        document
+            << "ACNum" << -1
+            << "SubmitNum" << 1;
+        document.clear();
+
+        pipe.sort(document.view());
         pipe.skip(skip);
         pipe.limit(pagesize);
 
