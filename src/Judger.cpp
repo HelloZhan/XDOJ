@@ -34,72 +34,64 @@ Judger::Judger()
 
 Json::Value Judger::Run(Json::Value &runjson)
 {
+    // 初始化数据
     if (!Init(runjson))
         return Done();
-    // 编译
+
+    // 编译 运行
     if (m_language == "C")
     {
         if (!CompileC())
+            return Done();
+
+        if (!RunProgramC_Cpp())
             return Done();
     }
     else if (m_language == "C++")
     {
         if (!CompileCpp())
             return Done();
+
+        if (!RunProgramC_Cpp())
+            return Done();
     }
     else if (m_language == "Go")
     {
         if (!CompileGo())
+            return Done();
+
+        if (!RunProgramGo())
             return Done();
     }
     else if (m_language == "Java")
     {
         if (!CompileJava())
             return Done();
+
+        if (!RunProgramJava())
+            return Done();
     }
     else if (m_language == "Python2")
     {
         if (!CompilePython2())
+            return Done();
+
+        if (!RunProgramPython2())
             return Done();
     }
     else if (m_language == "Python3")
     {
         if (!CompilePython3())
             return Done();
-    }
-    else if (m_language == "JavaScript")
-    {
-        if (!CompileJavaScript())
-            return Done();
-    }
-    // 运行
-    if (m_language == "C" || m_language == "C++")
-    {
-        if (!RunProgramC_Cpp())
-            return Done();
-    }
-    else if (m_language == "Go")
-    {
-        if (!RunProgramGo())
-            return Done();
-    }
-    else if (m_language == "Java")
-    {
-        if (!RunProgramJava())
-            return Done();
-    }
-    else if (m_language == "Python2")
-    {
-        if (!RunProgramPython2())
-            return Done();
-    }
-    else if (m_language == "Python3")
-    {
+
         if (!RunProgramPython3())
             return Done();
     }
     else if (m_language == "JavaScript")
     {
+        if (!CompileJavaScript())
+            return Done();
+
         if (!RunProgramJavaScript())
             return Done();
     }
@@ -129,7 +121,7 @@ bool Judger::Init(Json::Value &initjson)
 
     RUN_PATH = "./" + m_submitid + "/";
     DATA_PATH = "../../../problemdata/" + m_problemid + "/";
-    // 获取信息
+
     m_resjson.clear();
 
     // 创建中间文件夹
@@ -225,6 +217,23 @@ bool Judger::CompileSPJ()
     return true;
 }
 
+bool Judger::GetCompilationFailed()
+{
+    ifstream infile;
+
+    // 只要编译就会有这个文件
+    m_command = RUN_PATH + "compileinfo.txt";
+    infile.open(m_command.data());
+    // 读取全部信息
+    string reason((istreambuf_iterator<char>(infile)),
+                  (istreambuf_iterator<char>()));
+    m_reason = reason;
+    m_result = CE;
+    infile.close();
+
+    return true;
+}
+
 bool Judger::CompileC()
 {
     // 进行gcc编译
@@ -240,17 +249,7 @@ bool Judger::CompileC()
     if (access(m_command.data(), F_OK) == -1)
     {
         // 返回编译失败原因
-        ifstream infile;
-
-        m_command = RUN_PATH + "compileinfo.txt";
-        infile.open(m_command.data());
-        // 读取全部信息
-        string reason((istreambuf_iterator<char>(infile)),
-                      (istreambuf_iterator<char>()));
-
-        m_reason = reason;
-        m_result = CE;
-        infile.close();
+        GetCompilationFailed();
         return false;
     }
     return true;
@@ -271,17 +270,7 @@ bool Judger::CompileCpp()
     if (access(m_command.data(), F_OK) == -1)
     {
         // 返回编译失败原因
-        ifstream infile;
-
-        m_command = RUN_PATH + "compileinfo.txt";
-        infile.open(m_command.data());
-        // 读取全部信息
-        string reason((istreambuf_iterator<char>(infile)),
-                      (istreambuf_iterator<char>()));
-
-        m_reason = reason;
-        m_result = CE;
-        infile.close();
+        GetCompilationFailed();
         return false;
     }
     return true;
@@ -302,17 +291,7 @@ bool Judger::CompileGo()
     if (access(m_command.data(), F_OK) == -1)
     {
         // 返回编译失败原因
-        ifstream infile;
-
-        m_command = RUN_PATH + "compileinfo.txt";
-        infile.open(m_command.data());
-        // 读取全部信息
-        string reason((istreambuf_iterator<char>(infile)),
-                      (istreambuf_iterator<char>()));
-
-        m_reason = reason;
-        m_result = CE;
-        infile.close();
+        GetCompilationFailed();
         return false;
     }
     return true;
@@ -333,17 +312,7 @@ bool Judger::CompileJava()
     if (access(m_command.data(), F_OK) == -1)
     {
         // 返回编译失败原因
-        ifstream infile;
-
-        m_command = RUN_PATH + "compileinfo.txt";
-        infile.open(m_command.data());
-        // 读取全部信息
-        string reason((istreambuf_iterator<char>(infile)),
-                      (istreambuf_iterator<char>()));
-
-        m_reason = reason;
-        m_result = CE;
-        infile.close();
+        GetCompilationFailed();
         return false;
     }
     return true;
@@ -364,17 +333,7 @@ bool Judger::CompilePython2()
     if (access(m_command.data(), F_OK) == -1)
     {
         // 返回编译失败原因
-        ifstream infile;
-
-        m_command = RUN_PATH + "compileinfo.txt";
-        infile.open(m_command.data());
-        // 读取全部信息
-        string reason((istreambuf_iterator<char>(infile)),
-                      (istreambuf_iterator<char>()));
-
-        m_reason = reason;
-        m_result = CE;
-        infile.close();
+        GetCompilationFailed();
         return false;
     }
     return true;
@@ -395,17 +354,7 @@ bool Judger::CompilePython3()
     if (access(m_command.data(), F_OK) == -1)
     {
         // 返回编译失败原因
-        ifstream infile;
-
-        m_command = RUN_PATH + "compileinfo.txt";
-        infile.open(m_command.data());
-        // 读取全部信息
-        string reason((istreambuf_iterator<char>(infile)),
-                      (istreambuf_iterator<char>()));
-
-        m_reason = reason;
-        m_result = CE;
-        infile.close();
+        GetCompilationFailed();
         return false;
     }
     return true;
@@ -421,23 +370,13 @@ bool Judger::CompileJavaScript()
         return false;
     }
 
-    // TODO:不能返回错误
+    // TODO:不能返回错误，因为肯定有这个文件
     m_command = RUN_PATH + "main.js";
     // 编译失败
     if (access(m_command.data(), F_OK) == -1)
     {
         // 返回编译失败原因
-        ifstream infile;
-
-        m_command = RUN_PATH + "compileinfo.txt";
-        infile.open(m_command.data());
-        // 读取全部信息
-        string reason((istreambuf_iterator<char>(infile)),
-                      (istreambuf_iterator<char>()));
-
-        m_reason = reason;
-        m_result = CE;
-        infile.close();
+        GetCompilationFailed();
         return false;
     }
     return true;
@@ -474,7 +413,6 @@ bool Judger::RunProgramC_Cpp()
     // 根据测试数量进行判定
     for (int i = 1; i <= m_judgenum; i++)
     {
-        Json::Value testinfo;
         string index = to_string(i);
         string input_path = DATA_PATH + index + ".in";
         conf.input_path = (char *)input_path.data();
