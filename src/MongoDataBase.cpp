@@ -842,6 +842,25 @@ int mystoi(string num)
     }
     return resnum;
 }
+
+/*
+    功能：将字符串变为int64
+    主要为查询ID服务，限制：ID长度不能大于19，只关注数字
+*/
+int64_t mystoll(string num)
+{
+    int64_t resnum = 0;
+    if (num.size() >= 19 || num.size() == 0)
+        return resnum;
+    for (auto n : num)
+    {
+        if (isdigit(n))
+        {
+            resnum = resnum * 10 + n - '0';
+        }
+    }
+    return resnum;
+}
 /*
     功能：分页获取题目列表
     前端传入
@@ -1213,22 +1232,48 @@ Json::Value MoDB::SelectStatusRecordList(Json::Value &queryjson)
         auto client = pool.acquire();
         mongocxx::collection statusrecordcoll = (*client)["XDOJ"]["StatusRecord"];
 
-        int problemid = stoi(searchinfo["ProblemId"].asString());
-        int64_t userid = stoll(searchinfo["UserId"].asString());
-
-        // 查询题目
-        if (problemid > 0)
+        // 查询题目ID
+        if (searchinfo["ProblemId"].asString().size() > 0)
         {
+            int64_t problemid = mystoll(searchinfo["ProblemId"].asString());
             pipe.match({{make_document(kvp("ProblemId", problemid))}});
             pipetot.match({{make_document(kvp("ProblemId", problemid))}});
         }
         // 查询用户ID
-        if (userid > 0)
+        if (searchinfo["UserId"].asString().size() > 0)
         {
+            int64_t userid = stoll(searchinfo["UserId"].asString());
             pipe.match({{make_document(kvp("UserId", userid))}});
             pipetot.match({{make_document(kvp("UserId", userid))}});
         }
 
+        // 查询题目标题
+        if (searchinfo["ProblemTitle"].asString().size() > 0)
+        {
+            document
+                << "ProblemTitle" << open_document
+                << "$regex" << searchinfo["ProblemTitle"].asString()
+                << close_document;
+            pipe.match(document.view());
+            pipetot.match(document.view());
+            document.clear();
+        }
+
+        // 查询状态
+        if (searchinfo["Status"].asString().size() > 0)
+        {
+            int status = stoi(searchinfo["Status"].asString());
+            pipe.match({{make_document(kvp("Status", status))}});
+            pipetot.match({{make_document(kvp("Status", status))}});
+        }
+
+        // 查询语言
+        if (searchinfo["Language"].asString().size() > 0)
+        {
+            string language = searchinfo["Language"].asString();
+            pipe.match({{make_document(kvp("Language", language))}});
+            pipetot.match({{make_document(kvp("Language", language))}});
+        }
         // 获取总条数
         pipetot.count("TotalNum");
         mongocxx::cursor cursor = statusrecordcoll.aggregate(pipetot);
