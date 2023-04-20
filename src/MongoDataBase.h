@@ -76,6 +76,13 @@ public:
         传出：Json(Result,Reason)
     */
     Json::Value DeleteUser(Json::Value &deletejson);
+
+    /*
+        功能：查询所有用户的权限
+        传入：void
+        传出：Json(Result,_id,Authority)
+    */
+    Json::Value SelectUserAuthority();
     // ++++++++++++++++++++++++++题目表Problem+++++++++++++++++++++++++++++
 
     /*
@@ -410,9 +417,9 @@ private:
     ~MoDB();
 
 private:
-    mongocxx::instance instance{}; // This should be done only once.
-    mongocxx::uri uri{};           // 连接配置
-    mongocxx::pool pool{uri};      // 连接池
+    mongocxx::instance instance{};                                                            // This should be done only once.
+    mongocxx::uri uri{"mongodb://root:root@192.168.49.132:27017/?authMechanism=SCRAM-SHA-1"}; // 连接配置
+    mongocxx::pool pool{uri};                                                                 // 连接池
 
     std::atomic_int64_t m_problemid;      // 题目ID
     std::atomic_int64_t m_statusrecordid; // 测评ID

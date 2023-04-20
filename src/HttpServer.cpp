@@ -101,7 +101,7 @@ void doGetUserUpdateInfo(const httplib::Request &req, httplib::Response &res)
 
     Json::Value resjson;
 
-    if (!req.has_param("UserId"))
+    if (!req.has_param("UserId") || !req.has_param("VerifyId"))
     {
         resjson["Result"] = "Fail";
         resjson["Reason"] = "缺少请求参数！";
@@ -110,8 +110,11 @@ void doGetUserUpdateInfo(const httplib::Request &req, httplib::Response &res)
     else
     {
         string userid = req.get_param_value("UserId");
+        string verifyid = req.get_param_value("VerifyId");
         Json::Value queryjson;
         queryjson["UserId"] = userid;
+        queryjson["VerifyId"] = verifyid;
+
         resjson = control.SelectUserUpdateInfo(queryjson);
     }
     printf("doGetUserUpdateInfo end!!!\n");
@@ -123,7 +126,7 @@ void doGetUserSetInfo(const httplib::Request &req, httplib::Response &res)
 
     Json::Value resjson;
 
-    if (!req.has_param("Page") || !req.has_param("PageSize"))
+    if (!req.has_param("Page") || !req.has_param("PageSize") || !req.has_param("VerifyId"))
     {
         resjson["Result"] = "Fail";
         resjson["Reason"] = "缺少请求参数！";
@@ -133,10 +136,12 @@ void doGetUserSetInfo(const httplib::Request &req, httplib::Response &res)
     {
         string page = req.get_param_value("Page");
         string pagesize = req.get_param_value("PageSize");
+        string verifyid = req.get_param_value("VerifyId");
 
         Json::Value queryjson;
         queryjson["Page"] = page;
         queryjson["PageSize"] = pagesize;
+        queryjson["VerifyId"] = verifyid;
         resjson = control.SelectUserSetInfo(queryjson);
     }
     printf("doGetUserSetInfo end!!!\n");
@@ -148,7 +153,7 @@ void doDeleteUser(const httplib::Request &req, httplib::Response &res)
     printf("doDeleteUser start!!!\n");
 
     Json::Value resjson;
-    if (!req.has_param("UserId"))
+    if (!req.has_param("UserId") || !req.has_param("VerifyId"))
     {
         resjson["Result"] = "Fail";
         resjson["Reason"] = "缺少请求参数！";
@@ -157,8 +162,11 @@ void doDeleteUser(const httplib::Request &req, httplib::Response &res)
     else
     {
         string userid = req.get_param_value("UserId");
+        string verifyid = req.get_param_value("VerifyId");
+
         Json::Value jsonvalue;
         jsonvalue["UserId"] = userid;
+        jsonvalue["VerifyId"] = verifyid;
         resjson = control.DeleteUser(jsonvalue);
     }
 
@@ -223,7 +231,7 @@ void doGetProblemListByAdmin(const httplib::Request &req, httplib::Response &res
 {
     printf("doGetProblemListByAdmin start!!!\n");
     Json::Value resjson;
-    if (!req.has_param("Page") || !req.has_param("PageSize"))
+    if (!req.has_param("Page") || !req.has_param("PageSize") || !req.has_param("VerifyId"))
     {
         resjson["Result"] = "Fail";
         resjson["Reason"] = "请求参数有误！";
@@ -233,10 +241,11 @@ void doGetProblemListByAdmin(const httplib::Request &req, httplib::Response &res
     {
         string page = req.get_param_value("Page");
         string pagesize = req.get_param_value("PageSize");
-
+        string verifyid = req.get_param_value("VerifyId");
         Json::Value queryjson;
         queryjson["Page"] = page;
         queryjson["PageSize"] = pagesize;
+        queryjson["VerifyId"] = verifyid;
         resjson = control.SelectProblemListByAdmin(queryjson);
     }
     printf("doGetProblemListByAdmin end!!!\n");
@@ -249,7 +258,7 @@ void doGetProblemInfo(const httplib::Request &req, httplib::Response &res)
     printf("doGetProblemInfo start!!!\n");
     Json::Value resjson;
 
-    if (!req.has_param("ProblemId"))
+    if (!req.has_param("ProblemId") || !req.has_param("VerifyId"))
     {
         resjson["Result"] = "Fail";
         resjson["Reason"] = "请求参数有误！";
@@ -258,9 +267,11 @@ void doGetProblemInfo(const httplib::Request &req, httplib::Response &res)
     else
     {
         string problemid = req.get_param_value("ProblemId");
+        string verifyid = req.get_param_value("VerifyId");
 
         Json::Value queryjson;
         queryjson["ProblemId"] = problemid;
+        queryjson["VerifyId"] = verifyid;
         resjson = control.SelectProblemInfoByAdmin(queryjson);
     }
     printf("doGetProblemInfo end!!!\n");
@@ -283,7 +294,7 @@ void doDeleteProblem(const httplib::Request &req, httplib::Response &res)
 {
     printf("doDeleteProblem start!!!\n");
     Json::Value resjson;
-    if (!req.has_param("ProblemId"))
+    if (!req.has_param("ProblemId") || !req.has_param("VerifyId"))
     {
         resjson["Result"] = "Fail";
         resjson["Reason"] = "请求参数有误！";
@@ -292,9 +303,11 @@ void doDeleteProblem(const httplib::Request &req, httplib::Response &res)
     else
     {
         string problemid = req.get_param_value("ProblemId");
+        string verifyid = req.get_param_value("VerifyId");
 
         Json::Value deletejson;
         deletejson["ProblemId"] = problemid;
+        deletejson["VerifyId"] = verifyid;
         resjson = control.DeleteProblem(deletejson);
     }
     printf("doDeleteProblem end!!!\n");
@@ -419,7 +432,7 @@ void doSelectAnnouncement(const httplib::Request &req, httplib::Response &res)
     printf("doSelectAnnouncement start!!!\n");
 
     Json::Value resjson;
-    if (!req.has_param("AnnouncementId"))
+    if (!req.has_param("AnnouncementId") || !req.has_param("VerifyId"))
     {
         resjson["Result"] = "Fail";
         resjson["Reason"] = "缺少请求参数！";
@@ -428,8 +441,11 @@ void doSelectAnnouncement(const httplib::Request &req, httplib::Response &res)
     else
     {
         string announcementid = req.get_param_value("AnnouncementId");
+        string verifyid = req.get_param_value("VerifyId");
+
         Json::Value queryjson;
         queryjson["AnnouncementId"] = announcementid;
+        queryjson["VerifyId"] = verifyid;
 
         resjson = control.SelectAnnouncementByEdit(queryjson);
     }
@@ -466,7 +482,7 @@ void doDeleteAnnouncement(const httplib::Request &req, httplib::Response &res)
     printf("doDeleteAnnouncement start!!!\n");
     Json::Value resjson;
 
-    if (!req.has_param("AnnouncementId"))
+    if (!req.has_param("AnnouncementId") || !req.has_param("VerifyId"))
     {
         resjson["Result"] = "Fail";
         resjson["Reason"] = "缺少请求参数！";
@@ -475,8 +491,10 @@ void doDeleteAnnouncement(const httplib::Request &req, httplib::Response &res)
     else
     {
         string announcementid = req.get_param_value("AnnouncementId");
+        string verifyid = req.get_param_value("VerifyId");
         Json::Value deletejson;
         deletejson["AnnouncementId"] = announcementid;
+        deletejson["VerifyId"] = verifyid;
 
         resjson = control.DeleteAnnouncement(deletejson);
     }
@@ -518,7 +536,7 @@ void doGetSolutionListByAdmin(const httplib::Request &req, httplib::Response &re
 {
     printf("doGetSolutionListByAdmin start!!!\n");
     Json::Value resjson;
-    if (!req.has_param("Page") || !req.has_param("PageSize"))
+    if (!req.has_param("Page") || !req.has_param("PageSize") || !req.has_param("VerifyId"))
     {
         resjson["Result"] = "Fail";
         resjson["Reason"] = "缺少请求参数！";
@@ -528,10 +546,13 @@ void doGetSolutionListByAdmin(const httplib::Request &req, httplib::Response &re
     {
         string page = req.get_param_value("Page");
         string pagesize = req.get_param_value("PageSize");
+        string verifyid = req.get_param_value("VerifyId");
 
         Json::Value queryjson;
         queryjson["Page"] = page;
         queryjson["PageSize"] = pagesize;
+        queryjson["VerifyId"] = verifyid;
+
         resjson = control.SelectSolutionListByAdmin(queryjson);
     }
     printf("doGetSolutionListByAdmin end!!!\n");
@@ -565,7 +586,7 @@ void doSelectSolutionByEdit(const httplib::Request &req, httplib::Response &res)
     printf("doSelectSolutionByEdit start!!!\n");
     Json::Value resjson;
 
-    if (!req.has_param("SolutionId"))
+    if (!req.has_param("SolutionId") || !req.has_param("VerifyId"))
     {
         resjson["Result"] = "Fail";
         resjson["Reason"] = "缺少请求参数！";
@@ -574,8 +595,10 @@ void doSelectSolutionByEdit(const httplib::Request &req, httplib::Response &res)
     else
     {
         string solutionid = req.get_param_value("SolutionId");
+        string verifyid = req.get_param_value("VerifyId");
         Json::Value queryjson;
         queryjson["SolutionId"] = solutionid;
+        queryjson["VerifyId"] = verifyid;
 
         resjson = control.SelectSolutionByEdit(queryjson);
     }
@@ -612,7 +635,7 @@ void doDeleteSolution(const httplib::Request &req, httplib::Response &res)
     printf("doDeleteSolution start!!!\n");
     Json::Value resjson;
 
-    if (!req.has_param("SolutionId"))
+    if (!req.has_param("SolutionId") || !req.has_param("UserId") || !req.has_param("VerifyId"))
     {
         resjson["Result"] = "Fail";
         resjson["Reason"] = "缺少请求参数！";
@@ -621,8 +644,12 @@ void doDeleteSolution(const httplib::Request &req, httplib::Response &res)
     else
     {
         string solutionid = req.get_param_value("SolutionId");
+        string userid = req.get_param_value("UserId");
+        string verifyid = req.get_param_value("VerifyId");
         Json::Value deletejson;
         deletejson["SolutionId"] = solutionid;
+        deletejson["UserId"] = userid;
+        deletejson["VerifyId"] = verifyid;
 
         resjson = control.DeleteSolution(deletejson);
     }
@@ -663,7 +690,7 @@ void doGetDiscussListByAdmin(const httplib::Request &req, httplib::Response &res
 {
     printf("doGetDiscussListByAdmin start!!!\n");
     Json::Value resjson;
-    if (!req.has_param("Page") || !req.has_param("PageSize"))
+    if (!req.has_param("Page") || !req.has_param("PageSize") || !req.has_param("VerifyId"))
     {
         resjson["Result"] = "Fail";
         resjson["Reason"] = "缺少请求参数！";
@@ -673,9 +700,12 @@ void doGetDiscussListByAdmin(const httplib::Request &req, httplib::Response &res
     {
         string page = req.get_param_value("Page");
         string pagesize = req.get_param_value("PageSize");
+        string verifyid = req.get_param_value("VerifyId");
         Json::Value queryjson;
         queryjson["Page"] = page;
         queryjson["PageSize"] = pagesize;
+        queryjson["VerifyId"] = verifyid;
+
         resjson = control.SelectDiscussListByAdmin(queryjson);
     }
     printf("doGetDiscussListByAdmin end!!!\n");
@@ -706,7 +736,7 @@ void doSelectDiscussByEdit(const httplib::Request &req, httplib::Response &res)
 {
     printf("doSelectDiscussByEdit start!!!\n");
     Json::Value resjson;
-    if (!req.has_param("DiscussId"))
+    if (!req.has_param("DiscussId") || !req.has_param("VerifyId"))
     {
         resjson["Result"] = "Fail";
         resjson["Reason"] = "缺少请求参数！";
@@ -715,8 +745,10 @@ void doSelectDiscussByEdit(const httplib::Request &req, httplib::Response &res)
     else
     {
         string discussid = req.get_param_value("DiscussId");
+        string verifyid = req.get_param_value("VerifyId");
         Json::Value queryjson;
         queryjson["DiscussId"] = discussid;
+        queryjson["VerifyId"] = verifyid;
 
         resjson = control.SelectDiscussByEdit(queryjson);
     }
@@ -753,7 +785,7 @@ void doDeleteDiscuss(const httplib::Request &req, httplib::Response &res)
     printf("doDeleteDiscuss start!!!\n");
     Json::Value resjson;
 
-    if (!req.has_param("DiscussId"))
+    if (!req.has_param("DiscussId") || !req.has_param("UserId") || !req.has_param("VerifyId"))
     {
         resjson["Result"] = "Fail";
         resjson["Reason"] = "缺少请求参数！";
@@ -762,8 +794,13 @@ void doDeleteDiscuss(const httplib::Request &req, httplib::Response &res)
     else
     {
         string discussid = req.get_param_value("DiscussId");
+        string userid = req.get_param_value("UserId");
+        string verifyid = req.get_param_value("VerifyId");
+
         Json::Value deletejson;
         deletejson["DiscussId"] = discussid;
+        deletejson["UserId"] = userid;
+        deletejson["VerifyId"] = verifyid;
 
         resjson = control.DeleteDiscuss(deletejson);
     }
@@ -776,7 +813,7 @@ void doSelectCommentListByAdmin(const httplib::Request &req, httplib::Response &
     printf("doSelectCommentListByAdmin start!!!\n");
     Json::Value resjson;
 
-    if (!req.has_param("Page") || !req.has_param("PageSize"))
+    if (!req.has_param("Page") || !req.has_param("PageSize") || !req.has_param("VerifyId"))
     {
         resjson["Result"] = "Fail";
         resjson["Reason"] = "缺少请求参数！";
@@ -786,9 +823,12 @@ void doSelectCommentListByAdmin(const httplib::Request &req, httplib::Response &
     {
         string page = req.get_param_value("Page");
         string pagesize = req.get_param_value("PageSize");
+        string verifyid = req.get_param_value("VerifyId");
+
         Json::Value queryjson;
         queryjson["Page"] = page;
         queryjson["PageSize"] = pagesize;
+        queryjson["VerifyId"] = verifyid;
 
         resjson = control.SelectCommentListByAdmin(queryjson);
     }
@@ -843,7 +883,7 @@ void doDeleteComment(const httplib::Request &req, httplib::Response &res)
 {
     printf("doDeleteComment start!!!\n");
     Json::Value resjson;
-    if (!req.has_param("ArticleId") || !req.has_param("CommentId"))
+    if (!req.has_param("ArticleId") || !req.has_param("CommentId") || !req.has_param("VerifyId"))
     {
         resjson["Result"] = "Fail";
         resjson["Reason"] = "缺少请求参数！";
@@ -853,9 +893,11 @@ void doDeleteComment(const httplib::Request &req, httplib::Response &res)
     {
         string articleid = req.get_param_value("ArticleId");
         string commentid = req.get_param_value("CommentId");
+        string verifyid = req.get_param_value("VerifyId");
         Json::Value deletejson;
         deletejson["ArticleId"] = articleid;
         deletejson["CommentId"] = commentid;
+        deletejson["VerifyId"] = verifyid;
         resjson = control.DeleteComment(deletejson);
     }
     printf("doDeleteComment end!!!\n");

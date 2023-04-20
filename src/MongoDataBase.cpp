@@ -113,6 +113,7 @@ Json::Value MoDB::RegisterUser(Json::Value &registerjson)
         }
         resjson["Result"] = "Success";
         resjson["Reason"] = "注册成功！";
+        resjson["_id"] = (Json::Int64)id;
         return resjson;
     }
     catch (const std::exception &e)
@@ -555,6 +556,48 @@ Json::Value MoDB::DeleteUser(Json::Value &deletejson)
         resjson["Result"] = "Fail";
         resjson["Reason"] = "数据库异常！";
         LOG_ERROR("【删除用户】数据库异常！");
+        return resjson;
+    }
+}
+
+/*
+    功能：查询所有用户的权限
+    传入：void
+    传出：Json(Result,_id,Authority)
+*/
+Json::Value MoDB::SelectUserAuthority()
+{
+    Json::Value resjson;
+    try
+    {
+        auto client = pool.acquire();
+        mongocxx::collection usercoll = (*client)["XDOJ"]["User"];
+
+        bsoncxx::builder::stream::document document{};
+        mongocxx::pipeline pipe;
+
+        document
+            << "Authority" << 1;
+
+        pipe.project(document.view());
+        Json::Reader reader;
+
+        mongocxx::cursor cursor = usercoll.aggregate(pipe);
+
+        for (auto doc : cursor)
+        {
+            Json::Value jsonvalue;
+            reader.parse(bsoncxx::to_json(doc), jsonvalue);
+            resjson["ArrayInfo"].append(jsonvalue);
+        }
+        resjson["Result"] = "Success";
+        return resjson;
+    }
+    catch (const std::exception &e)
+    {
+        resjson["Result"] = "Fail";
+        resjson["Reason"] = "数据库异常！";
+        LOG_ERROR("【查询所有用户的权限】数据库异常！");
         return resjson;
     }
 }
@@ -1508,7 +1551,7 @@ Json::Value MoDB::SelectDiscussList(Json::Value &queryjson)
 /*
     功能：管理员分页查询讨论
     传入：Json(Page,PageSize)
-    传出：Json(_id,Title,Views,Comments,CreateTime,User.Avatar,User.NickName)
+    传出：Json(_id,Title,Views,Comments,CreateTime,UserId,User.Avatar,User.NickName)
 */
 Json::Value MoDB::SelectDiscussListByAdmin(Json::Value &queryjson)
 {
@@ -1553,6 +1596,7 @@ Json::Value MoDB::SelectDiscussListByAdmin(Json::Value &queryjson)
             << "Views" << 1
             << "Comments" << 1
             << "CreateTime" << 1
+            << "UserId" << 1
             << "User.Avatar" << 1
             << "User.NickName" << 1;
         pipe.project(document.view());
@@ -1594,6 +1638,7 @@ Json::Value MoDB::SelectDiscussByEdit(Json::Value &queryjson)
         pipe.match({make_document(kvp("_id", discussid))});
         document
             << "Title" << 1
+            << "UserId" << 1
             << "Content" << 1;
         pipe.project(document.view());
         mongocxx::cursor cursor = discusscoll.aggregate(pipe);
@@ -1988,6 +2033,7 @@ Json::Value MoDB::SelectSolutionListByAdmin(Json::Value &queryjson)
             << "Views" << 1
             << "Comments" << 1
             << "CreateTime" << 1
+            << "UserId" << 1
             << "User.Avatar" << 1
             << "User.NickName" << 1;
         pipe.project(document.view());
@@ -2012,7 +2058,7 @@ Json::Value MoDB::SelectSolutionListByAdmin(Json::Value &queryjson)
 /*
     功能：查询题解的详细信息，主要是编辑时的查询
     传入：Json(SolutionId)
-    传出：Json(Result,Reason,Title,Content,Public)
+    传出：Json(Result,Reason,Title,Content,UserId,Public)
 */
 Json::Value MoDB::SelectSolutionByEdit(Json::Value &queryjson)
 {
@@ -2030,6 +2076,7 @@ Json::Value MoDB::SelectSolutionByEdit(Json::Value &queryjson)
         document
             << "Title" << 1
             << "Content" << 1
+            << "UserId" << 1
             << "Public" << 1;
         pipe.project(document.view());
         mongocxx::cursor cursor = solutioncoll.aggregate(pipe);

@@ -11,6 +11,9 @@
 #include <iostream>
 using namespace std;
 
+// 无权限
+static Json::Value NoPermission;
+
 Json::Value Control::RegisterUser(Json::Value &registerjson)
 {
 	return UserList::GetInstance()->RegisterUser(registerjson);
@@ -33,26 +36,46 @@ Json::Value Control::SelectUserInfo(Json::Value &queryjson)
 
 Json::Value Control::UpdateUserInfo(Json::Value &updatejson)
 {
+	// 如果不是本人或者管理员 无权修改
+	if (!UserList::GetInstance()->IsAuthor(updatejson) && !UserList::GetInstance()->IsAdministrator(updatejson))
+		return NoPermission;
+
 	return UserList::GetInstance()->UpdateUserInfo(updatejson);
 }
 
 Json::Value Control::SelectUserUpdateInfo(Json::Value &queryjson)
 {
+	// 如果不是本人或者管理员 无权查询
+	if (!UserList::GetInstance()->IsAuthor(queryjson) && !UserList::GetInstance()->IsAdministrator(queryjson))
+		return NoPermission;
+
 	return UserList::GetInstance()->SelectUserUpdateInfo(queryjson);
 }
 
 Json::Value Control::SelectUserSetInfo(Json::Value &queryjson)
 {
+	// 如果不是管理员，无权查询
+	if (!UserList::GetInstance()->IsAdministrator(queryjson))
+		return NoPermission;
+
 	return UserList::GetInstance()->SelectUserSetInfo(queryjson);
 }
 
 Json::Value Control::DeleteUser(Json::Value &deletejson)
 {
+	// 如果不是管理员，无权删除
+	if (!UserList::GetInstance()->IsAdministrator(deletejson))
+		return NoPermission;
+
 	return UserList::GetInstance()->DeleteUser(deletejson);
 }
 
 Json::Value Control::SelectProblemInfoByAdmin(Json::Value &queryjson)
 {
+	// 如果不是管理员，无权查看
+	if (!UserList::GetInstance()->IsAdministrator(queryjson))
+		return NoPermission;
+
 	return ProblemList::GetInstance()->SelectProblemInfoByAdmin(queryjson);
 }
 
@@ -63,6 +86,10 @@ Json::Value Control::SelectProblem(Json::Value &queryjson)
 
 Json::Value Control::EditProblem(Json::Value &insertjson)
 {
+	// 如果不是管理员，无权操作
+	if (!UserList::GetInstance()->IsAdministrator(insertjson))
+		return NoPermission;
+
 	Json::Value resjson;
 	if (insertjson["EditType"].asString() == "Insert")
 	{
@@ -77,6 +104,10 @@ Json::Value Control::EditProblem(Json::Value &insertjson)
 }
 Json::Value Control::DeleteProblem(Json::Value &deletejson)
 {
+	// 如果不是管理员，无权操作
+	if (!UserList::GetInstance()->IsAdministrator(deletejson))
+		return NoPermission;
+
 	return ProblemList::GetInstance()->DeleteProblem(deletejson);
 }
 
@@ -87,11 +118,19 @@ Json::Value Control::SelectProblemList(Json::Value &queryjson)
 
 Json::Value Control::SelectProblemListByAdmin(Json::Value &queryjson)
 {
+	// 如果不是管理员，无权查询
+	if (!UserList::GetInstance()->IsAdministrator(queryjson))
+		return NoPermission;
+
 	return ProblemList::GetInstance()->SelectProblemListByAdmin(queryjson);
 }
 
 Json::Value Control::GetJudgeCode(Json::Value judgejson)
 {
+	// 如果不是用户，无权操作
+	if (!UserList::GetInstance()->IsOrdinaryUser(judgejson))
+		return NoPermission;
+
 	Json::Value resjson;
 	// 传入Json(ProblemId,UserId,UserNickName,Code,Language,TimeLimit,MemoryLimit,JudgeNum,ProblemTitle)
 
@@ -167,6 +206,10 @@ Json::Value Control::SelectStatusRecord(Json::Value &queryjson)
 
 Json::Value Control::SelectCommentListByAdmin(Json::Value &queryjson)
 {
+	// 如果不是管理员，无权查看
+	if (!UserList::GetInstance()->IsAdministrator(queryjson))
+		return NoPermission;
+
 	return CommentList::GetInstance()->SelectCommentListByAdmin(queryjson);
 }
 
@@ -184,6 +227,8 @@ Json::Value Control::GetComment(Json::Value &queryjson)
 
 Json::Value Control::InsertComment(Json::Value &insertjson)
 {
+	if (!UserList::GetInstance()->IsOrdinaryUser(insertjson))
+		return NoPermission;
 	// 文章添加评论数
 	Json::Value updatejson;
 	updatejson["ArticleId"] = insertjson["ArticleId"];
@@ -215,6 +260,10 @@ Json::Value Control::InsertComment(Json::Value &insertjson)
 // Json(ArticleId,CommentId)
 Json::Value Control::DeleteComment(Json::Value &deletejson)
 {
+	// 如果不是用户，没有权限删除
+	if (!UserList::GetInstance()->IsOrdinaryUser(deletejson))
+		return NoPermission;
+
 	string articleid = deletejson["ArticleId"].asString();
 
 	Json::Value resjson;
@@ -264,20 +313,35 @@ Json::Value Control::SelectAnnouncement(Json::Value &queryjson)
 
 Json::Value Control::SelectAnnouncementByEdit(Json::Value &queryjson)
 {
+	// 如果不是管理员，无权限
+	if (!UserList::GetInstance()->IsAdministrator(queryjson))
+		return NoPermission;
 	return AnnouncementList::GetInstance()->SelectAnnouncementByEdit(queryjson);
 }
 
 Json::Value Control::InsertAnnouncement(Json::Value &insertjson)
 {
+	// 如果不是管理员，无权限
+	if (!UserList::GetInstance()->IsAdministrator(insertjson))
+		return NoPermission;
+
 	return AnnouncementList::GetInstance()->InsertAnnouncement(insertjson);
 }
 
 Json::Value Control::UpdateAnnouncement(Json::Value &updatejson)
 {
+	// 如果不是管理员，无权限
+	if (!UserList::GetInstance()->IsAdministrator(updatejson))
+		return NoPermission;
+
 	return AnnouncementList::GetInstance()->UpdateAnnouncement(updatejson);
 }
 Json::Value Control::DeleteAnnouncement(Json::Value &deletejson)
 {
+	// 如果不是管理员，无权限
+	if (!UserList::GetInstance()->IsAdministrator(deletejson))
+		return NoPermission;
+
 	Json::Value resjson = AnnouncementList::GetInstance()->DeleteAnnouncement(deletejson);
 	if (resjson["Result"].asString() == "Success")
 	{
@@ -296,6 +360,10 @@ Json::Value Control::SelectSolutionList(Json::Value &queryjson)
 
 Json::Value Control::SelectSolutionListByAdmin(Json::Value &queryjson)
 {
+	// 如果不是管理员，无权限
+	if (!UserList::GetInstance()->IsAdministrator(queryjson))
+		return NoPermission;
+
 	return SolutionList::GetInstance()->SelectSolutionListByAdmin(queryjson);
 }
 
@@ -306,20 +374,36 @@ Json::Value Control::SelectSolution(Json::Value &queryjson)
 
 Json::Value Control::SelectSolutionByEdit(Json::Value &queryjson)
 {
+	// 如果不是用户，无权限
+	if (!UserList::GetInstance()->IsOrdinaryUser(queryjson))
+		return NoPermission;
+
 	return SolutionList::GetInstance()->SelectSolutionByEdit(queryjson);
 }
 
 Json::Value Control::InsertSolution(Json::Value &insertjson)
 {
+	// 如果不是用户，无权限
+	if (!UserList::GetInstance()->IsOrdinaryUser(insertjson))
+		return NoPermission;
+
 	return SolutionList::GetInstance()->InsertSolution(insertjson);
 }
 
 Json::Value Control::UpdateSolution(Json::Value &updatejson)
 {
+	// 如果不是作者或者管理员，无权限
+	if (!UserList::GetInstance()->IsAuthor(updatejson) && !UserList::GetInstance()->IsAdministrator(updatejson))
+		return NoPermission;
+
 	return SolutionList::GetInstance()->UpdateSolution(updatejson);
 }
 Json::Value Control::DeleteSolution(Json::Value &deletejson)
 {
+	// 如果不是作者或者管理员，无权限
+	if (!UserList::GetInstance()->IsAuthor(deletejson) && !UserList::GetInstance()->IsAdministrator(deletejson))
+		return NoPermission;
+
 	Json::Value resjson = SolutionList::GetInstance()->DeleteSolution(deletejson);
 	if (resjson["Result"].asString() == "Success")
 	{
@@ -338,6 +422,10 @@ Json::Value Control::SelectDiscussList(Json::Value &queryjson)
 
 Json::Value Control::SelectDiscussListByAdmin(Json::Value &queryjson)
 {
+	// 如果不是管理员，无权限
+	if (!UserList::GetInstance()->IsAdministrator(queryjson))
+		return NoPermission;
+
 	return DiscussList::GetInstance()->SelectDiscussListByAdmin(queryjson);
 }
 
@@ -348,20 +436,36 @@ Json::Value Control::SelectDiscuss(Json::Value &queryjson)
 
 Json::Value Control::SelectDiscussByEdit(Json::Value &queryjson)
 {
+	// 如果不是用户，无权限
+	if (!UserList::GetInstance()->IsOrdinaryUser(queryjson))
+		return NoPermission;
+
 	return DiscussList::GetInstance()->SelectDiscussByEdit(queryjson);
 }
 
 Json::Value Control::InsertDiscuss(Json::Value &insertjson)
 {
+	// 如果不是用户，无权限
+	if (!UserList::GetInstance()->IsOrdinaryUser(insertjson))
+		return NoPermission;
+
 	return DiscussList::GetInstance()->InsertDiscuss(insertjson);
 }
 
 Json::Value Control::UpdateDiscuss(Json::Value &updatejson)
 {
+	// 如果不是作者或者管理员，无权限
+	if (!UserList::GetInstance()->IsAuthor(updatejson) && !UserList::GetInstance()->IsAdministrator(updatejson))
+		return NoPermission;
+
 	return DiscussList::GetInstance()->UpdateDiscuss(updatejson);
 }
 Json::Value Control::DeleteDiscuss(Json::Value &deletejson)
 {
+	// 如果不是作者或者管理员，无权限
+	if (!UserList::GetInstance()->IsAuthor(deletejson) && !UserList::GetInstance()->IsAdministrator(deletejson))
+		return NoPermission;
+
 	Json::Value resjson = DiscussList::GetInstance()->DeleteDiscuss(deletejson);
 	if (resjson["Result"].asString() == "Success")
 	{
@@ -384,6 +488,13 @@ Control::Control()
 {
 	// 初始化题目标签
 	Tag::GetInstance()->InitProblemTags();
+
+	// 初始化用户权限
+	UserList::GetInstance()->InitUserAuthority();
+
+	// 初始化返回变量
+	NoPermission["Result"] = "Fail";
+	NoPermission["Reason"] = "无权限";
 }
 
 Control::~Control()
