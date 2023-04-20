@@ -386,15 +386,11 @@ bool Judger::RunProgramC_Cpp()
 {
     // 创建结构体
     struct config conf;
-    struct result res;
 
     conf.max_cpu_time = m_timelimit;
     conf.max_real_time = m_maxtimelimit;
     conf.max_memory = m_maxmemorylimie;
 
-    // conf.max_cpu_time = 2000;
-    // conf.max_real_time = 4000;
-    // conf.max_memory = 128 * 1024 * 1024;
     conf.max_process_number = 200;
     conf.max_output_size = 10000;
     conf.max_stack = 32 * 1024 * 1024;
@@ -410,21 +406,7 @@ bool Judger::RunProgramC_Cpp()
     memset(conf.args, 0, sizeof(conf.args));
     memset(conf.env, 0, sizeof(conf.env));
 
-    // 根据测试数量进行判定
-    for (int i = 1; i <= m_judgenum; i++)
-    {
-        string index = to_string(i);
-        string input_path = DATA_PATH + index + ".in";
-        conf.input_path = (char *)input_path.data();
-        string output_path = RUN_PATH + index + ".out";
-        conf.output_path = (char *)output_path.data();
-
-        // 执行程序
-        run(&conf, &res);
-        printf("cpu time is %d,real time is %d,memory is %ld,signal is %d,result is %d\n", res.cpu_time, res.real_time, res.memory, res.signal, res.result);
-
-        JudgmentResult(&res, index);
-    }
+    RunProgram(&conf);
     return true;
 }
 
@@ -432,15 +414,11 @@ bool Judger::RunProgramGo()
 {
     // 创建结构体
     struct config conf;
-    struct result res;
 
     conf.max_cpu_time = m_timelimit;
     conf.max_real_time = m_maxtimelimit;
     conf.max_memory = m_maxmemorylimie;
 
-    // conf.max_cpu_time = 2000;
-    // conf.max_real_time = 4000;
-    // conf.max_memory = 128 * 1024 * 1024;
     conf.max_process_number = 200;
     conf.max_output_size = 10000;
     conf.max_stack = 32 * 1024 * 1024;
@@ -460,21 +438,7 @@ bool Judger::RunProgramGo()
     conf.env[1] = (char *)"LANGUAGE=en_US:en";
     conf.env[2] = (char *)"LC_ALL=en_US.UTF-8";
 
-    // 根据测试数量进行判定
-    for (int i = 1; i <= m_judgenum; i++)
-    {
-        string index = to_string(i);
-        string input_path = DATA_PATH + index + ".in";
-        conf.input_path = (char *)input_path.data();
-        string output_path = RUN_PATH + index + ".out";
-        conf.output_path = (char *)output_path.data();
-
-        // 执行程序
-        run(&conf, &res);
-        printf("cpu time is %d,real time is %d,memory is %ld,signal is %d,result is %d\n", res.cpu_time, res.real_time, res.memory, res.signal, res.result);
-
-        JudgmentResult(&res, index);
-    }
+    RunProgram(&conf);
     return true;
 }
 
@@ -482,15 +446,13 @@ bool Judger::RunProgramJava()
 {
     // 创建结构体
     struct config conf;
-    struct result res;
+    // Java的空间限制为其正确的三倍
+    m_memorylimit = m_memorylimit * 3;
 
-    conf.max_cpu_time = m_timelimit * 2;
-    conf.max_real_time = m_maxtimelimit * 2;
-    conf.max_memory = m_maxmemorylimie * 2;
+    conf.max_cpu_time = m_timelimit * 3;
+    conf.max_real_time = m_maxtimelimit * 3;
+    conf.max_memory = -1; // Java不能在这里限制
 
-    // conf.max_cpu_time = 2000;
-    // conf.max_real_time = 4000;
-    // conf.max_memory = 128 * 1024 * 1024;
     conf.max_process_number = 200;
     conf.max_output_size = 10000;
     conf.max_stack = 32 * 1024 * 1024;
@@ -508,6 +470,7 @@ bool Judger::RunProgramJava()
     memset(conf.env, 0, sizeof(conf.env));
 
     string exe_file = RUN_PATH + "Main";
+    string tmp_maxmemory = "-XX:MaxRAM=" + to_string(m_maxmemorylimie) + "k";
     conf.args[0] = (char *)"/usr/bin/java";
     conf.args[1] = (char *)"-cp";
     conf.args[2] = (char *)exe_file.data();
@@ -519,21 +482,7 @@ bool Judger::RunProgramJava()
     conf.env[1] = (char *)"LANGUAGE=en_US:en";
     conf.env[2] = (char *)"LC_ALL=en_US.UTF-8";
 
-    // 根据测试数量进行判定
-    for (int i = 1; i <= m_judgenum; i++)
-    {
-        string index = to_string(i);
-        string input_path = DATA_PATH + index + ".in";
-        conf.input_path = (char *)input_path.data();
-        string output_path = RUN_PATH + index + ".out";
-        conf.output_path = (char *)output_path.data();
-
-        // 执行程序
-        run(&conf, &res);
-        printf("cpu time is %d,real time is %d,memory is %ld,signal is %d,result is %d\n", res.cpu_time, res.real_time, res.memory, res.signal, res.result);
-
-        JudgmentResult(&res, index);
-    }
+    RunProgram(&conf);
     return true;
 }
 
@@ -541,15 +490,11 @@ bool Judger::RunProgramPython2()
 {
     // 创建结构体
     struct config conf;
-    struct result res;
 
     conf.max_cpu_time = m_timelimit;
     conf.max_real_time = m_maxtimelimit;
     conf.max_memory = m_maxmemorylimie;
 
-    // conf.max_cpu_time = 2000;
-    // conf.max_real_time = 4000;
-    // conf.max_memory = 128 * 1024 * 1024;
     conf.max_process_number = 200;
     conf.max_output_size = 10000;
     conf.max_stack = 32 * 1024 * 1024;
@@ -573,21 +518,7 @@ bool Judger::RunProgramPython2()
     conf.env[1] = (char *)"LANGUAGE=en_US:en";
     conf.env[2] = (char *)"LC_ALL=en_US.UTF-8";
 
-    // 根据测试数量进行判定
-    for (int i = 1; i <= m_judgenum; i++)
-    {
-        string index = to_string(i);
-        string input_path = DATA_PATH + index + ".in";
-        conf.input_path = (char *)input_path.data();
-        string output_path = RUN_PATH + index + ".out";
-        conf.output_path = (char *)output_path.data();
-
-        // 执行程序
-        run(&conf, &res);
-        printf("cpu time is %d,real time is %d,memory is %ld,signal is %d,result is %d\n", res.cpu_time, res.real_time, res.memory, res.signal, res.result);
-
-        JudgmentResult(&res, index);
-    }
+    RunProgram(&conf);
     return true;
 }
 
@@ -595,15 +526,11 @@ bool Judger::RunProgramPython3()
 {
     // 创建结构体
     struct config conf;
-    struct result res;
 
     conf.max_cpu_time = m_timelimit;
     conf.max_real_time = m_maxtimelimit;
     conf.max_memory = m_maxmemorylimie;
 
-    // conf.max_cpu_time = 2000;
-    // conf.max_real_time = 4000;
-    // conf.max_memory = 128 * 1024 * 1024;
     conf.max_process_number = 200;
     conf.max_output_size = 10000;
     conf.max_stack = 32 * 1024 * 1024;
@@ -626,23 +553,9 @@ bool Judger::RunProgramPython3()
     conf.env[0] = (char *)"LANG=en_US.UTF-8";
     conf.env[1] = (char *)"LANGUAGE=en_US:en";
     conf.env[2] = (char *)"LC_ALL=en_US.UTF-8";
-    conf.env[2] = (char *)"PYTHONIOENCODING=utf-8";
+    conf.env[3] = (char *)"PYTHONIOENCODING=utf-8";
 
-    // 根据测试数量进行判定
-    for (int i = 1; i <= m_judgenum; i++)
-    {
-        string index = to_string(i);
-        string input_path = DATA_PATH + index + ".in";
-        conf.input_path = (char *)input_path.data();
-        string output_path = RUN_PATH + index + ".out";
-        conf.output_path = (char *)output_path.data();
-
-        // 执行程序
-        run(&conf, &res);
-        printf("cpu time is %d,real time is %d,memory is %ld,signal is %d,result is %d\n", res.cpu_time, res.real_time, res.memory, res.signal, res.result);
-
-        JudgmentResult(&res, index);
-    }
+    RunProgram(&conf);
     return true;
 }
 
@@ -650,15 +563,11 @@ bool Judger::RunProgramJavaScript()
 {
     // 创建结构体
     struct config conf;
-    struct result res;
 
     conf.max_cpu_time = m_timelimit;
     conf.max_real_time = m_maxtimelimit;
     conf.max_memory = m_maxmemorylimie;
 
-    // conf.max_cpu_time = 2000;
-    // conf.max_real_time = 4000;
-    // conf.max_memory = 128 * 1024 * 1024;
     conf.max_process_number = 200;
     conf.max_output_size = 10000;
     conf.max_stack = 32 * 1024 * 1024;
@@ -683,23 +592,28 @@ bool Judger::RunProgramJavaScript()
     conf.env[1] = (char *)"LANGUAGE=en_US:en";
     conf.env[2] = (char *)"LC_ALL=en_US.UTF-8";
 
+    RunProgram(&conf);
+    return true;
+}
+bool Judger::RunProgram(struct config *conf)
+{
+    struct result res;
     // 根据测试数量进行判定
     for (int i = 1; i <= m_judgenum; i++)
     {
         string index = to_string(i);
         string input_path = DATA_PATH + index + ".in";
-        conf.input_path = (char *)input_path.data();
+        conf->input_path = (char *)input_path.data();
         string output_path = RUN_PATH + index + ".out";
-        conf.output_path = (char *)output_path.data();
+        conf->output_path = (char *)output_path.data();
         // 执行程序
-        run(&conf, &res);
+        run(conf, &res);
         printf("cpu time is %d,real time is %d,memory is %ld,signal is %d,result is %d\n", res.cpu_time, res.real_time, res.memory, res.signal, res.result);
 
         JudgmentResult(&res, index);
     }
     return true;
 }
-
 bool Judger::JudgmentResult(struct result *res, string &index)
 {
     Json::Value testinfo; // 保存本次结果

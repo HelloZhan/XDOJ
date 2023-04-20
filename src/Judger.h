@@ -64,6 +64,8 @@ private:
 
     bool RunProgramJavaScript(); // 运行JavaScript
 
+    bool RunProgram(struct config *conf); // 运行程序
+
     bool JudgmentResult(struct result *res, std::string &index); // 判断结果
 
     Json::Value Done(); // 返回结果
