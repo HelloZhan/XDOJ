@@ -12,7 +12,7 @@ Json::Value UserList::RegisterUser(Json::Value &registerjson)
 {
     Json::Value json = MoDB::GetInstance()->RegisterUser(registerjson);
     // 将其权限加入用户权限表中
-    if (json["Reuslt"].asString() == "Success")
+    if (json["Result"].asString() == "Success")
     {
         int64_t id = json["_id"].asInt64();
         UserAuthorityMap[id] = 3;

@@ -92,8 +92,8 @@ private:
     int m_timelimit;    // 时间限制
     long m_memorylimit; // 空间限制
 
-    int m_maxtimelimit;   // 最大时间限制
-    int m_maxmemorylimie; // 最大空间限制
+    int m_maxtimelimit;    // 最大时间限制
+    long m_maxmemorylimie; // 最大空间限制
 
     int m_runtime;    // 运行时间
     long m_runmemory; // 运行空间

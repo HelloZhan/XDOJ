@@ -392,7 +392,7 @@ bool Judger::RunProgramC_Cpp()
     conf.max_memory = m_maxmemorylimie;
 
     conf.max_process_number = 200;
-    conf.max_output_size = 10000;
+    conf.max_output_size = -1;
     conf.max_stack = 32 * 1024 * 1024;
     string exe_path = RUN_PATH + "main";
     conf.exe_path = (char *)exe_path.data();
@@ -420,7 +420,7 @@ bool Judger::RunProgramGo()
     conf.max_memory = m_maxmemorylimie;
 
     conf.max_process_number = 200;
-    conf.max_output_size = 10000;
+    conf.max_output_size = -1;
     conf.max_stack = 32 * 1024 * 1024;
     string exe_path = RUN_PATH + "main";
     conf.exe_path = (char *)exe_path.data();
@@ -451,10 +451,10 @@ bool Judger::RunProgramJava()
 
     conf.max_cpu_time = m_timelimit * 3;
     conf.max_real_time = m_maxtimelimit * 3;
-    conf.max_memory = -1; // Java不能在这里限制
+    conf.max_memory = -1; // Java不能限制内存
 
     conf.max_process_number = 200;
-    conf.max_output_size = 10000;
+    conf.max_output_size = -1;
     conf.max_stack = 32 * 1024 * 1024;
     string exe_path = "/usr/bin/java";
     conf.exe_path = (char *)exe_path.data();
@@ -470,13 +470,14 @@ bool Judger::RunProgramJava()
     memset(conf.env, 0, sizeof(conf.env));
 
     string exe_file = RUN_PATH + "Main";
-    string tmp_maxmemory = "-XX:MaxRAM=" + to_string(m_maxmemorylimie) + "k";
+    string tmp_maxmemory = "-XX:MaxRAM=" + to_string(m_memorylimit) + "k";
     conf.args[0] = (char *)"/usr/bin/java";
     conf.args[1] = (char *)"-cp";
     conf.args[2] = (char *)exe_file.data();
-    conf.args[3] = (char *)"-Djava.security.policy==policy";
-    conf.args[4] = (char *)"-Djava.awt.headless=true";
-    conf.args[5] = (char *)"Main";
+    conf.args[3] = (char *)tmp_maxmemory.data();
+    conf.args[4] = (char *)"-Djava.security.policy==policy";
+    conf.args[5] = (char *)"-Djava.awt.headless=true";
+    conf.args[6] = (char *)"Main";
 
     conf.env[0] = (char *)"LANG=en_US.UTF-8";
     conf.env[1] = (char *)"LANGUAGE=en_US:en";
@@ -496,7 +497,7 @@ bool Judger::RunProgramPython2()
     conf.max_memory = m_maxmemorylimie;
 
     conf.max_process_number = 200;
-    conf.max_output_size = 10000;
+    conf.max_output_size = -1;
     conf.max_stack = 32 * 1024 * 1024;
     string exe_path = "/usr/bin/python";
     conf.exe_path = (char *)exe_path.data();
@@ -532,7 +533,7 @@ bool Judger::RunProgramPython3()
     conf.max_memory = m_maxmemorylimie;
 
     conf.max_process_number = 200;
-    conf.max_output_size = 10000;
+    conf.max_output_size = -1;
     conf.max_stack = 32 * 1024 * 1024;
     string exe_path = "/usr/bin/python3";
     conf.exe_path = (char *)exe_path.data();
@@ -569,7 +570,7 @@ bool Judger::RunProgramJavaScript()
     conf.max_memory = m_maxmemorylimie;
 
     conf.max_process_number = 200;
-    conf.max_output_size = 10000;
+    conf.max_output_size = -1;
     conf.max_stack = 32 * 1024 * 1024;
     string exe_path = "/usr/bin/node";
     conf.exe_path = (char *)exe_path.data();
@@ -608,7 +609,7 @@ bool Judger::RunProgram(struct config *conf)
         conf->output_path = (char *)output_path.data();
         // 执行程序
         run(conf, &res);
-        printf("cpu time is %d,real time is %d,memory is %ld,signal is %d,result is %d\n", res.cpu_time, res.real_time, res.memory, res.signal, res.result);
+        // printf("cpu time is %d,real time is %d,memory is %ld,signal is %d,result is %d\n", res.cpu_time, res.real_time, res.memory, res.signal, res.result);
 
         JudgmentResult(&res, index);
     }
