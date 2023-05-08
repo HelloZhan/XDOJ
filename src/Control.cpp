@@ -37,7 +37,7 @@ Json::Value Control::SelectUserInfo(Json::Value &queryjson)
 Json::Value Control::UpdateUserInfo(Json::Value &updatejson)
 {
 	// 如果不是本人或者管理员 无权修改
-	if (!UserList::GetInstance()->IsAuthor(updatejson) && !UserList::GetInstance()->IsAdministrator(updatejson))
+	if (!UserList::GetInstance()->IsAuthor(updatejson))
 		return NoPermission;
 
 	return UserList::GetInstance()->UpdateUserInfo(updatejson);
@@ -46,7 +46,7 @@ Json::Value Control::UpdateUserInfo(Json::Value &updatejson)
 Json::Value Control::SelectUserUpdateInfo(Json::Value &queryjson)
 {
 	// 如果不是本人或者管理员 无权查询
-	if (!UserList::GetInstance()->IsAuthor(queryjson) && !UserList::GetInstance()->IsAdministrator(queryjson))
+	if (!UserList::GetInstance()->IsAuthor(queryjson))
 		return NoPermission;
 
 	return UserList::GetInstance()->SelectUserUpdateInfo(queryjson);
@@ -393,7 +393,7 @@ Json::Value Control::InsertSolution(Json::Value &insertjson)
 Json::Value Control::UpdateSolution(Json::Value &updatejson)
 {
 	// 如果不是作者或者管理员，无权限
-	if (!UserList::GetInstance()->IsAuthor(updatejson) && !UserList::GetInstance()->IsAdministrator(updatejson))
+	if (!UserList::GetInstance()->IsAuthor(updatejson))
 		return NoPermission;
 
 	return SolutionList::GetInstance()->UpdateSolution(updatejson);
@@ -401,7 +401,7 @@ Json::Value Control::UpdateSolution(Json::Value &updatejson)
 Json::Value Control::DeleteSolution(Json::Value &deletejson)
 {
 	// 如果不是作者或者管理员，无权限
-	if (!UserList::GetInstance()->IsAuthor(deletejson) && !UserList::GetInstance()->IsAdministrator(deletejson))
+	if (!UserList::GetInstance()->IsAuthor(deletejson))
 		return NoPermission;
 
 	Json::Value resjson = SolutionList::GetInstance()->DeleteSolution(deletejson);
@@ -455,7 +455,7 @@ Json::Value Control::InsertDiscuss(Json::Value &insertjson)
 Json::Value Control::UpdateDiscuss(Json::Value &updatejson)
 {
 	// 如果不是作者或者管理员，无权限
-	if (!UserList::GetInstance()->IsAuthor(updatejson) && !UserList::GetInstance()->IsAdministrator(updatejson))
+	if (!UserList::GetInstance()->IsAuthor(updatejson))
 		return NoPermission;
 
 	return DiscussList::GetInstance()->UpdateDiscuss(updatejson);
@@ -463,7 +463,7 @@ Json::Value Control::UpdateDiscuss(Json::Value &updatejson)
 Json::Value Control::DeleteDiscuss(Json::Value &deletejson)
 {
 	// 如果不是作者或者管理员，无权限
-	if (!UserList::GetInstance()->IsAuthor(deletejson) && !UserList::GetInstance()->IsAdministrator(deletejson))
+	if (!UserList::GetInstance()->IsAuthor(deletejson))
 		return NoPermission;
 
 	Json::Value resjson = DiscussList::GetInstance()->DeleteDiscuss(deletejson);
@@ -493,7 +493,7 @@ Control::Control()
 	UserList::GetInstance()->InitUserAuthority();
 
 	// 初始化返回变量
-	NoPermission["Result"] = "Fail";
+	NoPermission["Result"] = "401";
 	NoPermission["Reason"] = "无权限";
 }
 

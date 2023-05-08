@@ -118,7 +118,7 @@ Json::Value MoDB::RegisterUser(Json::Value &registerjson)
     }
     catch (const std::exception &e)
     {
-        resjson["Result"] = "Fail";
+        resjson["Result"] = "500";
         resjson["Reason"] = "数据库异常！";
         LOG_ERROR("【用户注册】数据库异常！");
         return resjson;
@@ -177,7 +177,7 @@ Json::Value MoDB::LoginUser(Json::Value &loginjson)
     }
     catch (const std::exception &e)
     {
-        resjson["Result"] = "Fail";
+        resjson["Result"] = "500";
         resjson["Reason"] = "数据库异常！";
         LOG_ERROR("【用户登录】数据库异常！");
         return resjson;
@@ -313,7 +313,7 @@ Json::Value MoDB::SelectUserRank(Json::Value &queryjson)
     }
     catch (const std::exception &e)
     {
-        resjson["Result"] = "Fail";
+        resjson["Result"] = "500";
         resjson["Reason"] = "数据库异常！";
         LOG_ERROR("【获取用户的Rank排名】数据库异常！");
         return resjson;
@@ -371,7 +371,7 @@ Json::Value MoDB::SelectUserInfo(Json::Value &queryjson)
     }
     catch (const std::exception &e)
     {
-        resjson["Result"] = "Fail";
+        resjson["Result"] = "500";
         resjson["Reason"] = "数据库异常！";
         LOG_ERROR("【用户主页展示】数据库异常！");
         return resjson;
@@ -413,7 +413,7 @@ Json::Value MoDB::UpdateUserInfo(Json::Value &updatejson)
     }
     catch (const std::exception &e)
     {
-        resjson["Result"] = "Fail";
+        resjson["Result"] = "500";
         resjson["Reason"] = "数据库异常！";
         LOG_ERROR("【更改用户信息】数据库异常！");
         return resjson;
@@ -466,7 +466,7 @@ Json::Value MoDB::SelectUserUpdateInfo(Json::Value &queryjson)
     }
     catch (const std::exception &e)
     {
-        resjson["Result"] = "Fail";
+        resjson["Result"] = "500";
         resjson["Reason"] = "数据库异常！";
         LOG_ERROR("【查询用户表，用于修改用户】数据库异常！");
         return resjson;
@@ -519,7 +519,7 @@ Json::Value MoDB::SelectUserSetInfo(Json::Value &queryjson)
     }
     catch (const std::exception &e)
     {
-        resjson["Result"] = "Fail";
+        resjson["Result"] = "500";
         resjson["Reason"] = "数据库异常！";
         LOG_ERROR("【分页查询用户列表】数据库异常！");
         return resjson;
@@ -553,7 +553,7 @@ Json::Value MoDB::DeleteUser(Json::Value &deletejson)
     }
     catch (const std::exception &e)
     {
-        resjson["Result"] = "Fail";
+        resjson["Result"] = "500";
         resjson["Reason"] = "数据库异常！";
         LOG_ERROR("【删除用户】数据库异常！");
         return resjson;
@@ -595,7 +595,7 @@ Json::Value MoDB::SelectUserAuthority()
     }
     catch (const std::exception &e)
     {
-        resjson["Result"] = "Fail";
+        resjson["Result"] = "500";
         resjson["Reason"] = "数据库异常！";
         LOG_ERROR("【查询所有用户的权限】数据库异常！");
         return resjson;
@@ -650,7 +650,7 @@ Json::Value MoDB::SelectProblemInfoByAdmin(Json::Value &queryjson)
     }
     catch (const std::exception &e)
     {
-        resjson["Result"] = "Fail";
+        resjson["Result"] = "500";
         resjson["Reason"] = "数据库异常！";
         LOG_ERROR("【管理员查询题目信息】数据库异常！");
         return resjson;
@@ -708,7 +708,7 @@ Json::Value MoDB::SelectProblem(Json::Value &queryjson)
     }
     catch (const std::exception &e)
     {
-        resjson["Result"] = "Fail";
+        resjson["Result"] = "500";
         resjson["Reason"] = "数据库出错啦！";
         LOG_ERROR("【获取题目信息】数据库异常！");
         return resjson;
@@ -773,7 +773,7 @@ Json::Value MoDB::InsertProblem(Json::Value &insertjson)
     }
     catch (const std::exception &e)
     {
-        resjson["Result"] = "Fail";
+        resjson["Result"] = "500";
         resjson["Reason"] = "数据库异常！";
         LOG_ERROR("【插入题目】数据库异常！");
         return resjson;
@@ -825,7 +825,7 @@ Json::Value MoDB::UpdateProblem(Json::Value &updatejson)
     }
     catch (const std::exception &e)
     {
-        resjson["Result"] = "Fail";
+        resjson["Result"] = "500";
         resjson["Reason"] = "数据库异常！";
         LOG_ERROR("【修改题目信息】数据库异常！");
         return resjson;
@@ -860,7 +860,7 @@ Json::Value MoDB::DeleteProblem(Json::Value &deletejson)
     }
     catch (const std::exception &e)
     {
-        resjson["Result"] = "Fail";
+        resjson["Result"] = "500";
         resjson["Reason"] = "数据库异常！";
         LOG_ERROR("【删除题目】数据库异常！");
         return resjson;
@@ -1004,7 +1004,7 @@ Json::Value MoDB::SelectProblemList(Json::Value &queryjson)
     }
     catch (const std::exception &e)
     {
-        resjson["Result"] = "Fail";
+        resjson["Result"] = "500";
         resjson["Reason"] = "数据库出错啦！";
         LOG_ERROR("【分页获取题目列表】数据库异常！");
         return resjson;
@@ -1074,7 +1074,7 @@ Json::Value MoDB::SelectProblemListByAdmin(Json::Value &queryjson)
     }
     catch (const std::exception &e)
     {
-        resjson["Result"] = "Fail";
+        resjson["Result"] = "500";
         resjson["Reason"] = "数据库出错啦！";
         LOG_ERROR("【管理员分页获取题目列表】数据库异常！");
         return resjson;
@@ -1357,7 +1357,7 @@ Json::Value MoDB::SelectStatusRecordList(Json::Value &queryjson)
     }
     catch (const std::exception &e)
     {
-        resjson["Result"] = "Fail";
+        resjson["Result"] = "500";
         resjson["Reason"] = "数据库异常！";
         LOG_ERROR("【分页查询测评记录】数据库异常！");
         return resjson;
@@ -1403,7 +1403,7 @@ Json::Value MoDB::SelectStatusRecord(Json::Value &queryjson)
     }
     catch (const std::exception &e)
     {
-        resjson["Result"] = "Fail";
+        resjson["Result"] = "500";
         resjson["Reason"] = "数据库异常！";
         LOG_ERROR("【查询测评记录】数据库异常！");
         return resjson;
@@ -1452,7 +1452,7 @@ Json::Value MoDB::InsertDiscuss(Json::Value &insertjson)
     }
     catch (const std::exception &e)
     {
-        resjson["Result"] = "Fail";
+        resjson["Result"] = "500";
         resjson["Reason"] = "数据库异常！";
         LOG_ERROR("【添加讨论】数据库异常！");
         return resjson;
@@ -1541,7 +1541,7 @@ Json::Value MoDB::SelectDiscussList(Json::Value &queryjson)
     }
     catch (const std::exception &e)
     {
-        resjson["Result"] = "Fail";
+        resjson["Result"] = "500";
         resjson["Reason"] = "数据库异常！";
         LOG_ERROR("【分页查询讨论】数据库异常！");
         return resjson;
@@ -1612,7 +1612,7 @@ Json::Value MoDB::SelectDiscussListByAdmin(Json::Value &queryjson)
     }
     catch (const std::exception &e)
     {
-        resjson["Result"] = "Fail";
+        resjson["Result"] = "500";
         resjson["Reason"] = "数据库异常！";
         LOG_ERROR("【管理员分页查询讨论】数据库异常！");
         return resjson;
@@ -1660,7 +1660,7 @@ Json::Value MoDB::SelectDiscussByEdit(Json::Value &queryjson)
     }
     catch (const std::exception &e)
     {
-        resjson["Result"] = "Fail";
+        resjson["Result"] = "500";
         resjson["Reason"] = "数据库异常！";
         LOG_ERROR("【查询讨论的详细信息，主要是编辑时的查询】数据库异常！");
         return resjson;
@@ -1733,7 +1733,7 @@ Json::Value MoDB::SelectDiscuss(Json::Value &queryjson)
     }
     catch (const std::exception &e)
     {
-        resjson["Result"] = "Fail";
+        resjson["Result"] = "500";
         resjson["Reason"] = "数据库异常！";
         LOG_ERROR("【查询讨论的详细内容，并且将其浏览量加一】数据库异常！");
         return resjson;
@@ -1800,7 +1800,7 @@ Json::Value MoDB::UpdateDiscuss(Json::Value &updatejson)
     }
     catch (const std::exception &e)
     {
-        resjson["Result"] = "Fail";
+        resjson["Result"] = "500";
         resjson["Reason"] = "数据库异常！";
         LOG_ERROR("【更新讨论】数据库异常！");
         return resjson;
@@ -1835,7 +1835,7 @@ Json::Value MoDB::DeleteDiscuss(Json::Value &deletejson)
     }
     catch (const std::exception &e)
     {
-        resjson["Result"] = "Fail";
+        resjson["Result"] = "500";
         resjson["Reason"] = "数据库异常！";
         LOG_ERROR("【删除讨论】数据库异常！");
         return resjson;
@@ -1887,7 +1887,7 @@ Json::Value MoDB::InsertSolution(Json::Value &insertjson)
     }
     catch (const std::exception &e)
     {
-        resjson["Result"] = "Fail";
+        resjson["Result"] = "500";
         resjson["Reason"] = "数据库异常！";
         LOG_ERROR("【添加题解】数据库异常！");
         return resjson;
@@ -1977,7 +1977,7 @@ Json::Value MoDB::SelectSolutionList(Json::Value &queryjson)
     }
     catch (const std::exception &e)
     {
-        resjson["Result"] = "Fail";
+        resjson["Result"] = "500";
         resjson["Reason"] = "数据库异常！";
         LOG_ERROR("【分页查询题解（公开题解）】数据库异常！");
         return resjson;
@@ -2049,7 +2049,7 @@ Json::Value MoDB::SelectSolutionListByAdmin(Json::Value &queryjson)
     }
     catch (const std::exception &e)
     {
-        resjson["Result"] = "Fail";
+        resjson["Result"] = "500";
         resjson["Reason"] = "数据库异常！";
         LOG_ERROR("【管理员分页查询题解】数据库异常！");
         return resjson;
@@ -2097,7 +2097,7 @@ Json::Value MoDB::SelectSolutionByEdit(Json::Value &queryjson)
     }
     catch (const std::exception &e)
     {
-        resjson["Result"] = "Fail";
+        resjson["Result"] = "500";
         resjson["Reason"] = "数据库异常！";
         LOG_ERROR("【查询题解的详细信息，主要是编辑时的查询】数据库异常！");
         return resjson;
@@ -2171,7 +2171,7 @@ Json::Value MoDB::SelectSolution(Json::Value &queryjson)
     }
     catch (const std::exception &e)
     {
-        resjson["Result"] = "Fail";
+        resjson["Result"] = "500";
         resjson["Reason"] = "数据库异常！";
         LOG_ERROR("【查询题解的详细内容，并且将其浏览量加一】数据库异常！");
         return resjson;
@@ -2240,7 +2240,7 @@ Json::Value MoDB::UpdateSolution(Json::Value &updatejson)
     }
     catch (const std::exception &e)
     {
-        resjson["Result"] = "Fail";
+        resjson["Result"] = "500";
         resjson["Reason"] = "数据库异常！";
         LOG_ERROR("【更新题解】数据库异常！");
         return resjson;
@@ -2275,7 +2275,7 @@ Json::Value MoDB::DeleteSolution(Json::Value &deletejson)
     }
     catch (const std::exception &e)
     {
-        resjson["Result"] = "Fail";
+        resjson["Result"] = "500";
         resjson["Reason"] = "数据库异常！";
         LOG_ERROR("【删除题解】数据库异常！");
         return resjson;
@@ -2324,7 +2324,7 @@ Json::Value MoDB::InsertAnnouncement(Json::Value &insertjson)
     }
     catch (const std::exception &e)
     {
-        resjson["Result"] = "Fail";
+        resjson["Result"] = "500";
         resjson["Reason"] = "数据库异常！";
         LOG_ERROR("【添加公告】数据库异常！");
         return resjson;
@@ -2383,7 +2383,7 @@ Json::Value MoDB::SelectAnnouncementList(Json::Value &queryjson)
     }
     catch (const std::exception &e)
     {
-        resjson["Result"] = "Fail";
+        resjson["Result"] = "500";
         resjson["Reason"] = "数据库异常！";
         LOG_ERROR("【分页查询公告】数据库异常！");
         return resjson;
@@ -2431,7 +2431,7 @@ Json::Value MoDB::SelectAnnouncementByEdit(Json::Value &queryjson)
     }
     catch (const std::exception &e)
     {
-        resjson["Result"] = "Fail";
+        resjson["Result"] = "500";
         resjson["Reason"] = "数据库异常！";
         LOG_ERROR("【查询公告的详细信息，主要是编辑时的查询】数据库异常！");
         return resjson;
@@ -2489,7 +2489,7 @@ Json::Value MoDB::SelectAnnouncement(Json::Value &queryjson)
     }
     catch (const std::exception &e)
     {
-        resjson["Result"] = "Fail";
+        resjson["Result"] = "500";
         resjson["Reason"] = "数据库异常！";
         LOG_ERROR("【查询公告的详细内容，并且将其浏览量加一】数据库异常！");
         return resjson;
@@ -2559,7 +2559,7 @@ Json::Value MoDB::UpdateAnnouncement(Json::Value &updatejson)
     }
     catch (const std::exception &e)
     {
-        resjson["Result"] = "Fail";
+        resjson["Result"] = "500";
         resjson["Reason"] = "数据库异常！";
         LOG_ERROR("【更新公告】数据库异常！");
         return resjson;
@@ -2593,7 +2593,7 @@ Json::Value MoDB::DeleteAnnouncement(Json::Value &deletejson)
     }
     catch (const std::exception &e)
     {
-        resjson["Result"] = "Fail";
+        resjson["Result"] = "500";
         resjson["Reason"] = "数据库异常！";
         LOG_ERROR("【删除公告】数据库异常！");
         return resjson;
@@ -2653,7 +2653,7 @@ Json::Value MoDB::SelectCommentListByAdmin(Json::Value &queryjson)
     }
     catch (const std::exception &e)
     {
-        resjson["Result"] = "Fail";
+        resjson["Result"] = "500";
         resjson["Reason"] = "数据库异常！";
         LOG_ERROR("【管理员查询评论】数据库异常！");
         return resjson;
@@ -2805,7 +2805,7 @@ Json::Value MoDB::getFatherComment(Json::Value &queryjson)
     }
     catch (const std::exception &e)
     {
-        resjson["Result"] = "Fail";
+        resjson["Result"] = "500";
         resjson["Reason"] = "数据库异常！";
         LOG_ERROR("【查询父评论】数据库异常！");
         return resjson;
@@ -2910,7 +2910,7 @@ Json::Value MoDB::getSonComment(Json::Value &queryjson)
     }
     catch (const std::exception &e)
     {
-        resjson["Result"] = "Fail";
+        resjson["Result"] = "500";
         resjson["Reason"] = "数据库异常！";
         LOG_ERROR("【获取子评论】数据库异常！");
         return resjson;
@@ -2956,7 +2956,7 @@ Json::Value MoDB::InsertFatherComment(Json::Value &insertjson)
     }
     catch (const std::exception &e)
     {
-        resjson["Result"] = "Fail";
+        resjson["Result"] = "500";
         resjson["Reason"] = "数据库异常！";
         LOG_ERROR("【插入父评论】数据库异常！");
         return resjson;
@@ -3005,7 +3005,7 @@ Json::Value MoDB::InsertSonComment(Json::Value &insertjson)
     }
     catch (const std::exception &e)
     {
-        resjson["Result"] = "Fail";
+        resjson["Result"] = "500";
         resjson["Reason"] = "数据库异常！";
         LOG_ERROR("【插入子评论】数据库异常！");
         return resjson;
@@ -3098,7 +3098,7 @@ Json::Value MoDB::DeleteFatherComment(Json::Value &deletejson)
     }
     catch (const std::exception &e)
     {
-        resjson["Result"] = "Fail";
+        resjson["Result"] = "500";
         resjson["Reason"] = "数据库异常！";
         LOG_ERROR("【删除父评论】数据库异常！");
         return resjson;
@@ -3159,7 +3159,7 @@ Json::Value MoDB::DeleteSonComment(Json::Value &deletejson)
     }
     catch (const std::exception &e)
     {
-        resjson["Result"] = "Fail";
+        resjson["Result"] = "500";
         resjson["Reason"] = "数据库异常！";
         LOG_ERROR("【删除子评论】数据库异常！");
         return resjson;

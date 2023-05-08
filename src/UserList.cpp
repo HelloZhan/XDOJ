@@ -1,7 +1,13 @@
 #include "UserList.h"
 #include "MongoDataBase.h"
+#include "./utils/snowflake.hpp"
+#include "RedisDataBase.h"
 #include <iostream>
 using namespace std;
+
+// 雪花算法
+using snowflake_t = snowflake<1534832906275L, std::mutex>;
+snowflake_t uuid_token;
 
 UserList *UserList::GetInstance()
 {
@@ -22,7 +28,21 @@ Json::Value UserList::RegisterUser(Json::Value &registerjson)
 
 Json::Value UserList::LoginUser(Json::Value &loginjson)
 {
-    return MoDB::GetInstance()->LoginUser(loginjson);
+    Json::Value json = MoDB::GetInstance()->LoginUser(loginjson);
+
+    if (json["Result"] == "Success")
+    {
+        uuid_token.init(1, 1);
+        // 获取Token
+        int64_t token = uuid_token.nextid();
+
+        // Redis存入Token
+        ReDB::GetInstance()->SetToken(to_string(token), json["Info"]["_id"].asString());
+
+        json["Info"]["Token"] = to_string(token);
+    }
+
+    return json;
 }
 
 bool UserList::UpdateUserProblemInfo(Json::Value &updatejson)
@@ -80,6 +100,15 @@ bool UserList::InitUserAuthority()
     return true;
 }
 
+// 将json 的Token 转化为 VerifyId
+void TokenToVerifyId(Json::Value &json)
+{
+    if (!json["Token"].isNull())
+    {
+        json["VerifyId"] = ReDB::GetInstance()->GetUserIdByToken(json["Token"].asString());
+    }
+}
+
 int UserList::GetUserAuthority(Json::Value &json)
 {
     /*
@@ -104,20 +133,27 @@ int UserList::GetUserAuthority(Json::Value &json)
         return 1;
     }
 }
-// 是否是普通用户
+// 是否是普通用户或以上
 bool UserList::IsOrdinaryUser(Json::Value &json)
 {
+    TokenToVerifyId(json);
     if (GetUserAuthority(json) >= 3)
         return true;
     else
         return false;
 }
 
-// 是否是作者本人
+// 是否是作者本人或以上
 bool UserList::IsAuthor(Json::Value &json)
 {
-    if (GetUserAuthority(json) < 3)
+    TokenToVerifyId(json);
+    int authority = GetUserAuthority(json);
+
+    if (authority < 3)
         return false;
+
+    if (authority >= 5)
+        return true;
     try
     {
         int64_t verifyid = stoll(json["VerifyId"].asString());
@@ -134,9 +170,10 @@ bool UserList::IsAuthor(Json::Value &json)
     }
 }
 
-// 是否是管理员
+// 是否是管理员或以上
 bool UserList::IsAdministrator(Json::Value &json)
 {
+    TokenToVerifyId(json);
     if (GetUserAuthority(json) >= 5)
         return true;
     else
