@@ -1,5 +1,6 @@
 #include "ProblemList.h"
 #include "MongoDataBase.h"
+#include "RedisDataBase.h"
 #include <iostream>
 #include <fstream>
 #include <unistd.h>
@@ -62,7 +63,31 @@ Json::Value ProblemList::SelectProblemInfoByAdmin(Json::Value &queryjson)
 
 Json::Value ProblemList::SelectProblem(Json::Value &queryjson)
 {
-    return MoDB::GetInstance()->SelectProblem(queryjson);
+    string problemid = queryjson["ProblemId"].asString();
+
+    // 获取缓存
+    string resstr = ReDB::GetInstance()->GetProblemCache(problemid);
+
+    Json::Value resjson;
+    Json::Reader reader;
+    // 如果有缓存
+    if (resstr != "")
+    {
+        // 解析缓存json
+        reader.parse(resstr, resjson);
+
+        return resjson;
+    }
+    // 如果没有缓存
+    resjson = MoDB::GetInstance()->SelectProblem(queryjson);
+
+    // 添加缓存
+    if (resjson["Result"].asString() == "Success")
+    {
+        ReDB::GetInstance()->AddProblemCache(problemid, resjson.toStyledString());
+    }
+
+    return resjson;
 }
 
 bool InsertProblemDataInfo(Json::Value &insertjson)
@@ -124,7 +149,6 @@ Json::Value ProblemList::InsertProblem(Json::Value &insertjson)
 
 Json::Value ProblemList::UpdateProblem(Json::Value &updatejson)
 {
-    cout << "UpdateProblem" << endl;
     Json::Value tmpjson = MoDB::GetInstance()->UpdateProblem(updatejson);
     if (tmpjson["Result"].asString() == "Fail")
         return tmpjson;
@@ -136,6 +160,9 @@ Json::Value ProblemList::UpdateProblem(Json::Value &updatejson)
     system(command.data());
     // 创建文件夹
     InsertProblemDataInfo(updatejson);
+
+    // 删除缓存
+    ReDB::GetInstance()->DeleteProblemCache(problemid);
     return tmpjson;
 }
 
@@ -152,6 +179,8 @@ Json::Value ProblemList::DeleteProblem(Json::Value &deletejson)
 
     system(command.data());
 
+    // 删除缓存
+    ReDB::GetInstance()->DeleteProblemCache(deletejson["ProblemId"].asString());
     return tmpjson;
 }
 

@@ -1399,6 +1399,8 @@ Json::Value MoDB::SelectStatusRecord(Json::Value &queryjson)
         {
             reader.parse(bsoncxx::to_json(doc), resjson);
         }
+        resjson["Result"] = "Success";
+
         return resjson;
     }
     catch (const std::exception &e)
