@@ -24,6 +24,11 @@ Json::Value Control::LoginUser(Json::Value &loginjson)
 	return UserList::GetInstance()->LoginUser(loginjson);
 }
 
+Json::Value Control::LoginUserByToken(Json::Value &loginjson)
+{
+	return UserList::GetInstance()->LoginUserByToken(loginjson);
+}
+
 Json::Value Control::SelectUserRank(Json::Value &queryjson)
 {
 	return UserList::GetInstance()->SelectUserRank(queryjson);

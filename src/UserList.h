@@ -14,6 +14,9 @@ public:
     // 登录用户
     Json::Value LoginUser(Json::Value &loginjson);
 
+    // 登录用户通过Token
+    Json::Value LoginUserByToken(Json::Value &loginjson);
+
     // 更新用户题目信息
     bool UpdateUserProblemInfo(Json::Value &updatejson);
 

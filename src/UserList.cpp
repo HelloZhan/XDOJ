@@ -45,6 +45,18 @@ Json::Value UserList::LoginUser(Json::Value &loginjson)
     return json;
 }
 
+Json::Value UserList::LoginUserByToken(Json::Value &loginjson)
+{
+    string token = loginjson["Token"].asString();
+
+    // 根据Token查询UserId
+    string userid = ReDB::GetInstance()->GetUserIdByToken(token);
+
+    loginjson["UserId"] = userid;
+
+    return MoDB::GetInstance()->LoginUserByToken(loginjson);
+}
+
 bool UserList::UpdateUserProblemInfo(Json::Value &updatejson)
 {
     return MoDB::GetInstance()->UpdateUserProblemInfo(updatejson);

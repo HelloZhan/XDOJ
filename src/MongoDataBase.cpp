@@ -184,6 +184,63 @@ Json::Value MoDB::LoginUser(Json::Value &loginjson)
     }
 }
 /*
+    功能：用户登录通过Token
+    传入：Json(UserId)
+    传出：Json(Result,Reason,Info(_id,NickName,Avatar,CommentLikes,Solves,Authority))
+*/
+Json::Value MoDB::LoginUserByToken(Json::Value &loginjson)
+{
+    Json::Value resjson;
+    try
+    {
+        int64_t userid = stoll(loginjson["UserId"].asString());
+        auto client = pool.acquire();
+        mongocxx::collection usercoll = (*client)["XDOJ"]["User"];
+
+        mongocxx::pipeline pipe;
+        bsoncxx::builder::stream::document document{};
+        document
+            << "_id" << userid;
+        pipe.match(document.view());
+
+        document.clear();
+        document
+            << "Avatar" << 1
+            << "NickName" << 1
+            << "CommentLikes" << 1
+            << "Solves" << 1
+            << "Authority" << 1;
+
+        pipe.project(document.view());
+
+        mongocxx::cursor cursor = usercoll.aggregate(pipe);
+        // 匹配失败
+        if (cursor.begin() == cursor.end())
+        {
+            resjson["Result"] = "Fail";
+            resjson["Reason"] = "用户ID错误！";
+            return resjson;
+        }
+        // 匹配成功
+        Json::Reader reader;
+        for (auto doc : cursor)
+        {
+            Json::Value jsonvalue;
+            reader.parse(bsoncxx::to_json(doc), jsonvalue);
+            resjson["Info"] = jsonvalue;
+        }
+        resjson["Result"] = "Success";
+        return resjson;
+    }
+    catch (const std::exception &e)
+    {
+        resjson["Result"] = "500";
+        resjson["Reason"] = "数据库异常！";
+        LOG_ERROR("【用户登录】数据库异常！");
+        return resjson;
+    }
+}
+/*
     功能：更新用户的题目信息，当用户提交代码时
     传入：Json(UserId,ProblemId,Status)
     传出：bool(如果AC是否向其添加)

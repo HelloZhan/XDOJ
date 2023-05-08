@@ -74,6 +74,21 @@ void doLoginUser(const httplib::Request &req, httplib::Response &res)
     SetResponseStatus(resjson, res);
     res.set_content(resjson.toStyledString(), "json");
 }
+
+// 请求登录用户
+void doGetUserInfoByToken(const httplib::Request &req, httplib::Response &res)
+{
+    printf("doGetUserInfoByToken start!!!\n");
+    Json::Value queryjson;
+
+    queryjson["Token"] = GetRequestToken(req);
+    Json::Value resjson = control.LoginUserByToken(queryjson);
+
+    printf("doGetUserInfoByToken end!!!\n");
+    SetResponseStatus(resjson, res);
+    res.set_content(resjson.toStyledString(), "json");
+}
+
 void doGetUserRank(const httplib::Request &req, httplib::Response &res)
 {
     printf("doGetUserRank start!!!\n");
@@ -1019,6 +1034,8 @@ void HttpServer::Run()
     server.Post("/user/register", doRegisterUser);
     // 登录用户
     server.Post("/user/login", doLoginUser);
+    // 返回用户信息 Token登录
+    server.Get("/user/tokenlogin", doGetUserInfoByToken);
     // 返回用户排名
     server.Get("/user/rank", doGetUserRank);
     // 返回用户信息，用于主页展示

@@ -29,6 +29,13 @@ public:
     Json::Value LoginUser(Json::Value &loginjson);
 
     /*
+        功能：用户登录通过Token
+        传入：Json(UserId)
+        传出：Json(Result,Reason,Info(_id,NickName,Avatar,CommentLikes,Solves,Authority))
+    */
+    Json::Value LoginUserByToken(Json::Value &loginjson);
+
+    /*
         功能：更新用户的题目信息，当用户提交代码时
         传入：Json(UserId,ProblemId,Status)
         传出：bool(如果AC是否向其添加)

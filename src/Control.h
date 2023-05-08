@@ -12,6 +12,9 @@ public:
     // 登录用户
     Json::Value LoginUser(Json::Value &loginjson);
 
+    // 登录用户通过Token
+    Json::Value LoginUserByToken(Json::Value &loginjson);
+
     // 获取用户Rank排名
     Json::Value SelectUserRank(Json::Value &queryjson);
 
