@@ -446,12 +446,12 @@ bool Judger::RunProgramJava()
 {
     // 创建结构体
     struct config conf;
-    // Java的空间限制为其正确的三倍
+    // Java的空间限制为其正确的五倍
     m_memorylimit = m_memorylimit * 3;
 
     conf.max_cpu_time = m_timelimit * 3;
     conf.max_real_time = m_maxtimelimit * 3;
-    conf.max_memory = -1; // Java不能限制内存
+    conf.max_memory = -1; // Java不能限制内存，在虚拟机中限制
 
     conf.max_process_number = 200;
     conf.max_output_size = -1;
@@ -492,9 +492,9 @@ bool Judger::RunProgramPython2()
     // 创建结构体
     struct config conf;
 
-    conf.max_cpu_time = m_timelimit;
-    conf.max_real_time = m_maxtimelimit;
-    conf.max_memory = m_maxmemorylimie;
+    conf.max_cpu_time = m_timelimit * 2;
+    conf.max_real_time = m_maxtimelimit * 2;
+    conf.max_memory = m_maxmemorylimie * 2;
 
     conf.max_process_number = 200;
     conf.max_output_size = -1;
@@ -528,9 +528,9 @@ bool Judger::RunProgramPython3()
     // 创建结构体
     struct config conf;
 
-    conf.max_cpu_time = m_timelimit;
-    conf.max_real_time = m_maxtimelimit;
-    conf.max_memory = m_maxmemorylimie;
+    conf.max_cpu_time = m_timelimit * 2;
+    conf.max_real_time = m_maxtimelimit * 2;
+    conf.max_memory = m_maxmemorylimie * 2;
 
     conf.max_process_number = 200;
     conf.max_output_size = -1;
@@ -565,9 +565,9 @@ bool Judger::RunProgramJavaScript()
     // 创建结构体
     struct config conf;
 
-    conf.max_cpu_time = m_timelimit;
-    conf.max_real_time = m_maxtimelimit;
-    conf.max_memory = m_maxmemorylimie;
+    conf.max_cpu_time = m_timelimit * 2;
+    conf.max_real_time = m_maxtimelimit * 2;
+    conf.max_memory = m_maxmemorylimie * 2;
 
     conf.max_process_number = 200;
     conf.max_output_size = -1;
