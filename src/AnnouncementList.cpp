@@ -17,6 +17,11 @@ Json::Value AnnouncementList::SelectAnnouncementList(Json::Value &queryjson)
     return MoDB::GetInstance()->SelectAnnouncementList(queryjson);
 }
 
+Json::Value AnnouncementList::SelectAnnouncementListByAdmin(Json::Value &queryjson)
+{
+    return MoDB::GetInstance()->SelectAnnouncementList(queryjson);
+}
+
 Json::Value AnnouncementList::SelectAnnouncementByEdit(Json::Value &queryjson)
 {
     return MoDB::GetInstance()->SelectAnnouncementByEdit(queryjson);

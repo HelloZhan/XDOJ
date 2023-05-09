@@ -75,7 +75,7 @@ void doLoginUser(const httplib::Request &req, httplib::Response &res)
     res.set_content(resjson.toStyledString(), "json");
 }
 
-// 请求登录用户
+// 通过Token登录用户获取信息
 void doGetUserInfoByToken(const httplib::Request &req, httplib::Response &res)
 {
     printf("doGetUserInfoByToken start!!!\n");
@@ -473,6 +473,34 @@ void doGetAnnouncementList(const httplib::Request &req, httplib::Response &res)
     }
 
     printf("doGetAnnouncementList end!!!\n");
+    SetResponseStatus(resjson, res);
+    res.set_content(resjson.toStyledString(), "json");
+}
+
+void doGetAnnouncementListByAdmin(const httplib::Request &req, httplib::Response &res)
+{
+    printf("doGetAnnouncementListByAdmin start!!!\n");
+
+    Json::Value resjson;
+    if (!req.has_param("Page") || !req.has_param("PageSize"))
+    {
+        resjson["Result"] = "400";
+        resjson["Reason"] = "缺少请求参数！";
+        LOG_ERROR("【doGetAnnouncementListByAdmin】缺少请求参数！");
+    }
+    else
+    {
+        string page = req.get_param_value("Page");
+        string pagesize = req.get_param_value("PageSize");
+
+        Json::Value queryjson;
+        queryjson["Page"] = page;
+        queryjson["PageSize"] = pagesize;
+        queryjson["Token"] = GetRequestToken(req);
+        resjson = control.SelectAnnouncementListByAdmin(queryjson);
+    }
+
+    printf("doGetAnnouncementListByAdmin end!!!\n");
     SetResponseStatus(resjson, res);
     res.set_content(resjson.toStyledString(), "json");
 }
@@ -1075,6 +1103,9 @@ void HttpServer::Run()
     // --------------公告--------------------
     // 获取公告列表
     server.Get("/announcementlist", doGetAnnouncementList);
+
+    // 获取公告列表
+    server.Get("/announcementlist/admin", doGetAnnouncementListByAdmin);
 
     // 获取公告内容
     server.Get("/announcement", doGetAnnouncement);

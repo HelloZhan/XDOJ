@@ -79,6 +79,9 @@ public:
     // 查询公告列表
     Json::Value SelectAnnouncementList(Json::Value &queryjson);
 
+    // 管理员查询公告列表
+    Json::Value SelectAnnouncementListByAdmin(Json::Value &queryjson);
+
     // 查询公告
     Json::Value SelectAnnouncement(Json::Value &queryjson);
 

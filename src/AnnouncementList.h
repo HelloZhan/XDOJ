@@ -15,6 +15,9 @@ public:
     // 分页查询公告
     Json::Value SelectAnnouncementList(Json::Value &queryjson);
 
+    // 分页查询公告
+    Json::Value SelectAnnouncementListByAdmin(Json::Value &queryjson);
+
     // 查询
     Json::Value SelectAnnouncementByEdit(Json::Value &queryjson);
 

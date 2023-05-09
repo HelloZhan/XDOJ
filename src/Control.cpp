@@ -311,6 +311,14 @@ Json::Value Control::SelectAnnouncementList(Json::Value &queryjson)
 	return AnnouncementList::GetInstance()->SelectAnnouncementList(queryjson);
 }
 
+Json::Value Control::SelectAnnouncementListByAdmin(Json::Value &queryjson)
+{
+	// 如果不是管理员，无权限
+	if (!UserList::GetInstance()->IsAdministrator(queryjson))
+		return NoPermission;
+	return AnnouncementList::GetInstance()->SelectAnnouncementListByAdmin(queryjson);
+}
+
 Json::Value Control::SelectAnnouncement(Json::Value &queryjson)
 {
 	return AnnouncementList::GetInstance()->SelectAnnouncement(queryjson);
