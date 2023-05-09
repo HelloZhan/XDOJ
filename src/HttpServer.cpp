@@ -348,7 +348,7 @@ void doEditProblem(const httplib::Request &req, httplib::Response &res)
     Json::Reader reader;
     // 解析传入的json
     reader.parse(req.body, jsonvalue);
-    jsonvalue["Token"] = GetRequestToken(req);
+    jsonvalue["datainfo"]["Token"] = GetRequestToken(req);
     Json::Value resjson = control.EditProblem(jsonvalue["datainfo"]);
     printf("doEditProblem end!!!\n");
     SetResponseStatus(resjson, res);
@@ -988,7 +988,7 @@ void doInsertComment(const httplib::Request &req, httplib::Response &res)
     Json::Reader reader;
     // 解析传入的json
     reader.parse(req.body, jsonvalue);
-    jsonvalue["Token"] = GetRequestToken(req);
+    jsonvalue["Info"]["Token"] = GetRequestToken(req);
     Json::Value resjson = control.InsertComment(jsonvalue["Info"]);
     printf("doInsertComment end!!!\n");
     SetResponseStatus(resjson, res);
