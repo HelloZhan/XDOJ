@@ -11,7 +11,7 @@ bool ReDB::SetToken(std::string token, std::string userid)
 {
     try
     {
-        redis_token->setex(token, 60, userid);
+        redis_token->setex(token, 604800, userid);
         return true;
     }
     catch (const std::exception &e)
