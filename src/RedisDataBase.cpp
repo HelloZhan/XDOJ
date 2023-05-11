@@ -124,5 +124,5 @@ ReDB::ReDB()
 
 ReDB::~ReDB()
 {
-    delete redis_token;
+    delete redis_token, redis_cache;
 }
