@@ -120,7 +120,7 @@ bool Judger::Init(Json::Value &initjson)
     m_isspj = false;
 
     RUN_PATH = "./" + m_submitid + "/";
-    DATA_PATH = "../../../problemdata/" + m_problemid + "/";
+    DATA_PATH = "../../problemdata/" + m_problemid + "/";
 
     m_resjson.clear();
 

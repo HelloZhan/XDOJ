@@ -7,24 +7,25 @@ project (xdoj)
 set(CMAKE_CXX_STANDARD 17)
 
 # 查找库的路径
-link_directories(${CMAKE_SOURCE_DIR}/../lib)
+link_directories(${CMAKE_SOURCE_DIR}/lib)
 
 # 查找头文件的路径
-include_directories(../include)
+include_directories(./include)
+# 查找头文件的路径 mongocxx
 include_directories(/usr/local/include/mongocxx/v_noabi /usr/local/include/libmongoc-1.0)
 include_directories(/usr/local/include/bsoncxx/v_noabi /usr/local/include/libbson-1.0)
-include_directories(hiredis)
-include_directories(sw)
+# 查找头文件的路径 redis-plus-plus
+include_directories(hiredis sw)
 
 # 查找当前目录下的所有源文件
 # 并将名称保存到 DIR_SRCS 变量
-aux_source_directory(. DIR_SRCS)
-aux_source_directory(./utils DIR_UTILS)
-aux_source_directory(./log DIR_LOG)
-aux_source_directory(./buffer DIR_BUFFER)
+aux_source_directory(./src DIR_SRCS)
+aux_source_directory(./src/buffer DIR_SRCS_BUFFER)
+aux_source_directory(./src/log DIR_SRCS_LOG)
+aux_source_directory(./src/utils DIR_SRCS_UTILS)
 
 # 指定生成目标
-add_executable(xdoj ${DIR_SRCS} ${DIR_UTILS} ${DIR_LOG} ${DIR_BUFFER})
+add_executable(xdoj ${DIR_SRCS} ${DIR_SRCS_BUFFER} ${DIR_SRCS_LOG} ${DIR_SRCS_UTILS})
 
 # 链接库 pthread在hiredis redis++后面才能正常编译？
 target_link_libraries(xdoj hiredis redis++ jsoncpp pthread judger mongocxx bsoncxx)

@@ -6,6 +6,9 @@
 #include <unistd.h>
 
 using namespace std;
+
+const string PROBLEMDATAPATH = "../../problemdata/";
+
 ProblemList::ProblemList()
 {
 }
@@ -22,7 +25,7 @@ Json::Value ProblemList::SelectProblemInfoByAdmin(Json::Value &queryjson)
     // 获取测试点信息
     string problemid = resjson["_id"].asString();
     int judgenum = stoi(resjson["JudgeNum"].asString());
-    string DATA_PATH = "../../../problemdata/" + problemid + "/";
+    string DATA_PATH = PROBLEMDATAPATH + problemid + "/";
     ifstream infilein, infileout;
     for (int i = 1; i <= judgenum; i++)
     {
@@ -93,7 +96,7 @@ Json::Value ProblemList::SelectProblem(Json::Value &queryjson)
 bool InsertProblemDataInfo(Json::Value &insertjson)
 {
     // 添加测试用例
-    string DATA_PATH = "../../../problemdata/" + insertjson["ProblemId"].asString();
+    string DATA_PATH = PROBLEMDATAPATH + insertjson["ProblemId"].asString();
     string command = "mkdir " + DATA_PATH;
     // 创建文件夹
     system(command.data());
@@ -126,7 +129,6 @@ bool InsertProblemDataInfo(Json::Value &insertjson)
 }
 Json::Value ProblemList::InsertProblem(Json::Value &insertjson)
 {
-    cout << insertjson.toStyledString() << endl;
     Json::Value tmpjson = MoDB::GetInstance()->InsertProblem(insertjson);
 
     if (tmpjson["Result"] == "Fail") // 插入失败
@@ -154,7 +156,7 @@ Json::Value ProblemList::UpdateProblem(Json::Value &updatejson)
         return tmpjson;
 
     string problemid = updatejson["ProblemId"].asString();
-    string DATA_PATH = "../../../problemdata/" + problemid;
+    string DATA_PATH = PROBLEMDATAPATH + problemid;
     // 删除文件夹
     string command = "rm -rf " + DATA_PATH;
     system(command.data());
@@ -174,7 +176,7 @@ Json::Value ProblemList::DeleteProblem(Json::Value &deletejson)
         return tmpjson;
 
     // 删除数据
-    string DATA_PATH = "../../../problemdata/" + deletejson["ProblemId"].asString();
+    string DATA_PATH = PROBLEMDATAPATH + deletejson["ProblemId"].asString();
     string command = "rm -rf " + DATA_PATH;
 
     system(command.data());
