@@ -321,7 +321,7 @@ bool Judger::CompileJava()
 bool Judger::CompilePython2()
 {
     // 进行Python2编译
-    m_command = "python -m py_compile " + RUN_PATH + "main.py 2>" + RUN_PATH + "compileinfo.txt";
+    m_command = "python2 -m py_compile " + RUN_PATH + "main.py 2>" + RUN_PATH + "compileinfo.txt";
     if (system(m_command.data()) == -1)
     {
         m_result = SE;
@@ -499,7 +499,7 @@ bool Judger::RunProgramPython2()
     conf.max_process_number = 200;
     conf.max_output_size = -1;
     conf.max_stack = 32 * 1024 * 1024;
-    string exe_path = "/usr/bin/python";
+    string exe_path = "/usr/bin/python2";
     conf.exe_path = (char *)exe_path.data();
     string error_path = RUN_PATH + "error.out";
     conf.error_path = (char *)error_path.data();
@@ -512,7 +512,7 @@ bool Judger::RunProgramPython2()
     memset(conf.env, 0, sizeof(conf.env));
 
     string exe_file = RUN_PATH + "main.pyc";
-    conf.args[0] = (char *)"/usr/bin/python";
+    conf.args[0] = (char *)"/usr/bin/python2";
     conf.args[1] = (char *)exe_file.data();
 
     conf.env[0] = (char *)"LANG=en_US.UTF-8";
