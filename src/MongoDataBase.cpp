@@ -1046,6 +1046,7 @@ Json::Value MoDB::SelectProblemList(Json::Value &queryjson)
             << "RENum" << 1
             << "TLENum" << 1
             << "MLENum" << 1
+            << "SENum" << 1
             << "Tags" << 1;
         pipe.project(document.view());
 
@@ -1115,6 +1116,7 @@ Json::Value MoDB::SelectProblemListByAdmin(Json::Value &queryjson)
             << "RENum" << 1
             << "TLENum" << 1
             << "MLENum" << 1
+            << "SENum" << 1
             << "Tags" << 1;
         pipe.project(document.view());
 

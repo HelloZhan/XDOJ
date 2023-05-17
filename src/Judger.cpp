@@ -718,6 +718,21 @@ bool Judger::JudgmentResult(struct result *res, string &index)
         testinfo["Status"] = RE;
         infile.close();
     }
+    else if (res->result == 5)
+    {
+        // 获取失败原因
+        ifstream infile;
+        m_command = RUN_PATH + "judger.log";
+        infile.open(m_command.data());
+
+        string reason((istreambuf_iterator<char>(infile)),
+                      (istreambuf_iterator<char>()));
+
+        m_reason = reason;
+        m_result = SE;
+        testinfo["Status"] = SE;
+        infile.close();
+    }
     m_resjson["TestInfo"].append(testinfo);
 }
 
