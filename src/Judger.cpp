@@ -725,8 +725,8 @@ bool Judger::JudgmentResult(struct result *res, string &index)
         m_command = RUN_PATH + "judger.log";
         infile.open(m_command.data());
 
-        string reason((istreambuf_iterator<char>(infile)),
-                      (istreambuf_iterator<char>()));
+        char reason[100];
+        infile.getline(reason, 100);
 
         m_reason = reason;
         m_result = SE;

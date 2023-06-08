@@ -1,0 +1,862 @@
+{
+    "/user/register": {
+        "request": {
+            "NickName": "string",
+            "Account": "string",
+            "PassWord": "string",
+            "PersonalProfile": "string",
+            "School": "string",
+            "Major": "string"
+        },
+        "response": {
+            "Result": "string",
+            "Reason": "string"
+        }
+    },
+    "/user/login": {
+        "request": {
+            "Account": "string",
+            "PassWord": "string"
+        },
+        "response": {
+            "Result": "string",
+            "Reason": "string",
+            "Info": {
+                "_id": "int64_t",
+                "NickName": "string",
+                "Avatar": "string",
+                "CommentLikes": [
+                    "string"
+                ],
+                "Solves": [
+                    "int64_t"
+                ],
+                "Authority": "string"
+            }
+        }
+    },
+    "/user/tokenlogin": {
+        "request": {
+            "Token": "string"
+        },
+        "response": {
+            "Result": "string",
+            "Reason": "string",
+            "Info": {
+                "_id": "int64_t",
+                "NickName": "string",
+                "Avatar": "string",
+                "CommentLikes": [
+                    "string"
+                ],
+                "Solves": [
+                    "int64_t"
+                ],
+                "Authority": "string"
+            }
+        }
+    },
+    "/user/rank": {
+        "request": {
+            "Page": "string",
+            "PageSize": "string"
+        },
+        "response": {
+            "Result": "string",
+            "Reason": "string",
+            "ArrayInfo": [
+                {
+                    "_id": "int64_t",
+                    "Rank": "int",
+                    "Avatar": "string",
+                    "NickName": "string",
+                    "PersonalProfile": "string",
+                    "SubmitNum": "int",
+                    "ACNum": "int"
+                }
+            ],
+            "TotalNum": "int"
+        }
+    },
+    "/user/home": {
+        "request": {
+            "UserId": "string"
+        },
+        "response": {
+            "Result": "string",
+            "Reason": "string",
+            "_id": "int64_t",
+            "Avatar": "string",
+            "NickName": "string",
+            "PersonalProfile": "string",
+            "School": "string",
+            "Major": "string",
+            "JoinTime": "string",
+            "Solves": [
+                "int64_t"
+            ],
+            "ACNum": "int",
+            "SubmitNum": "int"
+        }
+    },
+    "/user/update": {
+        "request": {
+            "Token": "string",
+            "UserId": "string",
+            "Avatar": "string",
+            "PersonalProfile": "string",
+            "School": "string",
+            "Major": "string"
+        },
+        "response": {
+            "Result": "string",
+            "Reason": "string"
+        }
+    },
+    "/user/updateinfo": {
+        "request": {
+            "Token": "string",
+            "UserId": "string"
+        },
+        "response": {
+            "Result": "string",
+            "Reason": "string",
+            "_id": "int64_t",
+            "Avatar": "string",
+            "NickName": "string",
+            "PersonalProfile": "string",
+            "School": "string",
+            "Major": "string"
+        }
+    },
+    "/userlist/admin": {
+        "request": {
+            "Token": "string",
+            "Page": "string",
+            "PageSize": "string"
+        },
+        "response": {
+            "Result": "string",
+            "Reason": "string",
+            "ArrayInfo": [
+                {
+                    "_id": "int64_t",
+                    "NickName": "string",
+                    "PersonalProfile": "string",
+                    "School": "string",
+                    "Major": "string",
+                    "JoinTime": "string"
+                }
+            ],
+            "TotalNum": "int"
+        }
+    },
+    "/user": {
+        "request": {
+            "Token": "string",
+            "UserId": "string"
+        },
+        "response": {
+            "Result": "string",
+            "Reason": "string"
+        }
+    },
+    "/problem": {
+        "request": {
+            "ProblemId": "string"
+        },
+        "response": {
+            "Result": "string",
+            "Reason": "string",
+            "_id": "int64_t",
+            "Title": "string",
+            "Description": "string",
+            "TimeLimit": "int",
+            "MemoryLimit": "int",
+            "JudgeNum": "int",
+            "SubmitNum": "int",
+            "ACNum": "int",
+            "UserNickName": "string",
+            "Tags": [
+                "string"
+            ]
+        }
+    },
+    "/problemlist": {
+        "request": {
+            "SearchInfo": {
+                "Id": "string",
+                "Title": "string",
+                "Tags": [
+                    "string"
+                ]
+            },
+            "Page": "string",
+            "PageSize": "string"
+        },
+        "response": {
+            "Result": "string",
+            "Reason": "string",
+            "ArrayInfo": [
+                {
+                    "ProblemId": "int64_t",
+                    "Title": "string",
+                    "SubmitNum": "int",
+                    "CENum": "int",
+                    "ACNum": "int",
+                    "WANum": "int",
+                    "RENum": "int",
+                    "TLENum": "int",
+                    "MLENum": "int",
+                    "SENum": "int",
+                    "Tags": [
+                        "string"
+                    ]
+                }
+            ],
+            "TotalNum": "int"
+        }
+    },
+    "/problemlist/admin": {
+        "request": {
+            "Token": "string",
+            "Page": "string",
+            "PageSize": "string"
+        },
+        "response": {
+            "Result": "string",
+            "Reason": "string",
+            "ArrayInfo": [
+                {
+                    "ProblemId": "int64_t",
+                    "Title": "string",
+                    "SubmitNum": "int",
+                    "CENum": "int",
+                    "ACNum": "int",
+                    "WANum": "int",
+                    "RENum": "int",
+                    "TLENum": "int",
+                    "MLENum": "int",
+                    "SENum": "int",
+                    "Tags": [
+                        "string"
+                    ]
+                }
+            ],
+            "TotalNum": "int"
+        }
+    },
+    "/problem/select": {
+        "request": {
+            "Token": "string",
+            "ProblemId": "string"
+        },
+        "response": {
+            "Result": "string",
+            "Reason": "string",
+            "_id": "int64_t",
+            "Title": "string",
+            "Description": "string",
+            "TimeLimit": "int",
+            "MemoryLimit": "int",
+            "IsSPJ": "bool",
+            "SPJ": "string",
+            "UserNickName": "string",
+            "Tags": [
+                "string"
+            ],
+            "TestInfo": [
+                {
+                    "in": "string",
+                    "out": "string"
+                }
+            ]
+        }
+    },
+    "/problem/edit": {
+        "request": {
+            "Token": "string",
+            "datainfo": {
+                "EditType": "string",
+                "ProblemId": "string",
+                "Title": "string",
+                "Description": "string",
+                "JudgeNum": "int",
+                "IsSPJ": "bool",
+                "SPJ": "string",
+                "UserNickName": "string",
+                "TimeLimit": "int",
+                "MemoryLimit": "int",
+                "Tags": [
+                    "string"
+                ],
+                "TestInfo": [
+                    {
+                        "in": "string",
+                        "out": "string"
+                    }
+                ]
+            }
+        },
+        "response": {
+            "Result": "string",
+            "Reason": "string"
+        }
+    },
+    "/problem": {
+        "request": {
+            "Token": "string",
+            "ProblemId": "string"
+        },
+        "response": {
+            "Result": "string",
+            "Reason": "string"
+        }
+    },
+    "/statusrecordlist": {
+        "request": {
+            "SearchInfo": {
+                "ProblemId": "string",
+                "UserId": "string",
+                "ProblemTitle": "string",
+                "Status": "int",
+                "Language": "string"
+            },
+            "Page": "string",
+            "PageSize": "string"
+        },
+        "response": {
+            "Result": "string",
+            "Reason": "string",
+            "ArrayInfo": [
+                {
+                    "_id": "int64_t",
+                    "ProbleId": "int64_t",
+                    "UserId": "int64_t",
+                    "UserNickName": "string",
+                    "ProblemTitle": "string",
+                    "Status": "int",
+                    "RunTime": "string",
+                    "RunMemory": "string",
+                    "Length": "string",
+                    "Language": "string",
+                    "SubmitTime": "string"
+                }
+            ],
+            "TotalNum": "int"
+        }
+    },
+    "/statusrecord": {
+        "request": {
+            "SubmitId": "string"
+        },
+        "response": {
+            "Result": "string",
+            "Reason": "string",
+            "_id": "int64_t",
+            "Status": "int",
+            "Language": "string",
+            "Code": "string",
+            "CompilerInfo": "string",
+            "TestInfo": [
+                {
+                    "Status": "int",
+                    "StandardInput": "string",
+                    "StandardOutput": "string",
+                    "PersonalOutput": "string",
+                    "RunTime": "string",
+                    "RunMemory": "string"
+                }
+            ]
+        }
+    },
+    "/problemcode": {
+        "request": {
+            "Token": "string",
+            "ProblemId": "string",
+            "UserId": "string",
+            "UserNickName": "string",
+            "ProblemTitle": "string",
+            "Code": "string",
+            "Language": "string",
+            "TimeLimit": "int",
+            "MemoryLimit": "int",
+            "JudgeNum": "int"
+        },
+        "response": {
+            "Result": "string",
+            "Reason": "string",
+            "Status": "int",
+            "CompilerInfo": "string",
+            "IsFirstAC": "bool"
+        }
+    },
+    "/announcementlist": {
+        "request": {
+            "Page": "string",
+            "PageSize": "string"
+        },
+        "response": {
+            "Result": "string",
+            "Reason": "string",
+            "ArrayInfo": [
+                {
+                    "_id": "int64_t",
+                    "Title": "string",
+                    "Views": "int",
+                    "Comments": "int",
+                    "CreateTime": "string"
+                }
+            ],
+            "TotalNum": "int"
+        }
+    },
+    "/announcementlist/admin": {
+        "request": {
+            "Token": "string",
+            "Page": "string",
+            "PageSize": "string"
+        },
+        "response": {
+            "Result": "string",
+            "Reason": "string",
+            "ArrayInfo": [
+                {
+                    "_id": "int64_t",
+                    "Title": "string",
+                    "Views": "int",
+                    "Comments": "int",
+                    "CreateTime": "string"
+                }
+            ],
+            "TotalNum": "int"
+        }
+    },
+    "/announcement": {
+        "request": {
+            "AnnouncementId": "string"
+        },
+        "response": {
+            "Result": "string",
+            "Reason": "string",
+            "_id": "int64_t",
+            "Title": "string",
+            "Content": "string",
+            "Views": "int",
+            "Comments": "int",
+            "CreateTime": "string",
+            "UpdateTime": "string"
+        }
+    },
+    "/announcement/select": {
+        "request": {
+            "Token": "string",
+            "AnnouncementId": "string"
+        },
+        "response": {
+            "Result": "string",
+            "Reason": "string",
+            "_id": "int64_t",
+            "Title": "string",
+            "Content": "string",
+            "Level": "int"
+        }
+    },
+    "/announcement/insert": {
+        "request": {
+            "Token": "string",
+            "Title": "string",
+            "Content": "string",
+            "UserId": "string",
+            "Level": "int"
+        },
+        "response": {
+            "Result": "string",
+            "Reason": "string"
+        }
+    },
+    "/announcement/update": {
+        "request": {
+            "Token": "string",
+            "AnnouncementId": "string",
+            "Title": "string",
+            "Content": "string",
+            "Level": "int"
+        },
+        "response": {
+            "Result": "string",
+            "Reason": "string"
+        }
+    },
+    "/announcement": {
+        "request": {
+            "Token": "string",
+            "AnnouncementId": "string"
+        },
+        "response": {
+            "Result": "string",
+            "Reason": "string"
+        }
+    },
+    "/solutionlist": {
+        "request": {
+            "SearchInfo": {
+                "ParentId": "string",
+                "UserId": "string"
+            },
+            "Page": "string",
+            "PageSize": "string"
+        },
+        "response": {
+            "Result": "string",
+            "Reason": "string",
+            "ArrayInfo": [
+                {
+                    "_id": "int64_t",
+                    "Title": "string",
+                    "Views": "int",
+                    "Comments": "int",
+                    "CreateTime": "string",
+                    "User[0].Avatar": "string",
+                    "User[0].NickName": "string"
+                }
+            ],
+            "TotalNum": "int"
+        }
+    },
+    "/solutionlist/admin": {
+        "request": {
+            "Token": "string",
+            "Page": "string",
+            "PageSize": "string"
+        },
+        "response": {
+            "Result": "string",
+            "Reason": "string",
+            "ArrayInfo": [
+                {
+                    "_id": "int64_t",
+                    "Title": "string",
+                    "Views": "int",
+                    "Comments": "int",
+                    "CreateTime": "string",
+                    "User[0].Avatar": "string",
+                    "User[0].NickName": "string"
+                }
+            ],
+            "TotalNum": "int"
+        }
+    },
+    "/solution": {
+        "request": {
+            "SolutionId": "string"
+        },
+        "response": {
+            "Result": "string",
+            "Reason": "string",
+            "_id": "int64_t",
+            "Title": "string",
+            "Content": "string",
+            "Views": "int",
+            "Comments": "int",
+            "CreateTime": "string",
+            "UpdateTime": "string",
+            "User[0].Avatar": "string",
+            "User[0].NickName": "string"
+        }
+    },
+    "/solution/select": {
+        "request": {
+            "Token": "string",
+            "SolutionId": "string"
+        },
+        "response": {
+            "Result": "string",
+            "Reason": "string",
+            "_id": "int64_t",
+            "Title": "string",
+            "Content": "string",
+            "UserId": "int64_t",
+            "Public": "bool"
+        }
+    },
+    "/solution/insert": {
+        "request": {
+            "Token": "string",
+            "Title": "string",
+            "Content": "string",
+            "ParentId": "string",
+            "UserId": "string",
+            "Public": "bool"
+        },
+        "response": {
+            "Result": "string",
+            "Reason": "string"
+        }
+    },
+    "/solution/update": {
+        "request": {
+            "Token": "string",
+            "SolutionId": "string",
+            "Title": "string",
+            "Content": "string",
+            "Public": "bool"
+        },
+        "response": {
+            "Result": "string",
+            "Reason": "string"
+        }
+    },
+    "/solution": {
+        "request": {
+            "Token": "string",
+            "SolutionId": "string"
+        },
+        "response": {
+            "Result": "string",
+            "Reason": "string"
+        }
+    },
+    "/discusslist": {
+        "request": {
+            "SearchInfo": {
+                "ParentId": "string",
+                "UserId": "string"
+            },
+            "Page": "string",
+            "PageSize": "string"
+        },
+        "response": {
+            "Result": "string",
+            "Reason": "string",
+            "ArrayInfo": [
+                {
+                    "_id": "int64_t",
+                    "Title": "string",
+                    "Views": "int",
+                    "Comments": "int",
+                    "CreateTime": "string",
+                    "User[0].Avatar": "string",
+                    "User[0].NickName": "string"
+                }
+            ],
+            "TotalNum": "int"
+        }
+    },
+    "/discusslist/admin": {
+        "request": {
+            "Token": "string",
+            "Page": "string",
+            "PageSize": "string"
+        },
+        "response": {
+            "Result": "string",
+            "Reason": "string",
+            "ArrayInfo": [
+                {
+                    "_id": "int64_t",
+                    "Title": "string",
+                    "Views": "int",
+                    "Comments": "int",
+                    "CreateTime": "string",
+                    "User[0].Avatar": "string",
+                    "User[0].NickName": "string"
+                }
+            ],
+            "TotalNum": "int"
+        }
+    },
+    "/discuss": {
+        "request": {
+            "DiscussId": "string"
+        },
+        "response": {
+            "Result": "string",
+            "Reason": "string",
+            "_id": "int64_t",
+            "Title": "string",
+            "Content": "string",
+            "Views": "int",
+            "Comments": "int",
+            "CreateTime": "string",
+            "UpdateTime": "string",
+            "User[0].Avatar": "string",
+            "User[0].NickName": "string"
+        }
+    },
+    "/discuss/select": {
+        "request": {
+            "Token": "string",
+            "DiscussId": "string"
+        },
+        "response": {
+            "Result": "string",
+            "Reason": "string",
+            "_id": "int64_t",
+            "Title": "string",
+            "Content": "string",
+            "UserId": "int64_t"
+        }
+    },
+    "/discuss/insert": {
+        "request": {
+            "Token": "string",
+            "Title": "string",
+            "Content": "string",
+            "ParentId": "string",
+            "UserId": "string"
+        },
+        "response": {
+            "Result": "string",
+            "Reason": "string"
+        }
+    },
+    "/discuss/update": {
+        "request": {
+            "Token": "string",
+            "DiscussId": "string",
+            "Title": "string",
+            "Content": "string"
+        },
+        "response": {
+            "Result": "string",
+            "Reason": "string"
+        }
+    },
+    "/discuss": {
+        "request": {
+            "Token": "string",
+            "DiscussId": "string"
+        },
+        "response": {
+            "Result": "string",
+            "Reason": "string"
+        }
+    },
+    "/commentlist/admin": {
+        "request": {
+            "Token": "string",
+            "Page": "string",
+            "PageSize": "string"
+        },
+        "response": {
+            "Result": "string",
+            "Reason": "string",
+            "ArrayInfo": [
+                {
+                    "_id": "int64_t",
+                    "ParentId": "int64_t",
+                    "ParentType": "string",
+                    "Content": "string",
+                    "CreateTime": "string",
+                    "Child_Comments": [
+                        {
+                            "_id": "int64_t",
+                            "Content": "string",
+                            "CreateTime": "string"
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    "/comment": {
+        "request": {
+            "Type": "string",
+            "ParentId": "string",
+            "SonNum": "int",
+            "Page": "string",
+            "PageSize": "string"
+        },
+        "Type = Father response": {
+            "Result": "string",
+            "Reason": "string",
+            "ArrayInfo": [
+                {
+                    "_id": "int64_t",
+                    "ParentId": "int64_t",
+                    "Content": "string",
+                    "Likes": "int",
+                    "CreateTime": "string",
+                    "Child_Total": "int",
+                    "User[0]_id": "int64_t",
+                    "User[0]Avatar": "string",
+                    "User[0]NickName": "string",
+                    "Child_Comments": [
+                        {
+                            "_id": "int64_t",
+                            "Content": "string",
+                            "Likes": "int",
+                            "CreateTime": "string",
+                            "User[0]_id": "int64_t",
+                            "User[0]Avatar": "string",
+                            "User[0]NickName": "string"
+                        }
+                    ]
+                }
+            ]
+        },
+        "Type = Son response": {
+            "Result": "string",
+            "Reason": "string",
+            "Child_Total": "int",
+            "Child_Comments": [
+                {
+                    "_id": "int64_t",
+                    "Content": "string",
+                    "Likes": "int",
+                    "CreateTime": "string",
+                    "User[0]_id": "int64_t",
+                    "User[0]Avatar": "string",
+                    "User[0]NickName": "string"
+                }
+            ]
+        }
+    },
+    "/comment/insert": {
+        "request": {
+            "Token": "string",
+            "Info": {
+                "Type": "string",
+                "ArticleType": "string",
+                "ArticleId": "string",
+                "ParentId": "string",
+                "Content": "string",
+                "UserId": "string"
+            }
+        },
+        "response": {
+            "Result": "string",
+            "Reason": "string",
+            "_id": "int64_t",
+            "CreateTime": "string"
+        }
+    },
+    "/comment": {
+        "request": {
+            "Token": "string",
+            "ArticleId": "string",
+            "CommentId": "string"
+        },
+        "response": {
+            "Result": "string",
+            "Reason": "string"
+        }
+    },
+    "/image/(d+)": {
+        "request": {},
+        "response": {
+            "image": "webp"
+        }
+    },
+    "/tags": {
+        "request": {
+            "TagType": "string"
+        },
+        "response": {
+            "Tags": [
+                "string"
+            ]
+        }
+    }
+}

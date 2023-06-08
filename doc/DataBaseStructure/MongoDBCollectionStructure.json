@@ -10,8 +10,12 @@
             "School": "string",
             "Major": "string",
             "JoinTime": "string",
-            "CommentLikes": "['string']",
-            "Solves": "['int']",
+            "CommentLikes": [
+                "string"
+            ],
+            "Solves": [
+                "int64_t"
+            ],
             "ACNum": "int",
             "SubmitNum": "int",
             "Authority": "int"
@@ -19,7 +23,7 @@
     ],
     "Problem": [
         {
-            "_id": "int",
+            "_id": "int64_t",
             "Title": "string",
             "Description": "string",
             "JudgeNum": "int",
@@ -31,7 +35,10 @@
             "TLENum": "int",
             "MLENum": "int",
             "SENum": "int",
-            "Tags": "['string']"
+            "UserNickName": "string",
+            "Tags": [
+                "string"
+            ]
         }
     ],
     "StatusRecord": [

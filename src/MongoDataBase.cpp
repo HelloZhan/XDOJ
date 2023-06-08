@@ -480,7 +480,7 @@ Json::Value MoDB::UpdateUserInfo(Json::Value &updatejson)
 /*
     功能：查询用户表，用于修改用户
     传入：Json(UserId)
-    传出：Json(_id,Avatar,NickName,PersonalProfile,School,Major)
+    传出：Json(Result,Reason,_id,Avatar,NickName,PersonalProfile,School,Major)
 */
 Json::Value MoDB::SelectUserUpdateInfo(Json::Value &queryjson)
 {
@@ -533,7 +533,7 @@ Json::Value MoDB::SelectUserUpdateInfo(Json::Value &queryjson)
 /*
     功能：分页查询用户列表
     传入：Json(Page,PageSize)
-    传出：Json(_id,NickName,PersonalProfile,School,Major,JoinTime,TotalNum)
+    传出：Json(Result,Reason,ArrayInfo[_id,NickName,PersonalProfile,School,Major,JoinTime],TotalNum)
 */
 Json::Value MoDB::SelectUserSetInfo(Json::Value &queryjson)
 {
@@ -781,7 +781,7 @@ Json::Value MoDB::InsertProblem(Json::Value &insertjson)
     Json::Value resjson;
     try
     {
-        int problemid = ++m_problemid;
+        int64_t problemid = ++m_problemid;
         string title = insertjson["Title"].asString();
         string description = insertjson["Description"].asString();
         int timelimit = stoi(insertjson["TimeLimit"].asString());
@@ -825,7 +825,7 @@ Json::Value MoDB::InsertProblem(Json::Value &insertjson)
             return resjson;
         }
         resjson["Result"] = "Success";
-        resjson["ProblemId"] = problemid;
+        resjson["ProblemId"] = (Json::Int64)problemid;
         return resjson;
     }
     catch (const std::exception &e)
@@ -964,9 +964,9 @@ int64_t mystoll(string num)
 /*
     功能：分页获取题目列表
     前端传入
-    Json(SearchInfo,Page,PageSize)
+    Json(SearchInfo{Id,Title,Tags[]},Page,PageSize)
     后端传出
-    Json(([ProblemId,Title,SubmitNum,CENum,ACNum,WANum,RENum,TLENum,MLENum,SENum,Tags]),TotalNum)
+    Json((Result,Reason,ArrayInfo[ProblemId,Title,SubmitNum,CENum,ACNum,WANum,RENum,TLENum,MLENum,SENum,Tags]),TotalNum)
 */
 Json::Value MoDB::SelectProblemList(Json::Value &queryjson)
 {
@@ -1072,7 +1072,7 @@ Json::Value MoDB::SelectProblemList(Json::Value &queryjson)
 /*
     功能：管理员分页获取题目列表
     传入：Json(Page,PageSize)
-    传出：Json(ArrayInfo([ProblemId,Title,SubmitNum,CENum,ACNum,WANum,RENum,TLENum,MLENum,SENum,Tags]),TotalNum)
+    传出：Json(Result,Reason,ArrayInfo([ProblemId,Title,SubmitNum,CENum,ACNum,WANum,RENum,TLENum,MLENum,SENum,Tags]),TotalNum)
 */
 Json::Value MoDB::SelectProblemListByAdmin(Json::Value &queryjson)
 {
@@ -1315,8 +1315,9 @@ bool MoDB::UpdateStatusRecord(Json::Value &updatejson)
 
 /*
     功能：分页查询测评记录
-    传入：Json(SearchInfo,PageSize,Page)
-    传出：测评全部信息，详情请见MongoDB集合表
+    传入：Json(SearchInfo(ProblemId,UserId,ProblemTitle,Status,Language),PageSize,Page)
+    传出：Json(Result,Reason,ArrayInfo[(_id,ProbleId,UserId,UserNickName,ProblemTitle,Status,
+                RunTime,RunMemory,Length,Language,SubmitTime)],TotalNum)
 */
 Json::Value MoDB::SelectStatusRecordList(Json::Value &queryjson)
 {
@@ -1521,8 +1522,8 @@ Json::Value MoDB::InsertDiscuss(Json::Value &insertjson)
 }
 /*
     功能：分页查询讨论
-    传入：Json(SearchInfo,Page,PageSize)
-    传出：Json(_id,Title,Views,Comments,CreateTime,User.Avatar,User.NickName)
+    传入：Json(SearchInfo(ParentId,UserId),Page,PageSize)
+    传出：Json(Result,Reason,ArrayInfo(_id,Title,Views,Comments,CreateTime,User.Avatar,User.NickName),TotalNum)
 */
 Json::Value MoDB::SelectDiscussList(Json::Value &queryjson)
 {
@@ -1682,7 +1683,7 @@ Json::Value MoDB::SelectDiscussListByAdmin(Json::Value &queryjson)
 /*
     功能：查询讨论的详细信息，主要是编辑时的查询
     传入：Json(DiscussId)
-    传出：Json(Result,Reason,Title,Content)
+    传出：Json(Result,Reason,Title,Content,UserId)
 */
 Json::Value MoDB::SelectDiscussByEdit(Json::Value &queryjson)
 {
@@ -1730,7 +1731,7 @@ Json::Value MoDB::SelectDiscussByEdit(Json::Value &queryjson)
 /*
     功能：查询讨论的详细内容，并且将其浏览量加一
     传入：Json(DiscussId)
-    传出：Json(Resutl,Reason,Content,Views,Comments,CreateTime,UpdateTime,User.NickName,User.Avatar)
+    传出：Json(Resutl,Reason,Title,Content,Views,Comments,CreateTime,UpdateTime,User.NickName,User.Avatar)
 */
 Json::Value MoDB::SelectDiscuss(Json::Value &queryjson)
 {
@@ -1956,8 +1957,8 @@ Json::Value MoDB::InsertSolution(Json::Value &insertjson)
 }
 /*
     功能：分页查询题解（公开题解）
-    传入：Json(SearchInfo,Page,PageSize)
-    传出：Json(_id,Title,Views,Comments,CreateTime,User.Avatar,User.NickName)
+    传入：Json(SearchInfo(ParentId,UserId),Page,PageSize)
+    传出：Json(Result,Reason,ArrayInfo[_id,Title,Views,Comments,CreateTime,User.Avatar,User.NickName],TotalNum)
 */
 Json::Value MoDB::SelectSolutionList(Json::Value &queryjson)
 {
@@ -2048,7 +2049,7 @@ Json::Value MoDB::SelectSolutionList(Json::Value &queryjson)
 /*
     功能：管理员分页查询题解
     传入：Json(Page,PageSize)
-    传出：Json(_id,Title,Views,Comments,CreateTime,User.Avatar,User.NickName)
+    传出：Json(Result,Reason,ArrayInfo[_id,Title,Views,Comments,CreateTime,User.Avatar,User.NickName],TotalNum)
 */
 Json::Value MoDB::SelectSolutionListByAdmin(Json::Value &queryjson)
 {
@@ -2394,7 +2395,7 @@ Json::Value MoDB::InsertAnnouncement(Json::Value &insertjson)
 /*
     功能：分页查询公告
     传入：Json(Page,PageSize)
-    传出：Json([Result,Reason,_id,Title,Views,Comments,CreateTime],TotalNum)
+    传出：Json(Result,Reason,ArrayInfo[_id,Title,Views,Comments,CreateTime],TotalNum)
 */
 Json::Value MoDB::SelectAnnouncementList(Json::Value &queryjson)
 {

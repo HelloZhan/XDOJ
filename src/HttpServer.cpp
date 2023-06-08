@@ -1023,7 +1023,7 @@ void doGetImage(const httplib::Request &req, httplib::Response &res)
 {
     printf("doGetImage start!!!\n");
     int index = stoi(req.matches[1]);
-    string path = "../../WWW/image/avatar" + to_string(index) + ".webp";
+    string path = "../WWW/image/avatar" + to_string(index) + ".webp";
     ifstream infile;
     infile.open(path.data());
     if (!infile.is_open())
@@ -1073,7 +1073,7 @@ void HttpServer::Run()
     // 返回用户信息，用于编辑修改
     server.Get("/user/updateinfo", doGetUserUpdateInfo);
     // 分页获取用户信息
-    server.Get("/userset", doGetUserSetInfo);
+    server.Get("/userlist/admin", doGetUserSetInfo);
     // 更新用户信息
     server.Delete("/user", doDeleteUser);
 
@@ -1086,7 +1086,7 @@ void HttpServer::Run()
     server.Get("/problemlist/admin", doGetProblemListByAdmin);
     // 获取单个题目详细信息
     server.Get("/problem/select", doGetProblemInfo);
-    // 编辑题目 包含添加题目，修改题目
+    // 编辑题目 包含添加题目，修改题目(接口修改一下)
     server.Post("/problem/edit", doEditProblem);
     // 删除题目
     server.Delete("/problem", doDeleteProblem);
@@ -1167,7 +1167,7 @@ void HttpServer::Run()
     server.Delete("/discuss", doDeleteDiscuss);
 
     // ---------------评论--------------------
-    // 获取评论
+    // 管理员获取评论
     server.Get("/commentlist/admin", doSelectCommentListByAdmin);
     // 获取评论
     server.Get("/comment", doGetComment);
