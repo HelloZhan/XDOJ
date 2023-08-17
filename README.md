@@ -1,6 +1,8 @@
 # XDOJ
 基于C++和Vue.js的OJ系统
 
+课程链接：https://www.lanqiao.cn/courses/20638 （邀请码x8pGd60V）
+
 Demo: www.xdoj.cn
 
 ![image](https://user-images.githubusercontent.com/82313079/232279392-7437cd4f-55b6-49e6-a1f7-cf904fb9b17e.png)
